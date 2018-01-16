@@ -50,10 +50,13 @@ public class AllServlet extends HttpServlet {
 		response.setContentType("application/json");
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		
-		System.out.println(request.getPathInfo());
+		System.out.println( "pathInfo: " +  request.getPathInfo());
+		System.out.println("ServletPath: " + request.getServletPath());
 		// 得到访问的URL，例如：/teacher/show
 		String path = request.getPathInfo();
-		
+		if (path == null || path.equals("")) {
+			path = request.getServletPath();
+		}
 		// 去掉第一个/
 		path = path.substring(1);
 		
@@ -78,6 +81,7 @@ public class AllServlet extends HttpServlet {
 		// 得到第一级路由，以确定跳转到对应的服务
 		String firstPathString = strings[0];
 		if (firstPathString.equals("teacher")) {
+			System.out.println("进行TeacherService中。。。");
 			TeacherService teacherService = new TeacherService(pathList, request);
 			// 得到要返回的JSON数据
 			jsonObjectOutput = teacherService.redirectToPath();

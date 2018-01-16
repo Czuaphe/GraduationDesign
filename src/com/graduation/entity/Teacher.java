@@ -108,25 +108,6 @@ public class Teacher implements Serializable {
 		this.remarks = remarks;
 	}
 	
-	// 定义数据输出顺序
-	public List<Object> showInfo() {
-		List<Object> list = new ArrayList<>();
-		list.add(tea_id);
-		list.add(username);
-		list.add(realname);
-		list.add(sex);
-		list.add(mid);
-		list.add(title);
-		list.add(degree);
-		list.add(qq);
-		list.add(phone);
-		list.add(email);
-		list.add(remarks);
-		list.add(pid);
-		list.add(number);
-		return list;
-	}
-	
 	@Override
 	public String toString() {
 		return "Teacher [tid=" + tea_id + ", username=" + username + ", password="

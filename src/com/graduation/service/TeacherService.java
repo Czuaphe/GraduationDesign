@@ -4,11 +4,14 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +20,18 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.servlet.ServletRequestContext;
 import org.apache.http.HttpRequest;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Test;
 
 import com.graduation.dao.TeacherDao;
@@ -106,34 +120,27 @@ public class TeacherService {
 				}
 			}
 			
-			System.out.println(updateStringList.size());
-			
 			updateTeacher(updateStringList);
 		    break;
-		    
 		case "resetPassword":
-			
 			String id = request.getParameter("id");
-			
 			resetPassword(id);
-			
 			break;
 		case "add":
-			
-			String[] updateList = request.getParameterValues("");
-			
+			System.out.println("正在添加教师到数据库中！");
+			String[] infoList = request.getParameterValues("info[]");
+			addTeacher(infoList);
 			break;
-			
+		case "import":
+			System.out.println("正在上传文件");
+			importTeacher(request);
+			break;
 		default:
+			
+			System.out.println("链接不存在！");
+			
 			break;
 		}
-		
-//		if (pathList.get(1).equals("show")) {
-//			
-//			String  page =  request.getParameter("currentPage");
-//			System.out.println("page=" + page);
-//			showTeacher(Integer.parseInt(page));
-//		}
 		
 		return jsonObjectOutput;
 		
@@ -144,7 +151,8 @@ public class TeacherService {
 	 */
 	public void showTeacher(int page) {
 		
-		//Teacher teacher = teacherDao.queryByTid(200006);
+		jsonObjectOutput = new JSONObject();
+		
 		// 每页的大小
 		int pageSize = 5;
 		// 得到对应页的数据
@@ -152,18 +160,19 @@ public class TeacherService {
 		// 得到要显示的总数量
 		long count = teacherDao.queryCount();
 		
-//		System.out.println("Teacher Numbers:" +  list.size());
 		// 定义要返回的教师数据的JSON对象
 		JSONArray jsonList = new JSONArray();
 		
+		/* 将对象转换成JSON数据 */
 		for (Teacher teacher : list) {
-			// 得到每一个教师的信息数组
-			List<Object> objectList = teacher.showInfo();
-			// 对信息数组进行加工
+			// 把教师对象转换成Object数组
+			List<Object> objectList = toObjectList(teacher);
+			// 对Object数组进行加工
 			objectList = produceTeacher(objectList);
 			// 加入到要返回的教师数据的JSON对象中
 			jsonList.add(objectList);
 		}
+		
 		// 设置要返回的教师数据
 		jsonObjectOutput.put("data", jsonList);
 		// 设置当前页
@@ -175,16 +184,18 @@ public class TeacherService {
 		
 	}
 	/**
-	 * 删除教师
+	 * 删除教师功能
 	 * @param list 要删除的教师的ID的数组
 	 */
 	public void deleteTeacher(String[] list) {
+		jsonObjectOutput = new JSONObject();
 		
-		List<String> delList = new ArrayList<>();
-		
+		// 数据为空则也返回空数据
 		if (list.length == 0) {
 			jsonObjectOutput = new JSONObject();
 		} else {
+			
+			List<String> delList = new ArrayList<>();
 			
 			for (String string : list) {
 				delList.add(string);
@@ -216,8 +227,12 @@ public class TeacherService {
 		}
 		
 	}
-	
+	/**
+	 * 更改教师信息功能
+	 * @param updateList 要更改的多个教师的数组信息
+	 */
 	public void updateTeacher(List<String[]> updateList) {
+		jsonObjectOutput = new JSONObject();
 		// 要更新的教师列表
 		List<Teacher> updateTeacherList = new ArrayList<>();
 		// 更新状态列表
@@ -232,28 +247,311 @@ public class TeacherService {
 			list = produceTeacherReverse(list);
 			
 			// 对象数组变成一个对象加入到要更新列表中
-			updateTeacherList.add(toBean(list));
+			updateTeacherList.add(toBeanUpdate(list));
 		}
-		// 对所有的对象进行更新
+		// 对所有的对象进行更新，并将更新状态存入数组中
 		for (int i = 0; i < updateTeacherList.size(); i++) {
 			boolean b = teacherDao.updateAll(updateTeacherList.get(i));
 			updateFlagList.add(b);
 		}
 		
-		
 		jsonObjectOutput.put("status", true);
 		
 	}
-	
+	/**
+	 * 重置密码功能
+	 * @param id 用户ID
+	 */
 	public void resetPassword(String id) {
 		
+		System.out.println("正在重置密码中。。。");
+		
+		jsonObjectOutput = new JSONObject();
 		boolean b = teacherDao.resetPassword(Integer.parseInt(id));
 		jsonObjectOutput.put("status", b);
 		
+		System.out.println("重置密码成功！");
+		
+	}
+	/**
+	 * 添加教师功能
+	 * @param strings 要添加的教师数组
+	 */
+	public void addTeacher(String[] strings) {
+		
+		jsonObjectOutput = new JSONObject();
+		
+		List<Object> list = new ArrayList<>();
+		for (int i = 0; i < strings.length; i++) {
+			list.add(strings[i]);
+		}
+		
+//		for (Object object : list) {
+//			System.out.println(object == null);
+//			System.out.println(object.toString());
+//		}
+		
+		// 进行数据检验
+		Map<Integer, String> error = checkTeacher(list);
+		System.out.println(error.size());
+		if (error.size() != 0) {
+			
+			jsonObjectOutput.put("status", false);
+			JSONArray errorArray = new JSONArray();
+			
+			Set<Integer> set = error.keySet();
+			
+			for (Integer integer : set) {
+				JSONArray array = new JSONArray();
+				array.add(integer);
+				array.add(error.get(integer));
+				errorArray.add(array);
+			}
+			
+			jsonObjectOutput.put("errors", errorArray);
+			
+		} else {
+			// 数据检验成功，进行下一步
+			Teacher teacher = toBeanAdd(list);
+			
+			// TODO 不能直接保存，需要通过教师的专业ID，找到负责人ID，设置教师的专业负责人ID，再进行保存
+			teacher.setPid(30012);
+			boolean b = teacherDao.saveTeacher(teacher);
+			
+//			JSONArray array = new JSONArray();
+//			array.add(teacher.getTea_id());
+//			// TODO 通过教师的负责人ID找到专业负责人的名称。
+//			array.add("刘备");
+			
+			jsonObjectOutput.put("status", b);
+//			jsonObjectOutput.put("info", array);
+			
+		}
+	}
+	/**
+	 * 导入教师文件功能
+	 * @param request 其中可以得到文件
+	 */
+	public void importTeacher(HttpServletRequest request) {
+		
+		jsonObjectOutput = new JSONObject();
+		
+		// 将上传的文件转换成一个对象列表
+		List<List<Object>> teacherList = new ArrayList<>();
+		DiskFileItemFactory factory = new DiskFileItemFactory();
+		ServletFileUpload upload = new ServletFileUpload(factory);
+		try {
+			
+			request.setCharacterEncoding("utf-8");
+			
+			List<FileItem> list = upload.parseRequest(new ServletRequestContext(request));
+			// 读取每 一个文件
+			if (list.get(0) != null) {
+				FileItem item = list.get(0);
+				String filename = item.getName();
+				System.out.println("文件名为：" + filename);
+				String extName = filename.substring(filename.lastIndexOf("."));
+				System.out.println("后缀为：" + extName);
+				InputStream inputStream = item.getInputStream();
+				if (extName.equals(".xlsx")) {
+					teacherList = importXlsxData(inputStream);
+				} else if (extName.equals(".xls")) {
+					teacherList = importXlsData(inputStream);
+				} else {
+					// 文件不是
+					System.out.println("文件不是规则格式");
+				}
+				
+				inputStream.close();
+			} else {
+				
+				// 没有找到文件
+				System.out.println("没有找到文件");
+			}
+			
+		} catch (FileUploadException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		// 开始创建JSON数据
+		JSONArray teacherArray = new JSONArray();
+		
+		System.out.println(teacherList.size());
+		
+		for (List<Object> teacher : teacherList) {
+			JSONArray array = new JSONArray();
+			for (Object object : teacher) {
+				array.add(object);
+			}
+			teacherArray.add(array);
+		}
+		
+		jsonObjectOutput.put("status", true);
+		
+		jsonObjectOutput.put("infos", teacherArray);
+		
+		
+		
 	}
 	
+	/**
+	 * 实现导入xlsx文件
+	 * @param inputStream
+	 * @return
+	 */
+	public List<List<Object>> importXlsxData(InputStream inputStream) {
+		
+		System.out.println("开始加载数据中。。。");
+		
+		List<List<Object>> teacherList = new ArrayList<>();
+		
+		try {
+			
+			XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
+			// 目前只读取第一个Sheet的数据
+			Sheet sheet = xssfWorkbook.getSheetAt(0);
+			System.out.println("一共有" + sheet.getLastRowNum() + "条数据");
+			for (int rowNum = 0; rowNum <= sheet.getLastRowNum(); rowNum ++) {
+//				System.out.println("正在加载第" + rowNum + "数据");
+				Row row = sheet.getRow(rowNum);
+				List<Object> list = new ArrayList<>();
+				for (int i = 0; i < 10; i++) {
+					Cell cell = row.getCell(i);
+					if (i == 6) {
+						list.add(cell.getNumericCellValue());
+					} else {
+						list.add(cell.getStringCellValue());
+					}
+//					System.out.println(i);
+				}
+//				System.out.println(list.size());
+				
+				teacherList.add(list);
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return teacherList;
+	}
+	
+	/**
+	 * 实现导入xls文件
+	 * @param inputStream
+	 * @return
+	 */
+	public List<List<Object>> importXlsData(InputStream inputStream) {
+		try {
+			HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * 得到要返回的JSON数据
+	 * @return 返回JSON数据
+	 */
 	public JSONObject getJsonObject() {
 		return jsonObjectOutput;
+	}
+	
+	/**
+	 * 在添加数据之前，对教师的信息进行检验
+	 * @param list 
+	 * @return 返回出错Map
+	 */
+	public Map<Integer, String> checkTeacher(List<Object> list) {
+		Map<Integer, String> map = new HashMap<>();
+		
+		String NOT_NULL = "不能为空！";
+		
+		for (int i = 0; i < list.size(); i++) {
+			Object object = list.get(i);
+			// 对用户名进行检验
+			if (i == 0) {
+				if (object == null || object.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+				//String name = (String) object;
+			}
+			// 对姓名进行检验
+			if (i == 1) {
+				if (object == null || object.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+			}
+			// 性别 
+			if (i == 2) {
+				if (object == null || object.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+			}
+			// 专业ID
+			if (i == 3) {
+				if (object == null || object.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+			}
+			// 职称
+			if (i == 4) {
+				if (object == null || object.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+			}
+			// 学位
+			if (i == 5) {
+				if (object == null || object.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+			}
+			// QQ
+			if (i == 6) {
+				if (object == null || object.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+			}
+			// 手机
+			if (i == 7) {
+				if (object == null || object.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+			}
+			// 邮箱
+			if (i == 8) {
+				if (object == null || object.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+			}
+			// 备注可以为空
+			if (i == 9) {
+				
+			}
+			// 选题数量
+			if (i == 10) {
+				if (object == null || object.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+			}
+		}
+		
+		return map;
 	}
 	
 	/**
@@ -261,7 +559,7 @@ public class TeacherService {
 	 * @param list 传入一个包含教师信息的Object数组
 	 * @return List<Object> 返回相同的数组
 	 */
-	private List<Object> produceTeacher(List<Object> list) {
+	public List<Object> produceTeacher(List<Object> list) {
 		
 		List<Object> realList = new ArrayList<>();
 		
@@ -282,6 +580,7 @@ public class TeacherService {
 //			}
 			if (i == 11) {
 				// 从数据库中找到对应的专业负责人的真实姓名
+				// TODO 查询数据库
 				object = "刘备";
 			}
 			
@@ -329,12 +628,13 @@ public class TeacherService {
 		return realList;
 		
 	}
+	
 	/**
-	 * 将一个List<Object>列表转换成一个教师对象
+	 * 在更改教师时将一个List<Object>列表转换成一个教师对象
 	 * @param list 要转换的列表数据
 	 * @return 一个教师对象
 	 */
-	public Teacher toBean(List<Object> list) {
+	public Teacher toBeanUpdate(List<Object> list) {
 		
 		Teacher teacher = new Teacher();
 		teacher.setTea_id(Integer.parseInt(String.valueOf(list.get(0))));
@@ -353,6 +653,54 @@ public class TeacherService {
 		teacher.setNumber(Integer.parseInt(String.valueOf(list.get(12))));
 		return teacher;
 	}
+	
+	/**
+	 * 在添加教师时将一个Object数组转换成对象
+	 * @param list 要转换的列表数据
+	 * @return 
+	 */
+	public Teacher toBeanAdd(List<Object> list) {
+		
+		Teacher teacher = new Teacher();
+		teacher.setUsername(String.valueOf(list.get(0)));
+		teacher.setRealname(String.valueOf(list.get(1)));
+		teacher.setSex(Integer.parseInt(String.valueOf(list.get(2))));
+//		System.out.println("sex = " + teacher.getSex());
+		teacher.setMid(Integer.parseInt(String.valueOf(list.get(3))));
+		teacher.setTitle(String.valueOf(list.get(4)));
+		teacher.setDegree(String.valueOf(list.get(5)));
+		teacher.setQq(String.valueOf(list.get(6)));
+		teacher.setPhone(String.valueOf(list.get(7)));
+		teacher.setEmail(String.valueOf(list.get(8)));
+		teacher.setRemarks(String.valueOf(list.get(9)));
+		teacher.setNumber(Integer.parseInt(String.valueOf(list.get(10))));
+		teacher.setPassword("123456");
+		return teacher;
+	}
+	
+	/**
+	 * 
+	 * @param teacher
+	 * @return
+	 */
+	public List<Object> toObjectList(Teacher teacher) {
+		List<Object> list = new ArrayList<>();
+		list.add(teacher.getTea_id());
+		list.add(teacher.getUsername());
+		list.add(teacher.getRealname());
+		list.add(teacher.getSex());
+		list.add(teacher.getMid());
+		list.add(teacher.getTitle());
+		list.add(teacher.getDegree());
+		list.add(teacher.getQq());
+		list.add(teacher.getPhone());
+		list.add(teacher.getEmail());
+		list.add(teacher.getRemarks());
+		list.add(teacher.getPid());
+		list.add(teacher.getNumber());
+		return list;
+	}
+	
 	
 	@Deprecated
 	public List<Object> objectToJSONArray(Teacher teacher) {

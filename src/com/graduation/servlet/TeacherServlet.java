@@ -23,6 +23,7 @@ import com.graduation.dao.TeacherDao;
 import com.graduation.db.DBUtils;
 import com.graduation.entity.Teacher;
 
+@Deprecated
 public class TeacherServlet extends HttpServlet {
 
 	
