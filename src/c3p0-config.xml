@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<c3p0-config>
+       <!-- 默认配置，c3p0框架默认加载这段默认配置 -->
+       <default-config>
+             <!-- 配置JDBC 四个基本属性 -->
+             <property name ="driverClass">com.mysql.jdbc.Driver</property>
+             <property name ="jdbcUrl">jdbc:mysql://127.0.0.1:3306/graduation_design</property>
+             <property name ="user">root</property>
+             <property name ="password">0509</property>
+       </default-config>
+</c3p0-config>
