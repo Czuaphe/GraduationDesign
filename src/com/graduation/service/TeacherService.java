@@ -118,6 +118,12 @@ public class TeacherService {
 			resetPassword(id);
 			
 			break;
+		case "add":
+			
+			String[] updateList = request.getParameterValues("");
+			
+			break;
+			
 		default:
 			break;
 		}
