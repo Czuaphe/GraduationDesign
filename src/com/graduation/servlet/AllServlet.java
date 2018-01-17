@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONObject;
 
+import com.graduation.entity.Student;
+import com.graduation.service.StudentService;
 import com.graduation.service.TeacherService;
 
 public class AllServlet extends HttpServlet {
@@ -80,12 +82,30 @@ public class AllServlet extends HttpServlet {
 		
 		// 得到第一级路由，以确定跳转到对应的服务
 		String firstPathString = strings[0];
-		if (firstPathString.equals("teacher")) {
-			System.out.println("进行TeacherService中。。。");
+		
+		switch (firstPathString) {
+		case "teacher":
 			TeacherService teacherService = new TeacherService(pathList, request);
 			// 得到要返回的JSON数据
 			jsonObjectOutput = teacherService.redirectToPath();
+			break;
+		case "student":
+			StudentService studentService = new StudentService(pathList, request);
+			jsonObjectOutput = studentService.redirectToPath();
+			break;
+		default:
+			
+			break;
 		}
+		
+//		if (firstPathString.equals("teacher")) {
+//			TeacherService teacherService = new TeacherService(pathList, request);
+//			// 得到要返回的JSON数据
+//			jsonObjectOutput = teacherService.redirectToPath();
+//		} else if (firstPathString.equals("student")) {
+//			StudentService studentService = new StudentService(pathList, request);
+//			jsonObjectOutput = studentService.redirectToPath();
+//		}
 		
 		// 返回JSON数据
 		PrintWriter out = response.getWriter();

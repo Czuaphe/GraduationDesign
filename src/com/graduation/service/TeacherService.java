@@ -34,18 +34,20 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Test;
 
+import com.graduation.dao.MajorDao;
+import com.graduation.dao.ProfessionDao;
 import com.graduation.dao.TeacherDao;
 import com.graduation.db.DBUtils;
 import com.graduation.entity.Teacher;
-import com.sun.corba.se.spi.orb.StringPair;
 
-import net.bytebuddy.asm.Advice.This;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class TeacherService {
 	
 	private TeacherDao teacherDao = new TeacherDao();
+	private MajorDao majorDao = new MajorDao();
+	private ProfessionDao professionDao = new ProfessionDao();
 	
 	private List<String> pathList = new ArrayList<>();
 	
@@ -65,7 +67,6 @@ public class TeacherService {
 	 * @return 要返回的JSON数据
 	 */
 	public JSONObject redirectToPath() {
-		
 		
 		switch (pathList.get(1)) {
 		case "show":
@@ -168,7 +169,8 @@ public class TeacherService {
 			// 把教师对象转换成Object数组
 			List<Object> objectList = toObjectList(teacher);
 			// 对Object数组进行加工
-			objectList = produceTeacher(objectList);
+			objectList = produceTeacherOfShow(objectList);
+			
 			// 加入到要返回的教师数据的JSON对象中
 			jsonList.add(objectList);
 		}
@@ -244,7 +246,7 @@ public class TeacherService {
 				list.add(strings[i]);
 			}
 			// 反向加工
-			list = produceTeacherReverse(list);
+			list = produceTeacherOfUpdateReverse(list);
 			
 			// 对象数组变成一个对象加入到要更新列表中
 			updateTeacherList.add(toBeanUpdate(list));
@@ -314,8 +316,8 @@ public class TeacherService {
 			// 数据检验成功，进行下一步
 			Teacher teacher = toBeanAdd(list);
 			
-			// TODO 不能直接保存，需要通过教师的专业ID，找到负责人ID，设置教师的专业负责人ID，再进行保存
-			teacher.setPid(30012);
+			// 不能直接保存，需要通过教师的专业ID，找到负责人ID，设置教师的专业负责人ID，再进行保存
+			teacher.setPid(professionDao.getPIDByMID(teacher.getMid()));
 			boolean b = teacherDao.saveTeacher(teacher);
 			
 //			JSONArray array = new JSONArray();
@@ -329,7 +331,7 @@ public class TeacherService {
 		}
 	}
 	/**
-	 * 导入教师文件功能
+	 * TODO 导入教师文件功能，还有很多问题
 	 * @param request 其中可以得到文件
 	 */
 	public void importTeacher(HttpServletRequest request) {
@@ -381,6 +383,10 @@ public class TeacherService {
 		System.out.println(teacherList.size());
 		
 		for (List<Object> teacher : teacherList) {
+			// 返回专业名称转换成专业ID
+			Object obj = teacher.get(3);
+			obj = produceTeacherMajorReverse(obj);
+			
 			JSONArray array = new JSONArray();
 			for (Object object : teacher) {
 				array.add(object);
@@ -555,11 +561,11 @@ public class TeacherService {
 	}
 	
 	/**
-	 * 这个函数对教师的信息数组 中的某些信息进行加工
+	 * 这个函数对教师的信息数组 中的某些信息进行加工，以实现显示教师功能
 	 * @param list 传入一个包含教师信息的Object数组
 	 * @return List<Object> 返回相同的数组
 	 */
-	public List<Object> produceTeacher(List<Object> list) {
+	public List<Object> produceTeacherOfShow(List<Object> list) {
 		
 		List<Object> realList = new ArrayList<>();
 		
@@ -579,9 +585,8 @@ public class TeacherService {
 //				object = "计算机";
 //			}
 			if (i == 11) {
-				// 从数据库中找到对应的专业负责人的真实姓名
-				// TODO 查询数据库
-				object = "刘备";
+				// 从数据库中通过救专业负责人ID找到对应的专业负责人的真实姓名
+				object = produceTeacherPID(object);
 			}
 			
 			realList.add(object);
@@ -589,8 +594,12 @@ public class TeacherService {
 		
 		return realList;
 	}
-	
-	public List<Object> produceTeacherReverse(List<Object> list) {
+	/**
+	 * 在数据更改时，对教师数组中的一个或多个数据进行反向加工，之后才能变成对象
+	 * @param list
+	 * @return
+	 */
+	public List<Object> produceTeacherOfUpdateReverse(List<Object> list) {
 		
 		List<Object> realList = new ArrayList<>();
 		
@@ -619,9 +628,8 @@ public class TeacherService {
 			// 对专业负责人字段进行反向加工
 			if (i == 11) {
 				// 从数据库中找到专业负责人的真实姓名对应的ID
-				object= 300001;
+				object= produceTeacherPIDReverse(object);
 			}
-			
 			realList.add(object);
 		}
 		
@@ -630,7 +638,48 @@ public class TeacherService {
 	}
 	
 	/**
-	 * 在更改教师时将一个List<Object>列表转换成一个教师对象
+	 * 将教师的专业ID加工成专业名称
+	 * @param object
+	 * @return
+	 */
+	public Object produceTeacherMajor(Object object) {
+		return majorDao.getMajorNameByMID((int)object);
+	}
+	
+	/**
+	 * 将教师的专业名称反向加工成专业ID
+	 * @param object 专业名称
+	 * @return 返回专业ID
+	 */
+	public Object produceTeacherMajorReverse(Object object) {
+		return majorDao.getMIDByMajorName(String.valueOf(object));
+	}
+	/**
+	 * 将教师的专业负责人ID转换成对应教师的姓名
+	 * @param object
+	 * @return
+	 */
+	public Object produceTeacherPID(Object object) {
+		int tea_id = professionDao.getTeaIDByPID((int)object);
+		return teacherDao.queryByTea_id(tea_id).getRealname();
+	}
+	
+	/**
+	 * 将专业负责人对应的教师的姓名转换成碳专业负责人ID
+	 * 注意：前提是姓名必须唯一，否则不建议使用 
+	 * @param object
+	 * @return
+	 */
+	@Deprecated
+	public Object produceTeacherPIDReverse(Object object) {
+		int tea_id = teacherDao.queryByRealName(String.valueOf(object)).getTea_id();
+		return professionDao.getPIDByTeaID(tea_id);
+	}
+	
+	
+	
+	/**
+	 * 在更改教师时，将一个List<Object>列表转换成一个教师对象
 	 * @param list 要转换的列表数据
 	 * @return 一个教师对象
 	 */
@@ -737,7 +786,7 @@ public class TeacherService {
 				
 			}
 			// 对数组中的数据进行加工
-			list = produceTeacher(list);
+			list = produceTeacherOfShow(list);
 			
 			
 		} catch (IntrospectionException e) {

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>毕业设计选题系统</title>
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <script src="./js/jquery-3.2.1.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap-datepicker.min.js"></script>
+</head>
+<body>
+    <div class="row" >
+        <div class="col-md-8 col-md-offset-2" style="background: url(./image/loginbg.jpg) 0px 0px no-repeat">
+            <div class="row">
+                <div class="col-md-3 col-md-offset-8 well" style="margin-top: 300px;margin-bottom: 300px;">
+                    <h2 class="text-center">毕业设计选题系统</h2>
+                    <hr/>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon"><span class="glyphicon glyphicon-user"></span></div>
+                                <input type="text" class="form-control" id="username" placeholder="用户名">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></div>
+                                <input type="password" class="form-control" id="password" placeholder="用户名">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon"><span class="glyphicon glyphicon-tasks"></span></div>
+                                <select class="form-control">
+                                    <option value="0">请选择用户登录身份</option>
+                                    <option value="1">学生</option>
+                                    <option value="2">教师</option>
+                                    <option value="3">专业负责人</option>
+                                    <option value="4">管理员</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-block" type="button">登录</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<hr/>
+<nav class="navbar navbar-default navbar-fixed-bottom">
+    <p class="text-center navbar-text">毕业设计选题系统</p>
+</nav>
+</html>

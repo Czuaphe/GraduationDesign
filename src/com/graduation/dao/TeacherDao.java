@@ -193,6 +193,21 @@ public class TeacherDao {
 		
 		return null;
 	}
-	
+	/**
+	 * 
+	 * 查询结果不唯一，不建议使用
+	 * @param realname
+	 * @return
+	 */
+	@Deprecated
+	public Teacher queryByRealName(String realname) {
+		String sql = "select * from t_teacher where realname = ?";
+		try {
+			return runner.query(sql, new BeanHandler<>(Teacher.class), realname);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 }

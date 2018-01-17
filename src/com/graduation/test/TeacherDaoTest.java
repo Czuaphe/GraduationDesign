@@ -68,7 +68,6 @@ public class TeacherDaoTest {
 		Teacher teacher = teacherDao.queryByTea_id(20008);
 		System.out.println(teacher.toString());
 		assertNotNull(teacher);
-		
 	}
 	
 	@Test
@@ -92,6 +91,12 @@ public class TeacherDaoTest {
 		System.out.println(num);
 		assertNotNull(num);
 		
+	}
+	
+	@Test
+	public void queryByRealNameTest() {
+		Teacher teacher = teacherDao.queryByRealName("刘备");
+		System.out.println(teacher.toString());
 	}
 	
 

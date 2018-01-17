@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>毕业设计选题系统</title>
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <script src="./js/jquery-3.2.1.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap-datepicker.min.js"></script>
+    <script src="./js/dynamicTables.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">毕业设计选题系统</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="index.html">首页</a></li>
+                <li><a href="#">教师信息管理</a></li>
+                <li><a href="#">学生信息管理</a></li>
+                <li><a href="#">选题系统配置</a></li>
+                <li><a href="#">导出选题信息</a></li>
+                <li><a href="#">公告编辑</a></li>
+                <li><a href="#">题目审核</a></li>
+                <li><a href="#">题目管理</a></li>
+                <li><a href="#">查看选题结果</a></li>
+                <li><a href="#">修改密码</a></li>
+                <li><a href="#">题目浏览</a></li>
+                <li><a href="#">查看选题结果</a></li>
+                <li><a href="#">修改密码</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#">退出登录</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        <table id="teacherInfo">
+        </table>
+    </div>
+</div>
+
+<div class="well well-lg text-center">
+    <p>毕业设计选题系统 版本1.0</p>
+</div>
+<script>
+    $(document).ready(function(){
+        $("#teacherInfo").dynamicTables({
+            'title' : ['编号', '课题名称', '适合专业', '新题目', '课题类型', '课题来源', '课题性质', '选题方式', '指定学生', '课题简介', '课题要求', '教师账号', '教师姓名', '审核意见' ,'审核状态'],
+            'data' : [
+                ['1', '毕业设计选题系统', '计算机科学与技术', '', '软件开发', '自拟题目', '校内毕设', '在线选题',  '', '设计毕业设计选题系统\n' +
+                '\n' +
+                '我注意到现在SF的评论框已经是高度自适应了，也就是说无论你输入多少个字也不会有那个讨厌的滚动条了，这点很好。我大概看了一下它的技术实现，好像是把textarea替换成一个div，然后把当前的div的contentEditable设置为true。这个实现跟quora的实现比较像。\n' +
+                '\n' +
+                '但是这种实现有个问题，就是对浏览器的支持不是太好，当然SF是明确不支持IE6的，其它版本的IE我手头没有，不知道支持情况如何。就通常情况来说，ie对contentEditable需要做特别多hack才能保持兼容。另一个浏览器就是opera，opera对div的contentEditable支持是最近才开始的。\n' +
+                '\n' +
+                '另一种实现就是，你在网上搜索就会得到的答案，用代码来说话就是\n' +
+                '\n' +
+                '$(\'textarea\').keyup(function () {\n' +
+                '    $(this).height(this.scrollHeight);\n' +
+                '});\n' +
+                '\n' +
+                '基本上所有的jquery插件核心都是这段代码，但是实际上它的效果非常坑爹\n' +
+                '\n' +
+                '    它响应的是keyup事件，因此也就是说肯定会有延迟。其视觉表现就是，先出现一个滚动条，然后这个文本框再被拉长。这样的体验非常别扭。\n' +
+                '    它也有兼容性问题，再某些浏览器上(比如safari)，它的scrollHeight会莫名奇妙地多出一些，看起来非常奇怪。\n' +
+                '\n' +
+                '以上就是我对这个功能的分析，我想要的就是一个普通的文本框，在大部分浏览器(可以忽略ie6)下都能敏捷地响应拉伸。如果你是用contentEditable实现，你需要支持以下功能\n' +
+                '\n' +
+                '    拷贝文字时只拷贝纯文本，html会被过滤掉\n' +
+                '    换行支持良好\n' +
+                '    支持undo和redo\n' +
+                '\n' +
+                '这种文本框体验上其实非常好，如果能在这里讨论出一种比较好地解决方案，也可以造福很多前端开发者。\n', 'XXX','teacher', 'teacherName', '', '未通过审核'],
+            ],
+            'delsURL': 'http://localhost/pm/apis/del',
+            'saveURL': 'http://localhost/pm/apis/save',
+            'typeConfig' : [
+                {"edit": false},
+                {"type" : "text"},
+                {"type" : "text"},
+                {"type" : "text"},
+                {"type" : "text"},
+                {"type" : "text"},
+                {"type" : "text"},
+                {"type" : "text"},
+                {"type" : "text"},
+                {"type" : "textarea"},
+                {"type" : "textarea"},
+                {"edit" : false},
+                {"edit" : false},
+                {"type" : "textarea"},
+                {"edit" : false},
+            ],
+            'titleConfig' : [
+                {
+                    'title': '审核状态',
+                    'type': 'select',
+                    'value' : [
+                        '1', '0'
+                    ],
+                    'options': [
+                        '通过审核', '不通过审核'
+                    ]
+                }
+            ],
+        });
+
+    })
+</script>
+</body>
+</html>
