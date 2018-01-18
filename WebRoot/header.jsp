@@ -28,38 +28,39 @@
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
+                <li class="active"><a href="index.html">首页</a></li>
             	<%
             		int act = Integer.parseInt(String.valueOf(session.getAttribute("act")));
-            		if ( act == 1) {
-            		
+            		if ( act == 3) {
             	 %>
-            	
-            	<%
-            		} else if( act == 2) {
-            	 %>
-            	 
-            	<%
-            		} else {
-            	 %>
-            	 
-            	<%
-            	 	}
-            	  %>
-            	  
-                <li class="active"><a href="index.html">首页</a></li>
                 <li><a href="teacherInfoManager.html">教师信息管理</a></li>
                 <li><a href="studentInfoManager.html">学生信息管理</a></li>
+                <li><a href="majorManager.html">学科信息管理</a></li>
                 <li><a href="#">选题系统配置</a></li>
                 <li><a href="#">导出选题信息</a></li>
                 <li><a href="#">公告编辑</a></li>
-                <li><a href="problemAnalysis">题目审核</a></li>
+            	<%
+            		} else if( act == 2) {
+            	 %>
                 <li><a href="problemManager.html">题目管理</a></li>
                 <li><a href="problemSelect.html">查看选题结果</a></li>
-                <li><a href="#">题目浏览</a></li>
+            	<%
+            		} else if(act == 1){
+            	 %>
                 <li><a href="#">查看选题结果</a></li>
-                <li><a href="#">修改密码</a></li>
+                <li><a href="#">题目浏览</a></li>
+                <%
+            	 	} else {
+            	  %>
+                <li><a href="problemManager.html">题目管理</a></li>
+                <li><a href="problemSelect.html">查看选题结果</a></li>
+                <li><a href="problemAnalysis">题目审核</a></li>
+                <%
+            	 	}
+            	  %>
             </ul>
             <ul class="nav navbar-nav navbar-right">
+                <li><a href="#">个人中心</a></li>
                 <li><a href="login.html">退出登录</a></li>
             </ul>
         </div><!-- /.navbar-collapse -->
