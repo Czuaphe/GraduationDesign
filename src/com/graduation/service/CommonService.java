@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.graduation.dao.AdminDao;
+import com.graduation.dao.MajorDao;
 import com.graduation.dao.StudentDao;
 import com.graduation.dao.TeacherDao;
 import com.graduation.entity.Admin;
@@ -20,6 +21,7 @@ public class CommonService {
 	private TeacherDao teacherDao = new TeacherDao();
 	private StudentDao studentDao=  new StudentDao();
 	private AdminDao adminDao = new AdminDao();
+	private MajorDao majorDao = new MajorDao();
 	
 	private List<String> pathList = new ArrayList<>();
 
@@ -98,7 +100,6 @@ public class CommonService {
 			session.setAttribute("user", student);
 			session.setMaxInactiveInterval(600);
 			
-			
 		} else {
 			// 密码不同
 			flag = false;
@@ -129,8 +130,15 @@ public class CommonService {
 		} else if (teacher.getPassword().equals(password)) {
 			// 密码相同，登录成功
 			flag = true;
+			
+			// TODO 判断是否为专业负责人
 			HttpSession session = request.getSession();
-			session.setAttribute("act", 2);
+			if (majorDao.queryByMID(teacher.getMid()) != null) {
+				session.setAttribute("act", 4);
+			} else {
+				session.setAttribute("act", 2);
+			}
+			
 			session.setAttribute("user", teacher);
 			session.setMaxInactiveInterval(600);
 		} else {
