@@ -247,7 +247,12 @@ public class TeacherService {
 				}
 			}
 			
-			jsonObjectOutput.put("status", true);
+			if (delArray.size() == 0) {
+				jsonObjectOutput.put("status", false);
+			} else {
+				jsonObjectOutput.put("status", true);
+			}
+			
 			// 设置返回删除成功的教师的ID
 			jsonObjectOutput.put("ids", delArray);
 			

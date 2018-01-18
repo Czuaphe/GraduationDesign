@@ -48,7 +48,8 @@
 </nav>
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
-        <h1>教师信息管理</h1> <button class="btn btn-default" type="button" data-toggle="tooltip" data-placement="top" title="批量导入"><span class="glyphicon glyphicon-upload"></span></button>
+        <h1>教师信息管理</h1>
+        <button onclick="window.location.href='uploadTeacher.html'" class="btn btn-default" type="button" data-toggle="tooltip" data-placement="top" title="批量导入"><span class="glyphicon glyphicon-upload"></span></button>
         <hr/>
         <h4 class="text-danger text-center" id="info"></h4>
         <table id="teacherInfo">
@@ -107,11 +108,7 @@
                         },
                         {
                             "type": "select",
-                            "options": [
-                                ["0", "计算机科学与技术"],
-                                ["1", "物联网工程"],
-                                ["2", "网络工程"],
-                            ]
+                            "options": response.majors,
                         },
                         {
                             "type": "select",

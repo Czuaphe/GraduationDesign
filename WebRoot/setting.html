@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>毕业设计选题系统</title>
     <link href="./css/bootstrap.min.css" rel="stylesheet">
-    <link href="./css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <link href="./css/bootstrap-datetimepicker.min.css" rel="stylesheet">
     <script src="./js/jquery-3.2.1.min.js"></script>
     <script src="./js/bootstrap.min.js"></script>
-    <script src="./js/bootstrap-datepicker.min.js"></script>
+    <script src="./js/bootstrap-datetimepicker.min.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-default">
@@ -58,14 +58,60 @@
             <a href="#" class="list-group-item">物联网</a>
         </div>
     </div>
-    <div class="col-md-6 col-md-offset-1">
-        <form class="form-horizontal">
+    <div class="col-md-6">
+        <form class="form-horizontal" id="timeSetting">
             <div class="form-group">
-                <label class="control-label">专业</label>
+                <label class="control-label col-sm-2">录入开始时间</label>
+                <div class="col-sm-3">
+                    <input type="text" value="" class="form-control" />
+                </div>
+                <label class="control-label col-sm-2">录入结束时间</label>
+                <div class="col-sm-3">
+                    <input type="text" value="" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2">审核开始时间</label>
+                <div class="col-sm-3">
+                    <input type="text" value="" class="form-control" />
+                </div>
+                <label class="control-label col-sm-2">审核结束时间</label>
+                <div class="col-sm-3">
+                    <input type="text" value="" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2">选题开始时间</label>
+                <div class="col-sm-3">
+                    <input type="text" value="" class="form-control" />
+                </div>
+                <label class="control-label col-sm-2">选题结束时间</label>
+                <div class="col-sm-3">
+                    <input type="text" value="" class="form-control" />
+                </div>
             </div>
         </form>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $.fn.datetimepicker.dates['zh-CN'] = {
+            days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"],
+            daysShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+            daysMin:  ["日", "一", "二", "三", "四", "五", "六", "日"],
+            months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+            monthsShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+            today: "今天",
+            suffix: [],
+            meridiem: ["上午", "下午"]
+        };
+        $("#timeSetting .form-control").datetimepicker({
+            'weekStart' : '1',
+            'autoclose' : true,
+            'language' : 'zh-CN',
+        });
+    })
+</script>
 <hr/>
 <nav class="navbar navbar-default navbar-fixed-bottom">
     <p class="text-center navbar-text">毕业设计选题系统</p>

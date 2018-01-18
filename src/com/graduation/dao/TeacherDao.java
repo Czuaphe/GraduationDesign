@@ -62,8 +62,8 @@ public class TeacherDao {
 			return runner.update(sql, tea_id) > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			return false;
 		}
-		return false;
 	}
 	/**
 	 * 根据教师的TID更新教师的所有字段

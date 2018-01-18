@@ -93,6 +93,17 @@ public class StudentDao {
 		return null;
 	}
 	
+	public Student queryByUsername(String username) {
+		String sql = "select * from t_student where username = ?";
+		try {
+			return runner.query(sql, new BeanHandler<>(Student.class), username);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public List<Student> queryAll() {
 		
 		try {

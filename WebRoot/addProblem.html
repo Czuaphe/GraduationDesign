@@ -52,7 +52,7 @@
                 <li role="presentation" class="active"><a href="#t1" aria-controls="t1" role="tab" data-toggle="tab">基本设置</a></li>
                 <li role="presentation"><a href="#t2" aria-controls="t2" role="tab" data-toggle="tab">课题简介</a></li>
                 <li role="presentation"><a href="#t3" aria-controls="t3" role="tab" data-toggle="tab">课题要求</a></li>
-                <li role="presentation"><a href="#t4" aria-controls="t4" role="tab" data-toggle="tab">指定学生</a></li>
+                <li role="presentation"><a id="typeTab" href="#t4" aria-controls="t4" role="tab" data-toggle="tab">指定学生</a></li>
             </ul>
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="t1">
@@ -61,14 +61,15 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">课题名称</label>
                             <div class="col-sm-6">
-                                <input type="text" value="" class="form-control" />
+                                <input type="text" id="name" value="" class="form-control" />
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">适合专业</label>
                             <div class="col-sm-6">
-                                <select class="form-control">
+                                <select class="form-control" id="major">
                                     <option value="0">请选择专业</option>
+                                    <option value="1">计算机科学与技术</option>
                                 </select>
                             </div>
                         </div>
@@ -85,39 +86,30 @@
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">课题类型</label>
-                            <div class="col-sm-6">
-                                <input type="text" value="" class="form-control" />
+                            <div class="col-sm-6" >
+                                <input type="text" id="type" value="" class="form-control" />
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">课题来源</label>
                             <div class="col-sm-6">
-                                <input type="text" value="" class="form-control" />
+                                <input type="text" value="" id="from" class="form-control" />
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">课题性质</label>
                             <div class="col-sm-6">
-                                <input type="text" value="" class="form-control" />
+                                <input type="text" value="" id="attr" class="form-control" />
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">选题方式</label>
                             <div class="col-sm-6">
-                                <select class="form-control">
-                                    <option value="0">请选择选题方式</option>
+                                <select class="form-control" id="selectType">
+                                    <option value="-1">请选择选题方式</option>
+                                    <option value="0" selected>盲选</option>
+                                    <option value="1">指定学生</option>
                                 </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">指定学生</label>
-                            <div class="col-sm-6">
-                                <label class="radio-inline">
-                                    <input type="radio" name="r1"  value="1"> 是
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="r1"value="0" checked> 否
-                                </label>
                             </div>
                         </div>
                     </form>
@@ -127,7 +119,7 @@
                     <form class="form-horizontal">
                         <div class="form-group">
                             <div class="col-sm-10 col-sm-offset-1">
-                                <textarea rows="20" class="form-control" placeholder="请填写课程简介"></textarea>
+                                <textarea id="description" rows="20" class="form-control" placeholder="请填写课题简介"></textarea>
                             </div>
                         </div>
                     </form>
@@ -137,7 +129,7 @@
                     <form class="form-horizontal">
                         <div class="form-group">
                             <div class="col-sm-10 col-sm-offset-1">
-                                <textarea rows="20" class="form-control" placeholder="请填写课题要求"></textarea>
+                                <textarea rows="20" id="require" class="form-control" placeholder="请填写课题要求"></textarea>
                             </div>
                         </div>
                     </form>
@@ -160,16 +152,71 @@
                                 <input type="text" value="" disabled class="form-control" />
                             </div>
                             <div class="col-sm-4">
-                                <button class="btn btn-danger"><span class="glyphicon glyphicon-lock"></span> 绑定</button>
-                                <button class="btn btn-danger"><span class="glyphicon glyphicon-unlock"></span> 取消</button>
+                                <button class="btn btn-danger" type="button"><span class="glyphicon glyphicon-lock"></span> 绑定</button>
+                                <button class="btn btn-danger" type="button"><span class="glyphicon glyphicon-unlock"></span> 取消</button>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
-        <p class="text-right"><button class="btn btn-primary" type="button"><span class="glyphicon glyphicon-floppy-disk"></span> 保存</button></p>
+        <p class="text-right"><button class="btn btn-primary" id="save" type="button"><span class="glyphicon glyphicon-floppy-disk"></span> 保存</button></p>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+
+        if($("#selectType").val() != 1)
+            $("#typeTab").parent().hide();
+
+        $("#selectType").change(function(){
+            if($(this).val() == 1)
+                $("#typeTab").parent().show();
+            else
+                $("#typeTab").parent().hide();
+        })
+
+        $("#save").click(function(){
+            var name = $("#name").val();
+            var major = $("#major").val();
+            var newPro = $(":radio[name='r0']").val();
+            var type = $("#type").val();
+            var from = $("#from").val();
+            var attr = $("#attr").val();
+            var selectType = $("#selectType").val();
+            var description = $("#description").val();
+            var require = $("#require").val();
+
+            if(name.length == 0)
+                $("#name").parent().parent().addClass('has-error');
+            else if(major == 0)
+                $("#major").parent().parent().addClass('has-error');
+            else if(type.length == 0)
+                $("#type").parent().parent().addClass('has-error');
+            else if(from.length == 0)
+                $("#from").parent().parent().addClass('has-error');
+            else if(attr.length == 0)
+                $("#attr").parent().parent().addClass('has-error');
+            else if(selectType == -1)
+                $("#selectType").parent().parent().addClass('has-error');
+            else if($("div .has-error").length != 0)
+                $("[aria-controls='t1']").html("<span class='text-danger'>基本设置 <span class='glyphicon glyphicon-warning-sign'></span></span>");
+            else if(description.length == 0)
+            {
+                $("[aria-controls='t2']").html("<span class='text-danger'>课题简介 <span class='glyphicon glyphicon-warning-sign'></span></span>");
+            }
+            else if(require.length == 0)
+            {
+                $("[aria-controls='t3']").html("<span class='text-danger'>课题要求 <span class='glyphicon glyphicon-warning-sign'></span></span>");
+            }
+            else {
+                $.post("", {}, function(){
+
+                })
+            }
+            window.setTimeout('$(".has-error").removeClass("has-error");$("[aria-controls=\'t1\']").html("基本设置");$("[aria-controls=\'t2\']").html("课题简介");$("[aria-controls=\'t3\']").html("课题要求");', 3000);
+        })
+    })
+</script>
 <hr/>
 <nav class="navbar navbar-default navbar-fixed-bottom">
     <p class="text-center navbar-text">毕业设计选题系统</p>
