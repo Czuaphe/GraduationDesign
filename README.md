@@ -19,6 +19,7 @@ act说明
 |  1 |  学生  |
 |  2 |  老师和专业负责人 |
 |  3 |  管理员 |
+
 请求示例：
 ```javascript
 username=xxxxx&password=*******&act=0
@@ -30,6 +31,7 @@ username=xxxxx&password=*******&act=0
 |  数据类型 | JSON | |
 |  返回值1 |  status : [boolean]| 状态 true表示成功 |
 |  返回值2 |  info : [string]| 错误原因 |
+
 响应示例：
 ```javascript
 {
