@@ -97,6 +97,8 @@ public class CommonService {
 			session.setAttribute("act", 1);
 			session.setAttribute("user", student);
 			session.setMaxInactiveInterval(600);
+			
+			
 		} else {
 			// 密码不同
 			flag = false;

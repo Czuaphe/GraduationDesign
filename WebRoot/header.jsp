@@ -28,6 +28,24 @@
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
+            	<%
+            		int act = Integer.parseInt(String.valueOf(session.getAttribute("act")));
+            		if ( act == 1) {
+            		
+            	 %>
+            	
+            	<%
+            		} else if( act == 2) {
+            	 %>
+            	 
+            	<%
+            		} else {
+            	 %>
+            	 
+            	<%
+            	 	}
+            	  %>
+            	  
                 <li class="active"><a href="index.html">首页</a></li>
                 <li><a href="teacherInfoManager.html">教师信息管理</a></li>
                 <li><a href="studentInfoManager.html">学生信息管理</a></li>
