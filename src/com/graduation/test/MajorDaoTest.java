@@ -14,25 +14,25 @@ public class MajorDaoTest {
 	private MajorDao majorDao = new MajorDao();
 	
 	@Test
-	public void queryAllMajorTest() {
-		Map<Integer, String> map = majorDao.getAllMajor();
+	public void saveTest() {
 		
-		Set<Integer> set = map.keySet();
-		for (Integer string : set) {
-			System.out.println(string + " : " + map.get(string));
-		}
+	}
+	
+	@Test
+	public void queryAllMajorTest() {
+		
 		
 	}
 	
 	@Test
 	public void getMajorNameByMIDTest() {
-		String name = majorDao.getMajorNameByMID(1);
+		String name = majorDao.queryByMID(1).getMajor();
 		System.out.println(name);
 	}
 	
 	@Test
 	public void test() {
-		int mid = majorDao.getMIDByMajorName("计算机科学与技术");
+		int mid = majorDao.queryByMajorName("计算机科学与技术").getMid();
 		System.out.println(mid);
 	}
 

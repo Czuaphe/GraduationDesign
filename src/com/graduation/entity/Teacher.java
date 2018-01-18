@@ -18,7 +18,6 @@ public class Teacher implements Serializable {
 	private String qq;
 	private String phone;
 	private String email;
-	private int pid;		// 专业负责人ID
 	private String remarks;	// 备注
 	
 	
@@ -94,28 +93,21 @@ public class Teacher implements Serializable {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public int getPid() {
-		return pid;
-	}
-	public void setPid(int pid) {
-		this.pid = pid;
-	}
-	
+
 	public String getRemarks() {
 		return remarks;
 	}
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
 	}
-	
 	@Override
 	public String toString() {
-		return "Teacher [tid=" + tea_id + ", username=" + username + ", password="
-				+ password + ", realname=" + realname + ", sex=" + sex
-				+ ", mid=" + mid + ", number=" + number + ", title=" + title
-				+ ", degree=" + degree + ", qq=" + qq + ", phone=" + phone
-				+ ", email=" + email + ", pid=" + pid + ", remarks=" + remarks
-				+ "]";
+		return "Teacher [tea_id=" + tea_id + ", username=" + username
+				+ ", password=" + password + ", realname=" + realname
+				+ ", sex=" + sex + ", mid=" + mid + ", number=" + number
+				+ ", title=" + title + ", degree=" + degree + ", qq=" + qq
+				+ ", phone=" + phone + ", email=" + email + ", remarks="
+				+ remarks + "]";
 	}
 	
 	

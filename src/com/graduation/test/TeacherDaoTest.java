@@ -27,7 +27,6 @@ public class TeacherDaoTest {
 		teacher.setQq("1462256645");
 		teacher.setPhone("13233562322");
 		teacher.setEmail("123123@qq.com");
-		teacher.setPid(300001);
 		teacher.setRemarks("xxxxxxx");
 		boolean b =  teacherDao.saveTeacher(teacher);
 		
@@ -99,5 +98,11 @@ public class TeacherDaoTest {
 		System.out.println(teacher.toString());
 	}
 	
+	@Test
+	public void queryMajorCount() {
+		long num = teacherDao.queryMajorCount(3);
+		System.out.println(num);
+		assertNotNull(num);
+	}
 
 }

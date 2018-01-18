@@ -1,8 +1,6 @@
 package com.graduation.servlet;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONObject;
 
-import com.graduation.entity.Student;
+import com.graduation.service.CommonService;
+import com.graduation.service.MajorService;
 import com.graduation.service.StudentService;
 import com.graduation.service.TeacherService;
 
@@ -69,10 +68,6 @@ public class AllServlet extends HttpServlet {
 			pathList.add(string);
 		}
 		
-//		System.out.println(strings.length);
-//		for (String string : strings) {
-//			System.out.println(string);
-//		}
 		
 		// 将路由信息放入request请求中
 		request.setAttribute("path", pathList);
@@ -93,19 +88,20 @@ public class AllServlet extends HttpServlet {
 			StudentService studentService = new StudentService(pathList, request);
 			jsonObjectOutput = studentService.redirectToPath();
 			break;
+//		case "profession":
+//			ProfessionService professionService = new ProfessionService(pathList, request);
+//			jsonObjectOutput = professionService.redirectToPath();
+//			break;
+		case "major":
+			MajorService majorService = new MajorService(pathList, request);
+			jsonObjectOutput = majorService.redirectToPath();
+			break;
 		default:
-			
+			CommonService commonService = new CommonService(pathList, request);
+			jsonObjectOutput = commonService.redirectToPath();
 			break;
 		}
 		
-//		if (firstPathString.equals("teacher")) {
-//			TeacherService teacherService = new TeacherService(pathList, request);
-//			// 得到要返回的JSON数据
-//			jsonObjectOutput = teacherService.redirectToPath();
-//		} else if (firstPathString.equals("student")) {
-//			StudentService studentService = new StudentService(pathList, request);
-//			jsonObjectOutput = studentService.redirectToPath();
-//		}
 		
 		// 返回JSON数据
 		PrintWriter out = response.getWriter();

@@ -13,6 +13,7 @@ import net.sf.json.JSONObject;
 
 import com.graduation.dao.MajorDao;
 import com.graduation.dao.StudentDao;
+import com.graduation.entity.Major;
 import com.graduation.entity.Student;
 
 public class StudentService {
@@ -105,6 +106,9 @@ public class StudentService {
 			jsonList.add(objectList);
 		}
 		
+		// 返回所有专业
+		jsonObjectOutput.put("majors", getAllMajors());
+		
 		// 设置要返回的教师数据
 		jsonObjectOutput.put("data", jsonList);
 		// 设置当前页
@@ -114,6 +118,24 @@ public class StudentService {
 		// 设置总页数
 		jsonObjectOutput.put("totalPage", (count - 1) / pageSize + 1 );
 		
+	}
+	
+	/**
+	 * 得到所有的专业
+	 * @return
+	 */
+	public JSONArray getAllMajors() {
+		
+		List<Major> majors = majorDao.getAllMajor();
+		JSONArray majorArray = new JSONArray();
+		for (Major major : majors) {
+			JSONArray array = new JSONArray();
+			array.add(major.getMid());
+			array.add(major.getMajor());
+			majorArray.add(array);
+		}
+		
+		return majorArray;
 	}
 	
 	public void deleteStudent(String[] list) {

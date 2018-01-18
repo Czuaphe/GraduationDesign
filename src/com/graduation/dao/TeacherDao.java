@@ -21,43 +21,9 @@ public class TeacherDao {
 	 * @param teacher 要保存的教师
 	 * @return boolean 返回保存结果
 	 */
-	@Deprecated
-	public boolean save(Teacher teacher) {
-		
-		try {
-			String getIDSql = "select nextval('seq_tid')"; 
-			int tea_id = runner.query(getIDSql, new ScalarHandler<Integer>());
-			teacher.setTea_id(tea_id);
-			
-			String sql = "insert into t_teacher(tea_id, username, password, realname, sex, mid, number, title, degree, qq, phone, email, pid, remarks) "
-					+ "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-			return runner.update(sql
-					,teacher.getTea_id()
-					,teacher.getUsername()
-					,teacher.getPassword()
-					,teacher.getRealname()
-					,teacher.getSex()
-					,teacher.getMid()
-					,teacher.getNumber()
-					,teacher.getTitle()
-					,teacher.getDegree()
-					,teacher.getQq()
-					,teacher.getPhone()
-					,teacher.getEmail()
-					,teacher.getPid()
-					,teacher.getRemarks()
-					) > 0;
-					
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
-	
 	public boolean saveTeacher(Teacher teacher) {
-		String sql = "insert into t_teacher(username, password, realname, sex, mid, number, title, degree, qq, phone, email, pid, remarks) "
-				+ "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		String sql = "insert into t_teacher(username, password, realname, sex, mid, number, title, degree, qq, phone, email, remarks) "
+				+ "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
 		try {
 			int num = runner.update(sql
@@ -72,7 +38,6 @@ public class TeacherDao {
 					,teacher.getQq()
 					,teacher.getPhone()
 					,teacher.getEmail()
-					,teacher.getPid()
 					,teacher.getRemarks()
 					);
 			BigInteger id =  runner.query("SELECT LAST_INSERT_ID()", new ScalarHandler<BigInteger>());
@@ -80,7 +45,6 @@ public class TeacherDao {
 			teacher.setTea_id(Integer.parseInt(id.toString()));
 			return num > 0;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;
@@ -107,7 +71,7 @@ public class TeacherDao {
 	 * @return boolean 返回更新的结果
 	 */
 	public boolean updateAll(Teacher teacher) {
-		String sql = "update t_teacher set username = ?, realname = ?, sex = ?, mid = ?, number = ?, title = ?, degree = ?, qq= ?, phone = ?, email = ?, pid = ?, remarks = ? where tea_id = ?";
+		String sql = "update t_teacher set username = ?, realname = ?, sex = ?, mid = ?, number = ?, title = ?, degree = ?, qq= ?, phone = ?, email = ?, remarks = ? where tea_id = ?";
 		try {
 			return runner.update(sql
 					,teacher.getUsername()
@@ -120,12 +84,10 @@ public class TeacherDao {
 					,teacher.getQq()
 					,teacher.getPhone()
 					,teacher.getEmail()
-					,teacher.getPid()
 					,teacher.getRemarks()
 					,teacher.getTea_id()
 					) > 0;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;
@@ -140,9 +102,7 @@ public class TeacherDao {
 		}
 		return false;
 	}
-	
-	
-	
+
 	/**
 	 * 根据教师的TID查询教师对象
 	 * @param tid 教师的TID
@@ -170,13 +130,25 @@ public class TeacherDao {
 		
 		return null;
 	}
-	
+	/**
+	 * 查询教师总人数
+	 * @return
+	 */
 	public Long queryCount() {
 		String sql = "select count(1) from t_teacher";
 		try {
 			return runner.query(sql, new ScalarHandler<Long>());
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0L;
+	}
+	
+	public Long queryMajorCount(int mid) {
+		String sql = "select count(1) from t_teacher where mid = ?";
+		try {
+			return runner.query(sql, new ScalarHandler<Long>(), mid);
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return 0L;
@@ -193,6 +165,21 @@ public class TeacherDao {
 		
 		return null;
 	}
+	/**
+	 * 通过用户名得到教师对象
+	 * @param username
+	 * @return
+	 */
+	public Teacher queryByUserName(String username) {
+		String sql = "select * from t_teacher where username = ?";
+		try {
+			return runner.query(sql, new BeanHandler<>(Teacher.class), username);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	/**
 	 * 
 	 * 查询结果不唯一，不建议使用
