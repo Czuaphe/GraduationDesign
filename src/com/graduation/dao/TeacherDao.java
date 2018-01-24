@@ -41,7 +41,7 @@ public class TeacherDao {
 					,teacher.getRemarks()
 					);
 			BigInteger id =  runner.query("SELECT LAST_INSERT_ID()", new ScalarHandler<BigInteger>());
-			System.out.println(id.toString());
+			System.out.println("新插入的教师对象的ID为：" + id.toString());
 			teacher.setTea_id(Integer.parseInt(id.toString()));
 			return num > 0;
 		} catch (SQLException e) {

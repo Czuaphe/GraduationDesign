@@ -14,6 +14,7 @@ import net.sf.json.JSONObject;
 
 import com.graduation.service.CommonService;
 import com.graduation.service.MajorService;
+import com.graduation.service.ProblemService;
 import com.graduation.service.StudentService;
 import com.graduation.service.TeacherService;
 
@@ -51,7 +52,7 @@ public class AllServlet extends HttpServlet {
 		response.setContentType("application/json");
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		
-		System.out.println( "pathInfo: " +  request.getPathInfo());
+//		System.out.println( "pathInfo: " +  request.getPathInfo());
 		System.out.println("ServletPath: " + request.getServletPath());
 		// 得到访问的URL，例如：/teacher/show
 		String path = request.getPathInfo();
@@ -67,7 +68,6 @@ public class AllServlet extends HttpServlet {
 		for (String string : strings) {
 			pathList.add(string);
 		}
-		
 		
 		// 将路由信息放入request请求中
 		request.setAttribute("path", pathList);
@@ -96,12 +96,15 @@ public class AllServlet extends HttpServlet {
 			MajorService majorService = new MajorService(pathList, request);
 			jsonObjectOutput = majorService.redirectToPath();
 			break;
+		case "problem":
+			ProblemService problemService = new ProblemService(pathList, request);
+			jsonObjectOutput = problemService.redirectToPath();
+			break;
 		default:
 			CommonService commonService = new CommonService(pathList, request);
 			jsonObjectOutput = commonService.redirectToPath();
 			break;
 		}
-		
 		
 		// 返回JSON数据
 		PrintWriter out = response.getWriter();

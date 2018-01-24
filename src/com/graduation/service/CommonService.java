@@ -76,6 +76,7 @@ public class CommonService {
 			loginAdmin(username, password);
 			break;
 		default:
+			System.out.println("末识别的用户类型！");
 			break;
 		}
 	}
@@ -171,7 +172,7 @@ public class CommonService {
 			// 密码相同，登录成功
 			flag = true;
 			HttpSession session = request.getSession();
-			session.setAttribute("act", 1);
+			session.setAttribute("act", 3);
 			session.setAttribute("user", admin);
 			session.setMaxInactiveInterval(600);
 		} else {
