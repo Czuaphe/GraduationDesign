@@ -2,9 +2,11 @@ package com.graduation.dao;
 
 import java.math.BigInteger;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 import com.graduation.db.DBUtils;
@@ -98,6 +100,21 @@ public class ProblemDao {
 			e.printStackTrace();
 		}
 		
+		return null;
+	}
+	
+	/**
+	 * 得到指定选题方式的所有课题
+	 * @param way 0表示盲选，其它则表示指定学生的ID
+	 * @return 返回指定选题方式的所有课题
+	 */
+	public List<Problem> queryByWay(int way) {
+		String sql = "select * from t_problem where way = ?";
+		try {
+			return runner.query(sql, new BeanListHandler<>(Problem.class), way);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 

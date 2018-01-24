@@ -74,6 +74,10 @@ public class StudentService {
 			System.out.println("正在上传文件");
 			importTeacher(request);
 			break;
+		case "info":
+			String username = request.getParameter("stu_id");
+			getStudentInfo(username);
+			break;
 		default:
 			break;
 		}
@@ -202,7 +206,7 @@ public class StudentService {
 		jsonObjectOutput.put("status", true);
 	}
 
-	public void  resetPassword(String id) {
+	public void resetPassword(String id) {
 		System.out.println("正在重置密码中。。。");
 		
 		jsonObjectOutput = new JSONObject();
@@ -321,11 +325,31 @@ public class StudentService {
 		
 		return map;
 	}
+	
 	/**
 	 * TODO 还没有开发，等待中
 	 * @param request
 	 */
 	public void importTeacher(HttpServletRequest request) {
+		
+	}
+	/**
+	 * 返回中学生的部分信息
+	 * @param username
+	 */
+	public void getStudentInfo(String username) {
+		
+		jsonObjectOutput = new JSONObject();
+		
+		Student student = studentDao.queryByUsername(username);
+		
+		if (student == null) {
+			jsonObjectOutput.put("status", false);
+		} else {
+			jsonObjectOutput.put("status", true);
+			jsonObjectOutput.put("id", student.getStu_id());
+			jsonObjectOutput.put("stu_name", student.getRealname());
+		}
 		
 	}
 	
