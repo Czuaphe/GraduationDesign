@@ -197,13 +197,17 @@ public class StudentService {
 			updateTeacherList.add(toBeanUpdate(list));
 		}
 		// 对所有的对象进行更新，并将更新状态存入数组中
+		boolean flag = true;
 		for (int i = 0; i < updateTeacherList.size(); i++) {
 			System.out.println("Update Student :" + updateTeacherList.get(i).toString());
-			boolean b = studentDao.updateAll(updateTeacherList.get(i));
+			flag = studentDao.updateAll(updateTeacherList.get(i));
+			if (!flag) {
+				break;
+			}
 //			updateFlagList.add(b);
 		}
 		
-		jsonObjectOutput.put("status", true);
+		jsonObjectOutput.put("status", flag);
 	}
 
 	public void resetPassword(String id) {

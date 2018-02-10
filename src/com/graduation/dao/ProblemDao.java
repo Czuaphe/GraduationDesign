@@ -65,7 +65,7 @@ public class ProblemDao {
 	 * @param problem
 	 * @return
 	 */
-	public boolean updateProblem(Problem problem) {
+	public boolean updateAll(Problem problem) {
 		
 		String sql = "update t_problem set name = ?, mid = ?, is_new = ?, type = ?, source = ?, research_name = ?, nature = ?, way = ?, introduction = ?, requirement = ? where problem_id = ?";
 		
@@ -116,6 +116,37 @@ public class ProblemDao {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	/**
+	 * 根据页数和每页的数量返回当前页的所有课题
+	 * @param page 页数
+	 * @param pageSize 每页的数量
+	 * @return 返回得到的所有课题
+	 */
+	public List<Problem> queryByPage(int page, int pageSize) {
+		
+		try {
+			String sql = "select * from t_problem limit ?, ?";
+			return runner.query(sql, new BeanListHandler<>(Problem.class), (page - 1) * pageSize, pageSize);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+		
+	}
+	/**
+	 * 查询课题的总数量
+	 * @return 返回一个 Long 类型的变量
+	 */
+	public long queryCount() {
+		String sql = "select count(1) from t_problem";
+		try {
+			return runner.query(sql, new ScalarHandler<Long>());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0L;
 	}
 
 }

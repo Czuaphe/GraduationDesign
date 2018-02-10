@@ -21,6 +21,11 @@ import com.graduation.service.TeacherService;
 public class AllServlet extends HttpServlet {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3451497886919209570L;
+
+	/**
 	 * Constructor of the object.
 	 */
 	public AllServlet() {

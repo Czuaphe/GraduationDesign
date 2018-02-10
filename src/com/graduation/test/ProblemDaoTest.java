@@ -56,7 +56,7 @@ public class ProblemDaoTest {
 		Problem problem = problemDao.queryByProblem_id(3);
 		problem.setName("选题题目名称修改测试");
 		problem.setMid(4);
-		boolean b = problemDao.updateProblem(problem);
+		boolean b = problemDao.updateAll(problem);
 		System.out.println(b);
 		assertNotNull(b);
 		
