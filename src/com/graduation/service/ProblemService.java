@@ -1,23 +1,38 @@
 package com.graduation.service;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import com.graduation.dao.MajorDao;
 import com.graduation.dao.ProblemDao;
+import com.graduation.dao.SelectedDao;
 import com.graduation.dao.StudentDao;
 import com.graduation.entity.Major;
 import com.graduation.entity.Problem;
+import com.graduation.entity.Selected;
+import com.graduation.entity.Student;
+import com.graduation.entity.Teacher;
 
 public class ProblemService {
 	
 	private ProblemDao problemDao = new ProblemDao();
 	private StudentDao studentDao = new StudentDao();
+	private SelectedDao selectedDao = new SelectedDao();
 	private MajorDao majorDao = new MajorDao();
 	
 	private List<String> pathList = new ArrayList<>();
@@ -67,7 +82,15 @@ public class ProblemService {
 				}
 			}
 			updateProblem(updateStringList);
-			
+			break;
+		case "exportByTeacher":
+			exportByTeacher(request);
+			break;
+		case "exportByMajor":
+			exportByMajor(request);
+			break;
+		case "exportAll":
+			exportAll(request);
 			break;
 		default:
 			System.out.println("二级路由无法解析！！！");
@@ -268,6 +291,81 @@ public class ProblemService {
 			jsonObjectOutput.put("info", info);
 		}
 	
+	}
+	
+	/**
+	 * 按照教师ID导出所有课题
+	 * @param request 传入的 request
+	 */
+	public void exportByTeacher(HttpServletRequest request) {
+		
+		jsonObjectOutput = new JSONObject();
+		
+		HttpSession session = request.getSession();
+		String error = null;
+		Object actObject = session.getAttribute("act");
+		
+		if (actObject == null) {
+			error = "没有登录！！无法导出课题。";
+			System.out.println(error);
+			return ;
+		}
+		
+		Integer act = Integer.parseInt(String.valueOf(actObject));
+		
+		if (act != 2 || act != 4) {
+			error = "登录身份不是教师或专业负责人，无法导出课题。";
+			System.out.println(error);
+			return ;
+		}
+		
+		Teacher teacher = (Teacher) session.getAttribute("user");
+		
+		if (teacher == null) {
+			error = "无法得到教师信息，不能导出课题。";
+			System.out.println(error);
+			return ;
+		}
+		
+		// 得到当前登录教师的所有课题
+		List<Problem> problemList = problemDao.queryByTea_id(teacher.getTea_id());
+		
+		// 得到选题信息和选题学生信息
+		List<Selected> selectedList = new ArrayList<>();
+		List<Student> studentList = new ArrayList<>();
+		for (Problem problem : problemList) {
+			
+			Selected selected = selectedDao.queryByProblem_id(problem.getProblem_id());
+			Student student = studentDao.queryByStu_id(selected.getStu_id());
+			
+			selectedList.add(selected);
+			studentList.add(student);
+			
+		}
+		
+		// 输出成xlsx文件
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		XSSFSheet sheet = workbook.createSheet();
+		XSSFRow titleRow = sheet.createRow(0);
+		titleRow.createCell(0).setCellValue("测试");
+		
+		try {
+			FileOutputStream outStream = new FileOutputStream(new File("test.txt"));
+			workbook.write(outStream);
+			outStream.flush();
+			outStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void exportByMajor(HttpServletRequest request) {
+		
+	}
+	
+	public void exportAll(HttpServletRequest request) {
+		
 	}
 	
 	/**

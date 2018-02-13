@@ -6,38 +6,34 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.servlet.ServletRequestContext;
-import org.apache.http.HttpRequest;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.Test;
 
 import com.graduation.dao.MajorDao;
+import com.graduation.dao.ProblemDao;
 import com.graduation.dao.TeacherDao;
 import com.graduation.db.DBUtils;
 import com.graduation.entity.Major;
+import com.graduation.entity.Problem;
 import com.graduation.entity.Teacher;
 
 import net.sf.json.JSONArray;
@@ -46,6 +42,7 @@ import net.sf.json.JSONObject;
 public class TeacherService {
 	
 	private TeacherDao teacherDao = new TeacherDao();
+	private ProblemDao problemDao = new ProblemDao();
 	private MajorDao majorDao = new MajorDao();
 	
 	private List<String> pathList = new ArrayList<>();
@@ -135,6 +132,13 @@ public class TeacherService {
 			System.out.println("正在上传文件");
 			importTeacher(request);
 			break;
+//		case "export":
+//			// 导出教师的所有课题
+//			exportTeacherProblems(request);
+//			break;
+//		case "exportMajor":
+//			// 导出教师所在专业的所有课题
+//			break;
 		default:
 			
 			System.out.println("链接不存在！");
@@ -306,6 +310,7 @@ public class TeacherService {
 		System.out.println("重置密码成功！");
 		
 	}
+	
 	/**
 	 * 添加教师功能
 	 * @param strings 要添加的教师数组
@@ -351,7 +356,7 @@ public class TeacherService {
 			
 //			JSONArray array = new JSONArray();
 //			array.add(teacher.getTea_id());
-//			// TODO 通过教师的负责人ID找到专业负责人的名称。
+//			// 通过教师的负责人ID找到专业负责人的名称。
 //			array.add("刘备");
 			
 			jsonObjectOutput.put("status", b);
@@ -487,6 +492,45 @@ public class TeacherService {
 		}
 		
 		return null;
+	}
+	
+	public void exportTeacherProblems(HttpServletRequest request) {
+		
+		jsonObjectOutput = new JSONObject();
+		
+		HttpSession session = request.getSession();
+		String error = null;
+		Object actObject = session.getAttribute("act");
+		
+		if (actObject == null) {
+			error = "没有登录！！无法导出课题。";
+			System.out.println(error);
+			return ;
+		}
+		
+		Integer act = Integer.parseInt(String.valueOf(actObject));
+		
+		if (act != 2 || act != 4) {
+			error = "登录身份不是教师或专业负责人，无法导出课题。";
+			System.out.println(error);
+			return ;
+		}
+		
+		Teacher teacher = (Teacher) session.getAttribute("user");
+		
+		if (teacher == null) {
+			error = "无法得到教师信息，不能导出课题。";
+			System.out.println(error);
+			return ;
+		}
+		
+		// 得到当前教师的所有课题
+		List<Problem> problemList = problemDao.queryByTea_id(teacher.getTea_id());
+		
+		
+		
+		
+		
 	}
 	
 	/**

@@ -32,7 +32,7 @@ public class StudentDao {
 					,student.getRemarks()
 					);
 			BigInteger id =  runner.query("SELECT LAST_INSERT_ID()", new ScalarHandler<BigInteger>());
-			System.out.println(id.toString());
+			System.out.println("Save Student ID: " + id.toString());
 			student.setStu_id(Integer.parseInt(id.toString()));
 			return num > 0;
 		} catch (SQLException e) {
@@ -98,7 +98,6 @@ public class StudentDao {
 		try {
 			return runner.query(sql, new BeanHandler<>(Student.class), username);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;

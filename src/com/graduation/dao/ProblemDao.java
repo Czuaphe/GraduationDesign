@@ -91,6 +91,19 @@ public class ProblemDao {
 		return false;
 	}
 	
+	public List<Problem> queryAll() {
+		
+		try {
+			String sql = "select * from t_problem";
+			return runner.query(sql, new BeanListHandler<>(Problem.class));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+		
+	}
+	
 	public Problem queryByProblem_id(int problem_id) {
 		String sql = "select * from t_problem where problem_id = ?";
 		
@@ -148,5 +161,33 @@ public class ProblemDao {
 		}
 		return 0L;
 	}
+	
+	public List<Problem> queryByTea_id(int tea_id) {
+		
+		try {
+			String sql = "select * from t_problem where tea_id = ?";
+			return runner.query(sql, new BeanListHandler<>(Problem.class), tea_id);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+		
+	}
+	
+	public List<Problem> queryByMid(int mid) {
+		
+		try {
+			String sql = "select * from t_problem where mid = ?";
+			return runner.query(sql, new BeanListHandler<>(Problem.class), mid);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+		
+	}
+	
+	
 
 }
