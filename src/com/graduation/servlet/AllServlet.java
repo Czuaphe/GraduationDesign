@@ -57,7 +57,7 @@ public class AllServlet extends HttpServlet {
 		response.setContentType("application/json");
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		
-//		System.out.println( "pathInfo: " +  request.getPathInfo());
+		System.out.println( "pathInfo: " +  request.getPathInfo());
 		System.out.println("ServletPath: " + request.getServletPath());
 		// 得到访问的URL，例如：/teacher/show
 		String path = request.getPathInfo();
@@ -102,9 +102,11 @@ public class AllServlet extends HttpServlet {
 			jsonObjectOutput = majorService.redirectToPath();
 			break;
 		case "problem":
-			ProblemService problemService = new ProblemService(pathList, request);
+			// 因为课题有生成选题文件功能，返回的不是JSON数据
+			ProblemService problemService = new ProblemService(pathList, request, response);
 			jsonObjectOutput = problemService.redirectToPath();
-			break;
+			// 所以 ProblemService 中请求的返回值由自己选择
+			return ;
 		default:
 			CommonService commonService = new CommonService(pathList, request);
 			jsonObjectOutput = commonService.redirectToPath();

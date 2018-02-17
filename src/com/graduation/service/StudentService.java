@@ -72,7 +72,7 @@ public class StudentService {
 			break;
 		case "import":
 			System.out.println("正在上传文件");
-			importTeacher(request);
+			importStudent(request);
 			break;
 		case "info":
 			String username = request.getParameter("stu_id");
@@ -334,7 +334,7 @@ public class StudentService {
 	 * TODO 还没有开发，等待中
 	 * @param request
 	 */
-	public void importTeacher(HttpServletRequest request) {
+	public void importStudent(HttpServletRequest request) {
 		
 	}
 	/**

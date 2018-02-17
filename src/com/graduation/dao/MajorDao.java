@@ -111,4 +111,13 @@ public class MajorDao {
 		return null;
 	}
 	
+	public Major queryByTea_id(int tea_id) {
+		String sql = "select * from t_major where tea_id = ?";
+		try {
+			return runner.query(sql, new BeanHandler<>(Major.class), tea_id);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
