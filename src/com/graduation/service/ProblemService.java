@@ -1,34 +1,19 @@
 package com.graduation.service;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.http.Header;
-import org.apache.http.HeaderIterator;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.StatusLine;
-import org.apache.http.params.HttpParams;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.Test;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -41,7 +26,6 @@ import com.graduation.dao.TeacherDao;
 import com.graduation.entity.Major;
 import com.graduation.entity.Problem;
 import com.graduation.entity.Selected;
-import com.graduation.entity.Student;
 import com.graduation.entity.Teacher;
 
 public class ProblemService {
@@ -373,6 +357,7 @@ public class ProblemService {
 		}
 
 	}
+
 	@Deprecated
 	public void test() {
 
@@ -446,8 +431,6 @@ public class ProblemService {
 
 	}
 
-	
-	
 	public XSSFWorkbook XLSXFile4ProblemList(List<Problem> problemList) {
 		// 生成xlsx文件
 		XSSFWorkbook workbook = new XSSFWorkbook();
@@ -553,9 +536,9 @@ public class ProblemService {
 	}
 
 	public void exportAll() {
-		
+
 		jsonObjectOutput = new JSONObject();
-		
+
 		// 得到所有的课题数据
 		List<Problem> problemList = problemDao.queryAll();
 
@@ -581,10 +564,42 @@ public class ProblemService {
 
 	}
 
+	/**
+	 * 审核课题，将课题状态和审核意见放入数据库中
+	 */
 	public void verifyProblem() {
-		
+
+		jsonObjectOutput = new JSONObject();
+
+		int problem_id = Integer.parseInt(request.getParameter("pro_id"));
+		String content = null;
+		boolean status = Boolean.parseBoolean(request.getParameter("accepted"));
+		if (!status) {
+			content = request.getParameter("content");
+		}
+
+		Problem problem = problemDao.queryByProblem_id(problem_id);
+
+		problem.setStatus(status ? 1 : 2);
+
+		if (!status) {
+			problem.setAudit_time(new Timestamp(new Date().getTime()));
+			problem.setAudit_opinion(content);
+		}
+
+		boolean b = problemDao.updateAll(problem);
+
+		jsonObjectOutput.put("status", b);
+
+		// 返回JSON数据
+		try {
+			response.getWriter().write(jsonObjectOutput.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
-	
+
 	/**
 	 * 对要添加的课题的数据进行检测
 	 * 

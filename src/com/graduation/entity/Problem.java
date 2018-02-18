@@ -18,7 +18,7 @@ public class Problem implements Serializable {
 	private String requirement;		// 课题要求
 	private int tea_id;		// 教师ID
 	private Timestamp problem_time;	// 出题时间
-	private int status;		// 课题状态
+	private int status;		// 课题状态，0为末审核，1为审核成功，2为审核失败
 	private Timestamp audit_time;	// 审核时间
 	private String audit_opinion;	// 审核意见
 	private int is_outer;	// 是否为校外选题
