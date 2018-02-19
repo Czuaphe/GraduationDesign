@@ -64,12 +64,13 @@ public class CommonService {
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		
-		// act 表示用户类型，1是学生，2是教师，3为管理员
+		// act 表示用户类型，1是学生，2是教师，3为管理员，4专业负责人
 		switch (act) {
 		case 1:
 			loginStudent(username, password);
 			break;
 		case 2:
+		case 4:
 			loginTeacher(username, password);
 			break;
 		case 3:

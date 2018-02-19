@@ -132,13 +132,6 @@ public class TeacherService {
 			System.out.println("正在上传文件");
 			importTeacher(request);
 			break;
-//		case "export":
-//			// 导出教师的所有课题
-//			exportTeacherProblems(request);
-//			break;
-//		case "exportMajor":
-//			// 导出教师所在专业的所有课题
-//			break;
 		default:
 			
 			System.out.println("链接不存在！");
