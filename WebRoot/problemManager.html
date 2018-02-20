@@ -13,7 +13,7 @@
     <script src="./js/dynamicTables.js"></script>
 </head>
 <body>
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -24,102 +24,248 @@
             </button>
             <a class="navbar-brand" href="#">毕业设计选题系统</a>
         </div>
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="index.html">首页</a></li>
-                <li><a href="#">教师信息管理</a></li>
-                <li><a href="#">学生信息管理</a></li>
-                <li><a href="#">选题系统配置</a></li>
-                <li><a href="#">导出选题信息</a></li>
-                <li><a href="#">公告编辑</a></li>
-                <li><a href="#">题目审核</a></li>
-                <li><a href="#">题目管理</a></li>
-                <li><a href="#">查看选题结果</a></li>
-                <li><a href="#">修改密码</a></li>
-                <li><a href="#">题目浏览</a></li>
-                <li><a href="#">查看选题结果</a></li>
-                <li><a href="#">修改密码</a></li>
-            </ul>
+        <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#">退出登录</a></li>
+                <li><a href="userCenter.html">个人中心</a></li>
+                <li><a href="login.html">退出登录</a></li>
             </ul>
-        </div>
-    </div>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
 </nav>
 <div class="row">
-    <div class="col-md-10 col-md-offset-1">
-        <table id="teacherInfo">
+    <div class="col-md-2 well">
+        <ul class="nav nav-pills nav-stacked">
+            <li class="active"><a href="index.html">首页</a></li>
+            <li><a href="javascript:;" style="color:black">后台管理</a></li>
+            <li><a href="teacherInfoManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;教师信息管理</a></li>
+            <li><a href="studentInfoManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学生信息管理</a></li>
+            <li><a href="majorManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学科信息管理</a></li>
+            <li><a href="setting.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选题系统配置</a></li>
+            <li><a href="exportProblem.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出选题信息</a></li>
+            <li><a href="noticeEdit.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公告编辑</a></li>
+            <li><a href="javascript:;" style="color:black">教师菜单</a></li>
+            <li><a href="problemAnalysis.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目审核</a></li>
+            <li><a href="addProblem.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;添加题目</a></li>
+            <li><a href="problemManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目管理</a></li>
+            <li><a href="problemSelect.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看选题结果</a></li>
+            <li><a href="javascript:;" style="color:black">学生菜单</a></li>
+            <li><a href="main.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目浏览</a></li>
+            <li><a href="mySelect.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看选题结果</a></li>
+        </ul>
+    </div>
+    <div class="col-md-10" >
+        <h1>题目管理</h1>
+        <hr/>
+        <table id="problemInfo">
+            <tr>
+                <td>
+                    <img src="./image/loading.gif" class="img-circle text-center"/>
+                </td>
+            </tr>
         </table>
     </div>
 </div>
-
+<div class="modal fade" tabindex="-1" id="editModal" role="dialog" aria-labelledby="editModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" >编辑和查看</h4>
+            </div>
+            <div class="modal-body">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#t1" aria-controls="t1" role="tab" data-toggle="tab">基本设置</a></li>
+                        <li role="presentation"><a href="#t2" aria-controls="t2" role="tab" data-toggle="tab">课题简介</a></li>
+                        <li role="presentation"><a href="#t3" aria-controls="t3" role="tab" data-toggle="tab">课题要求</a></li>
+                        <li role="presentation"><a id="typeTab" href="#t4" aria-controls="t4" role="tab" data-toggle="tab">指定学生</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="t1">
+                            <hr/>
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">课题名称</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" id="name" value="" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">适合专业</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control" id="major">
+                                            <option value="0">请选择专业</option>
+                                            <option value="1">计算机科学与技术</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">新题目</label>
+                                    <div class="col-sm-6">
+                                        <label class="radio-inline">
+                                            <input type="radio" name="r0"  value="1" checked> 是
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="r0"value="0"> 否
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">课题类型</label>
+                                    <div class="col-sm-6" >
+                                        <select class="form-control" id="type">
+                                            <option value="0">请选择课题类型</option>
+                                            <option value="1">毕业设计</option>
+                                            <option value="2">毕业论文</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">课题来源</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control" id="from" onchange="if($(this).val() == 2) $(this).parent().parent().next().show(); else $(this).parent().parent().next().hide();">
+                                            <option value="0">请选择课题来源</option>
+                                            <option value="1">自拟题目</option>
+                                            <option value="2">科研项目</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display: none;">
+                                    <label class="col-sm-2 control-label">科研项目</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">课题性质</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control" id="attr">
+                                            <option value="0">请选择课题性质</option>
+                                            <option value="1">理论研究</option>
+                                            <option value="2">应用基础及其理论研究</option>
+                                            <option value="3">工程技术研究</option>
+                                            <option value="4">其他</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">选题方式</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control" id="selectType">
+                                            <option value="-1">请选择选题方式</option>
+                                            <option value="0" selected>盲选</option>
+                                            <option value="1">指定学生</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="t2">
+                            <hr/>
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <div class="col-sm-10 col-sm-offset-1">
+                                        <textarea id="description" rows="20" class="form-control" placeholder="请填写课题简介"></textarea>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="t3">
+                            <hr/>
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <div class="col-sm-10 col-sm-offset-1">
+                                        <textarea rows="20" id="require" class="form-control" placeholder="请填写课题要求"></textarea>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="t4">
+                            <hr/>
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2">学号</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" value="" placeholder="请输入完整学号" class="form-control" />
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span> 搜索</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2">姓名</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" value="" disabled class="form-control" />
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button class="btn btn-danger" type="button"><span class="glyphicon glyphicon-lock"></span> 绑定</button>
+                                        <button class="btn btn-danger" type="button"><span class="glyphicon glyphicon-unlock"></span> 取消</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                <hr/>
+                <h5>审核意见</h5>
+                <textarea rows="5" class="form-control" disabled></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> 保存</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="well well-lg text-center">
     <p>毕业设计选题系统 版本1.0</p>
 </div>
 <script>
     $(document).ready(function(){
-        $("#teacherInfo").dynamicTables({
-            'title' : ['编号', '课题名称', '适合专业', '新题目', '课题类型', '课题来源', '课题性质', '选题方式', '指定学生', '课题简介', '课题要求', '教师账号', '教师姓名', '审核意见' ,'审核状态'],
-            'data' : [
-                ['1', '毕业设计选题系统', '计算机科学与技术', '', '软件开发', '自拟题目', '校内毕设', '在线选题',  '', '设计毕业设计选题系统\n' +
-                '\n' +
-                '我注意到现在SF的评论框已经是高度自适应了，也就是说无论你输入多少个字也不会有那个讨厌的滚动条了，这点很好。我大概看了一下它的技术实现，好像是把textarea替换成一个div，然后把当前的div的contentEditable设置为true。这个实现跟quora的实现比较像。\n' +
-                '\n' +
-                '但是这种实现有个问题，就是对浏览器的支持不是太好，当然SF是明确不支持IE6的，其它版本的IE我手头没有，不知道支持情况如何。就通常情况来说，ie对contentEditable需要做特别多hack才能保持兼容。另一个浏览器就是opera，opera对div的contentEditable支持是最近才开始的。\n' +
-                '\n' +
-                '另一种实现就是，你在网上搜索就会得到的答案，用代码来说话就是\n' +
-                '\n' +
-                '$(\'textarea\').keyup(function () {\n' +
-                '    $(this).height(this.scrollHeight);\n' +
-                '});\n' +
-                '\n' +
-                '基本上所有的jquery插件核心都是这段代码，但是实际上它的效果非常坑爹\n' +
-                '\n' +
-                '    它响应的是keyup事件，因此也就是说肯定会有延迟。其视觉表现就是，先出现一个滚动条，然后这个文本框再被拉长。这样的体验非常别扭。\n' +
-                '    它也有兼容性问题，再某些浏览器上(比如safari)，它的scrollHeight会莫名奇妙地多出一些，看起来非常奇怪。\n' +
-                '\n' +
-                '以上就是我对这个功能的分析，我想要的就是一个普通的文本框，在大部分浏览器(可以忽略ie6)下都能敏捷地响应拉伸。如果你是用contentEditable实现，你需要支持以下功能\n' +
-                '\n' +
-                '    拷贝文字时只拷贝纯文本，html会被过滤掉\n' +
-                '    换行支持良好\n' +
-                '    支持undo和redo\n' +
-                '\n' +
-                '这种文本框体验上其实非常好，如果能在这里讨论出一种比较好地解决方案，也可以造福很多前端开发者。\n', 'XXX','teacher', 'teacherName', '', '未通过审核'],
-            ],
-            'delsURL': 'http://localhost/pm/apis/del',
-            'saveURL': 'http://localhost/pm/apis/save',
-            'typeConfig' : [
-                {"edit": false},
-                {"type" : "text"},
-                {"type" : "text"},
-                {"type" : "text"},
-                {"type" : "text"},
-                {"type" : "text"},
-                {"type" : "text"},
-                {"type" : "text"},
-                {"type" : "text"},
-                {"type" : "textarea"},
-                {"type" : "textarea"},
-                {"edit" : false},
-                {"edit" : false},
-                {"type" : "textarea"},
-                {"edit" : false},
-            ],
-            'titleConfig' : [
-                {
-                    'title': '审核状态',
-                    'type': 'select',
-                    'value' : [
-                        '1', '0'
-                    ],
-                    'options': [
-                        '通过审核', '不通过审核'
-                    ]
-                }
-            ],
-        });
-
+        $.get("", function(data){
+            $("#problemInfo").html("");
+            $("#problemInfo").dynamicTables({
+                'title' : ['编号', '课题名称', '适合专业', '新题目', '课题类型', '课题来源', '课题性质', '选题方式', '指定学生' ,'审核状态'],
+                'data' :data.data,
+                'noAdd' : true,
+                'noSave' : true,
+                'currentPage' : data.currentPage,
+                'totalPage' : data.totalPage,
+                'delsURL': 'http://localhost/pm/apis/del',
+                'typeConfig' : [
+                    {"edit": false},
+                    {"edit": false},
+                    {"edit": false},
+                    {"edit": false},
+                    {"edit": false},
+                    {"edit": false},
+                    {"edit": false},
+                    {"edit": false},
+                    {"edit": false},
+                    {"edit" : false},
+                ],
+                'noOperator' : false,
+                'operatorHTML' : '<th>' +
+                '<button class="btn btn-primary" type="button" onclick="edit($(this).parent().parent())" data-toggle="tooltip" data-placement="top" title="编辑、查看"><span class="glyphicon glyphicon-edit"></span></button>' +
+                '</th>',
+                'titleConfig' : [
+                    {
+                        'title': '审核状态',
+                        'type': 'select',
+                        'value' : [
+                            '1', '-1', '0'
+                        ],
+                        'options': [
+                            '通过审核', '不通过审核', '还未审核'
+                        ]
+                    }
+                ],
+            });
+        })
     })
+
+    function edit(target) {
+        alert($(target).html());
+        $("#editModal").modal();
+    }
 </script>
 </body>
 </html>
