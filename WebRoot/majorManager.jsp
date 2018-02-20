@@ -1,7 +1,7 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ include file="header.jsp"%>
-<div class="row">
+
     <div class="col-md-6 col-md-offset-3">
         <h1>专业及负责人管理</h1>
         <hr/>
