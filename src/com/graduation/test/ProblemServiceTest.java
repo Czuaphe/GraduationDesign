@@ -25,7 +25,7 @@ public class ProblemServiceTest {
 	@Test
 	public void ShowProblemTest() {
 		
-		problemService.showProblem(1);
+		problemService.showProblem();
 		
 		JSONObject object = problemService.getJsonObjectOutput();
 		System.out.println(object.toString());

@@ -3,6 +3,8 @@ package com.graduation.service;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +35,7 @@ import com.graduation.entity.Admin;
 import com.graduation.entity.Major;
 import com.graduation.entity.Problem;
 import com.graduation.entity.Selected;
+import com.graduation.entity.Student;
 import com.graduation.entity.Teacher;
 
 public class ProblemService {
@@ -42,7 +45,6 @@ public class ProblemService {
 	private SelectedDao selectedDao = new SelectedDao();
 	private MajorDao majorDao = new MajorDao();
 	private TeacherDao teacherDao = new TeacherDao();
-	
 
 	private List<String> pathList = new ArrayList<>();
 
@@ -81,10 +83,9 @@ public class ProblemService {
 			addProblem(info);
 			break;
 		case "show":
+			// 使用三级路由
 			// 显示课题的基本信息
-			int currentPage = Integer.parseInt(request
-					.getParameter("currentPage"));
-			showProblem(currentPage);
+			show();
 			break;
 		case "dels":
 			// 删除课题
@@ -111,24 +112,18 @@ public class ProblemService {
 			updateProblem(updateStringList);
 			break;
 		case "selected":
+			// 使用三级路由
 			// 根据用户来得到选题信息
-			selectedProblem();
-			break;
-		case "selectedMajor":
-			// 根据专业得到选题信息
-			selectedMajor();
+			selected();
 			break;
 		case "verify":
 			// 审核课题
 			verifyProblem();
 			break;
 		case "export":
+			// 使用三级路由
 			// 根据用户得到课题的信息
 			export();
-			break;
-		case "exportMajor":
-			// 根据专业得到课题的信息
-			exportMajor();
 			break;
 		default:
 			System.out.println("二级路由无法解析！！！");
@@ -188,14 +183,53 @@ public class ProblemService {
 	}
 
 	/**
-	 * 显示当前页的数据
+	 * 根据不同的用户显示不同的课题信息
+	 */
+	public void show() {
+
+		HttpSession session = request.getSession();
+		String error = null;
+		Object actObject = session.getAttribute("act");
+
+		if (actObject == null) {
+			error = "没有登录！！不能显示课题信息";
+			System.out.println(error);
+			return;
+		}
+		// 如果没有三级路由，就使用默认函数
+		if (pathList.size() < 3) {
+			showProblem();
+			return;
+		}
+
+		switch (pathList.get(2)) {
+		case "":
+			showProblem();
+			break;
+		case "major":
+			showMajor();
+			break;
+		case "teacher":
+			showTeacher();
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	/**
+	 * 显示当前页的数据，管理员使用
 	 * 
 	 * @param page
 	 *            页码
 	 */
-	public void showProblem(int page) {
+	public void showProblem() {
 
 		jsonObjectOutput = new JSONObject();
+
+		// 得到要显示的页数
+		int page = Integer.parseInt(request.getParameter("currentPage"));
 
 		boolean flag = false;
 
@@ -240,12 +274,106 @@ public class ProblemService {
 	}
 
 	/**
+	 * 显示一个专业的课题信息，学生和专业负责人使用
+	 */
+	public void showMajor() {
+
+		jsonObjectOutput = new JSONObject();
+
+		HttpSession session = request.getSession();
+		String error = null;
+		Object actObject = session.getAttribute("act");
+
+		if (actObject == null) {
+			error = "没有登录！！不能显示课题信息";
+			System.out.println(error);
+			return;
+		}
+
+		Integer act = Integer.parseInt(String.valueOf(actObject));
+		// 如果是教师或管理员登录，则直接退出
+		if (act == 1 || act == 3) {
+			error = "登录用户错误，无法得到一个专业的课题信息。";
+			return;
+		}
+
+		// 存放一页课题信息的JSON
+		JSONArray problemArray = new JSONArray();
+
+		List<Problem> problemList = null;
+		long count = 0; // 一个专业中的总课题数
+		int page = 0; // 一页的课题数
+		int pageSize = 5;
+
+		if (act == 1) {
+
+			// 学生用户登录
+			Student student = (Student) session.getAttribute("user");
+			// 得到页数
+			page = Integer.parseInt(request.getParameter("page"));
+
+			// 通过学生的专业得到所有数据
+			problemList = problemDao.queryByMIDPage(student.getMid(), page,
+					pageSize);
+
+			count = problemDao.queryByMIDCount(student.getMid());
+
+			// 开始生成JSON数据
+			for (Problem problem : problemList) {
+				JSONArray objectArray = new JSONArray();
+				List<Object> objectList = toObjectShowMajor4Student(problem);
+				for (Object object : objectList) {
+					objectArray.add(object);
+				}
+				problemArray.add(objectArray);
+			}
+
+		} else if (act == 4) {
+			// 专业负责人登录
+			// 得到页数
+			page = Integer.parseInt(request.getParameter("page"));
+
+			Teacher teacher = (Teacher) session.getAttribute("user");
+			int mid = majorDao.queryByTea_id(teacher.getTea_id()).getMid();
+
+			problemList = problemDao.queryByMIDPage(mid, page, pageSize);
+
+			count = problemDao.queryByMIDCount(mid);
+
+		}
+
+		// 将专业中的一页数据转换成JSON数据
+		jsonObjectOutput.put("data", problemArray);
+		jsonObjectOutput.put("page", page);
+		jsonObjectOutput.put("status", true);
+		jsonObjectOutput.put("totalPage", (count - 1) / pageSize + 1);
+
+		// 返回JSON数据
+		try {
+			response.getWriter().write(jsonObjectOutput.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	/**
+	 * 显示一个教师的课题信息，教师和专业负责人使用
+	 */
+	public void showTeacher() {
+		
+		
+		
+	}
+
+	/**
 	 * 删除课题
 	 * 
 	 * @param list
 	 *            要删除的课题的ID的列表
 	 */
 	public void deleteProblem(String[] list) {
+
 		jsonObjectOutput = new JSONObject();
 
 		if (list.length != 0) {
@@ -387,13 +515,14 @@ public class ProblemService {
 		session.setAttribute("user", teacher);
 
 	}
+
 	/**
 	 * 导出课题的选题的信息，根据三级路由选择不同的方式导出文件
 	 */
 	public void export() {
-		
-		test();
-		
+
+		// test();
+
 		// 没有登录就不能导出，登录是导出文件的前提。
 		HttpSession session = request.getSession();
 		String error = null;
@@ -407,9 +536,9 @@ public class ProblemService {
 		// 如果没有三级路由，就使用默认函数
 		if (pathList.size() < 3) {
 			exportUser();
-			return ;
+			return;
 		}
-		
+
 		switch (pathList.get(2)) {
 		case "":
 			exportUser();
@@ -421,12 +550,11 @@ public class ProblemService {
 		default:
 			break;
 		}
-		
+
 	}
-	
+
 	/**
-	 * 按照用户导出课题，学生无法导出选题，管理员导出所有课题的选题情况，教师或专业负责人导出自己的
-	 * 所有课题的选题信息
+	 * 按照用户导出课题，学生无法导出选题，管理员导出所有课题的选题情况，教师或专业负责人导出自己的 所有课题的选题信息
 	 */
 	public void exportUser() {
 
@@ -444,7 +572,7 @@ public class ProblemService {
 
 		Integer act = Integer.parseInt(String.valueOf(actObject));
 		System.out.println("act: " + act);
-		
+
 		List<Problem> problemList = null;
 		String fileName = "选题数据";
 		// 根据用户得到不同的课题
@@ -452,7 +580,7 @@ public class ProblemService {
 			// 学生登录
 			error = "当前登录的用户是学生，无法导出课题信息！！";
 			System.out.println(error);
-			return ;
+			return;
 		} else if (act == 3) {
 			// 管理员登录，得到所有课题
 			problemList = problemDao.queryAll();
@@ -462,10 +590,9 @@ public class ProblemService {
 			Teacher teacher = (Teacher) session.getAttribute("user");
 			fileName = teacher.getRealname() + "教师选题数据";
 			System.out.println("export userinfo:" + teacher.toString());
-			
+
 			// 得到当前登录教师的所有课题
-			problemList = problemDao.queryByTea_id(teacher
-					.getTea_id());
+			problemList = problemDao.queryByTea_id(teacher.getTea_id());
 		}
 
 		// 得到要生成文件的对象
@@ -476,8 +603,8 @@ public class ProblemService {
 		// 返回文件数据
 		try {
 			response.setContentType("application/vnd.ms-excel");
-			response.setHeader("Content-Disposition",
-					"attachment;filename=" + URLEncoder.encode(fileName,"utf-8") + ".xlsx");
+			response.setHeader("Content-Disposition", "attachment;filename="
+					+ URLEncoder.encode(fileName, "utf-8") + ".xlsx");
 			ServletOutputStream outputStream = response.getOutputStream();
 
 			workbook.write(outputStream);
@@ -490,74 +617,13 @@ public class ProblemService {
 
 	}
 
-	public XSSFWorkbook XLSXFile4ProblemList(List<Problem> problemList) {
-		// 生成xlsx文件
-		XSSFWorkbook workbook = new XSSFWorkbook();
-		XSSFSheet sheet = workbook.createSheet();
-		XSSFRow titleRow = sheet.createRow(0);
-		// 插入标题数据
-		Title2XSSFRow(titleRow);
-		// 插入具体数据
-		for (int i = 0; i < problemList.size(); i++) {
-
-			XSSFRow dataRow = sheet.createRow(i + 1);
-			Problem problem = problemList.get(i);
-			System.out.println("生成文件之前：课题" + i + ":" + problem.toString());
-			Problem2XSSFRow(workbook, problem, dataRow);
-		}
-		return workbook;
-	}
-
-	public void Title2XSSFRow(XSSFRow titleRow) {
-		String[] titles = { "课题ID", "课题名称", "所属专业", "课题类型", "课题来源", "课题性质",
-				"选题方式", "出题时间", "所属教师姓名", "选题学生姓名" };
-		// 插入标题信息
-		for (int i = 0; i < titles.length; i++) {
-			titleRow.createCell(i).setCellValue(titles[i]);
-		}
-	}
-
-	public void Problem2XSSFRow(XSSFWorkbook workbook, Problem problem, XSSFRow dataRow) {
-
-		dataRow.createCell(0).setCellValue(problem.getProblem_id());
-		dataRow.createCell(1).setCellValue(problem.getName());
-		dataRow.createCell(2).setCellValue(
-				majorDao.queryByMID(problem.getMid()).getMajor());
-		dataRow.createCell(3).setCellValue(problem.getType());
-		dataRow.createCell(4).setCellValue(problem.getSource());
-		dataRow.createCell(5).setCellValue(problem.getNature());
-		dataRow.createCell(6).setCellValue(problem.getWay());
-		// 第7列是出题日期，设置日期格式
-		XSSFCell cell =  dataRow.createCell(7);
-		CellStyle cellStyle = workbook.createCellStyle();  
-        CreationHelper creationHelper = workbook.getCreationHelper();  
-        cellStyle.setDataFormat(  
-                creationHelper.createDataFormat().getFormat("yyyy-MM-dd  hh:mm:ss")  
-                ); 
-        cellStyle.setAlignment(HorizontalAlignment.CENTER);
-		cell.setCellStyle(cellStyle);
-        cell.setCellValue(
-				new Date(problem.getProblem_time().getTime()));
-        // 第8列课题所属教师的姓名
-		dataRow.createCell(8).setCellValue(
-				teacherDao.queryByTea_id(problem.getTea_id()).getRealname());
-		// 第九列是选择这个课题的学生的姓名
-		Selected selected = selectedDao.queryByProblem_id(problem
-				.getProblem_id());
-		dataRow.createCell(9).setCellValue(
-				selected == null ? "待选" : studentDao.queryByStu_id(
-						selected.getStu_id()).getRealname());
-
-	}
-
 	/**
-	 * 根据专业导出课题的选题数据，专业负责人可以使用自己的专业导出所有课题的选题信息
-	 * 管理员则根据参数，可以导出多个专业所有课题的选题信息
+	 * 根据专业导出课题的选题数据，专业负责人可以使用自己的专业导出所有课题的选题信息 管理员则根据参数，可以导出多个专业所有课题的选题信息
 	 */
 	public void exportMajor() {
 
 		System.out.println("进入exportMajor方法中。。。");
-		
+
 		jsonObjectOutput = new JSONObject();
 
 		HttpSession session = request.getSession();
@@ -583,7 +649,7 @@ public class ProblemService {
 		System.out.println("当前登录的用户为：" + teacher.toString());
 		// 得到专业负责人负责的专业对象
 		Major major = majorDao.queryByTea_id(teacher.getTea_id());
-		
+
 		// 得到本专业的所有课题
 		List<Problem> problemList = problemDao.queryByMid(major.getMid());
 
@@ -595,8 +661,9 @@ public class ProblemService {
 		// 返回文件数据
 		try {
 			response.setContentType("application/vnd.ms-excel");
-			response.setHeader("Content-Disposition",
-					"attachment;filename=" + URLEncoder.encode(major.getMajor() + "专业选题数据","utf-8") + ".xlsx");
+			response.setHeader("Content-Disposition", "attachment;filename="
+					+ URLEncoder.encode(major.getMajor() + "专业选题数据", "utf-8")
+					+ ".xlsx");
 			ServletOutputStream outputStream = response.getOutputStream();
 
 			workbook.write(outputStream);
@@ -639,6 +706,65 @@ public class ProblemService {
 
 	}
 
+	public XSSFWorkbook XLSXFile4ProblemList(List<Problem> problemList) {
+		// 生成xlsx文件
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		XSSFSheet sheet = workbook.createSheet();
+		XSSFRow titleRow = sheet.createRow(0);
+		// 插入标题数据
+		Title2XSSFRow(titleRow);
+		// 插入具体数据
+		for (int i = 0; i < problemList.size(); i++) {
+
+			XSSFRow dataRow = sheet.createRow(i + 1);
+			Problem problem = problemList.get(i);
+			System.out.println("生成文件之前：课题" + i + ":" + problem.toString());
+			Problem2XSSFRow(workbook, problem, dataRow);
+		}
+		return workbook;
+	}
+
+	public void Title2XSSFRow(XSSFRow titleRow) {
+		String[] titles = { "课题ID", "课题名称", "所属专业", "课题类型", "课题来源", "课题性质",
+				"选题方式", "出题时间", "所属教师姓名", "选题学生姓名" };
+		// 插入标题信息
+		for (int i = 0; i < titles.length; i++) {
+			titleRow.createCell(i).setCellValue(titles[i]);
+		}
+	}
+
+	public void Problem2XSSFRow(XSSFWorkbook workbook, Problem problem,
+			XSSFRow dataRow) {
+
+		dataRow.createCell(0).setCellValue(problem.getProblem_id());
+		dataRow.createCell(1).setCellValue(problem.getName());
+		dataRow.createCell(2).setCellValue(
+				majorDao.queryByMID(problem.getMid()).getMajor());
+		dataRow.createCell(3).setCellValue(problem.getType());
+		dataRow.createCell(4).setCellValue(problem.getSource());
+		dataRow.createCell(5).setCellValue(problem.getNature());
+		dataRow.createCell(6).setCellValue(problem.getWay());
+		// 第7列是出题日期，设置日期格式
+		XSSFCell cell = dataRow.createCell(7);
+		CellStyle cellStyle = workbook.createCellStyle();
+		CreationHelper creationHelper = workbook.getCreationHelper();
+		cellStyle.setDataFormat(creationHelper.createDataFormat().getFormat(
+				"yyyy-MM-dd  hh:mm:ss"));
+		cellStyle.setAlignment(HorizontalAlignment.CENTER);
+		cell.setCellStyle(cellStyle);
+		cell.setCellValue(new Date(problem.getProblem_time().getTime()));
+		// 第8列课题所属教师的姓名
+		dataRow.createCell(8).setCellValue(
+				teacherDao.queryByTea_id(problem.getTea_id()).getRealname());
+		// 第九列是选择这个课题的学生的姓名
+		Selected selected = selectedDao.queryByProblem_id(problem
+				.getProblem_id());
+		dataRow.createCell(9).setCellValue(
+				selected == null ? "待选" : studentDao.queryByStu_id(
+						selected.getStu_id()).getRealname());
+
+	}
+
 	/**
 	 * 审核课题，将课题状态和审核意见放入数据库中
 	 */
@@ -674,14 +800,53 @@ public class ProblemService {
 		}
 
 	}
+
 	/**
-	 * 查看课题的选题信息，教师或专业负责人得到自己所有课题的选题信息，学生会得到自己的选题信息。管理员会得到
-	 * 所有的课题的选题信息
+	 * 
+	 */
+	public void selected() {
+
+		test();
+
+		// 没有登录就不能导出，登录是导出文件的前提。
+		HttpSession session = request.getSession();
+		String error = null;
+		Object actObject = session.getAttribute("act");
+
+		if (actObject == null) {
+			error = "没有登录！！无法导出课题。";
+			System.out.println(error);
+			return;
+		}
+
+		// 如果没有三级路由，就使用默认函数
+		if (pathList.size() < 3) {
+			selectedProblem();
+			return;
+		}
+
+		switch (pathList.get(2)) {
+		case "":
+			selectedProblem();
+			break;
+		case "majors":
+			selectedMajor();
+			break;
+		case "student":
+			selectedStudent();
+			break;
+		default:
+			break;
+		}
+	}
+
+	/**
+	 * 默认的查看课题的选题信息的方法，教师或专业负责人得到自己所有课题的选题信息，管理员会得到所有的课题的选题信息
 	 */
 	public void selectedProblem() {
-		
+
 		jsonObjectOutput = new JSONObject();
-		
+
 		HttpSession session = request.getSession();
 		String error = null;
 		Object actObject = session.getAttribute("act");
@@ -693,44 +858,142 @@ public class ProblemService {
 		}
 
 		Integer act = Integer.parseInt(String.valueOf(actObject));
-		System.out.println("act: " + act);
-		
-		// 不是教师或专业负责人登录
+		System.out.println("selected act: " + act);
+
+		List<Problem> problemList = null;
+
 		if (act == 1) {
 			// 学生登录
+			// 请使用 /problem/selected/student 得到学生的选题信息
+			System.out.println("学生登录，无法在本URL下得到选题信息！");
+			return;
 		} else if (act == 3) {
 			// 管理员登录
+			// TODO 应该是得到一页的数据
+			problemList = problemDao.queryAll();
+
 		} else {
-			// 教师或专业负责人
+			// 教师或专业负责人登录
+			Teacher teacher = (Teacher) session.getAttribute("user");
+
+			if (teacher == null) {
+				error = "selectedProblem: 无法得到教师信息！！";
+				System.out.println(error);
+				return;
+			}
+			// 得到当前登录教师的所有课题
+			problemList = problemDao.queryByTea_id(teacher.getTea_id());
+
 		}
 
-		Teacher teacher = (Teacher) session.getAttribute("user");
+		// 判断得到的课题是否为空
+		if (problemList == null) {
+			error = "课题数量为空，无法得到选题信息！";
+			return;
+		}
 
-		if (teacher == null) {
-			error = "selectedProblem: 无法得到教师信息！！";
+		if (problemList.size() == 0) {
+			error = "selectedProblem: 课题数量为0，没有信息！！";
+			return;
+		}
+
+		// 将每一个课题得到是否被学生选择的信息，变成JSON数据。
+		JSONArray arrayList = problemList2JSON(problemList);
+
+		// 生成JSON数据
+		jsonObjectOutput.put("data", arrayList);
+		jsonObjectOutput.put("status", true);
+
+		// 返回JSON数据
+		try {
+			response.getWriter().write(jsonObjectOutput.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * 得到一个专业的所有选题信息，专业负责人使用。
+	 */
+	public void selectedMajor() {
+
+		HttpSession session = request.getSession();
+		String error = null;
+		Object actObject = session.getAttribute("act");
+
+		if (actObject == null) {
+			error = "selectedMajor: 没有登录！！无法得到课题信息。";
 			System.out.println(error);
 			return;
 		}
 
-		// 得到当前登录教师的所有课题
-		List<Problem> problemList = problemDao.queryByTea_id(teacher
-				.getTea_id());
-		
-		if (problemList.size() == 0) {
-			error = "selectedProblem: 课题数量为0，没有信息！！";
-			return ;
+		Integer act = Integer.parseInt(actObject.toString());
+		Teacher teacher = (Teacher) session.getAttribute("user");
+		// 得到课题列表
+		List<Problem> problemList = null;
+		if (act == 4) {
+			// 专业负责人登录
+			problemList = problemDao.queryByMid(teacher.getMid());
+		} else if (act == 3) {
+			// 管理员登录，得到专业的参数，最后得到专业对应的所有课题
+			// TODO 现在得到的是所有的课题
+			problemList = problemDao.queryAll();
+		} else {
+			error = "登录用户类型不正确，无法得到选题信息！";
+			System.out.println(error);
+			return;
 		}
-		
-		// TODO 将每一个课题得到是否被学生选择的信息，变成JSON数据。
-		
+
+		// 课题列表转换成JSON数组
+		JSONArray arrayList = problemList2JSON(problemList);
+
+		// 生成JSON数据
+		jsonObjectOutput.put("data", arrayList);
+		jsonObjectOutput.put("status", true);
+
+		// 返回JSON数据
+		try {
+			response.getWriter().write(jsonObjectOutput.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
+
 	/**
-	 * 得到一个专业的所有选题信息
+	 * 得到一个学生的选题结果信息，学生用户使用
 	 */
-	public void selectedMajor() {
+	public void selectedStudent() {
+		// 学生得到的选题信息与其它类型的用户不一样
 		
 	}
-	
+
+	public JSONArray problemList2JSON(List<Problem> problemList) {
+
+		// 将每一个课题得到是否被学生选择的信息，变成JSON数据。
+		JSONArray arrayList = new JSONArray();
+
+		for (Problem problem : problemList) {
+
+			JSONArray problemArray = new JSONArray();
+			// 通过课题得到选题信息
+			Selected selected = selectedDao.queryByProblem_id(problem
+					.getProblem_id());
+			// 将选题信息转换成数组
+			List<Object> objectList = toObjectSelected(problem, selected);
+
+			for (Object object : objectList) {
+				problemArray.add(object);
+			}
+
+			arrayList.add(problemArray);
+		}
+
+		return arrayList;
+
+	}
+
 	/**
 	 * 对要添加的课题的数据进行检测
 	 * 
@@ -831,6 +1094,21 @@ public class ProblemService {
 	}
 
 	/**
+	 * 显示一个专业的课题时将对象转换成Object数组
+	 * 
+	 * @param problem
+	 *            要转换的对象
+	 * @return 一个Object 列表
+	 */
+	public List<Object> toObjectShowMajor4Student(Problem problem) {
+		List<Object> list = new ArrayList<>();
+
+		// TODO 学生的课题信息数据格式
+
+		return list;
+	}
+
+	/**
 	 * 显示课题详情时将对象转换成 Object 数组
 	 * 
 	 * @param problem
@@ -863,6 +1141,49 @@ public class ProblemService {
 		list.add(problem.getAudit_opinion());
 
 		return list;
+	}
+
+	/**
+	 * 显示选题信息时，将课题对象，选题对象转换成 Object 数组
+	 * 
+	 * @param problem
+	 *            课题对象
+	 * @param selected
+	 *            选题对象
+	 * @return 返回一个 List 数组
+	 */
+	public List<Object> toObjectSelected(Problem problem, Selected selected) {
+
+		List<Object> list = new ArrayList<>();
+		// 一定有的信息：专业名称，课题名称，教师帐号，教师姓名，选题方式
+		// 可能 有的信息：学生学号，姓名，学生选题时间
+		Teacher teacher = teacherDao.queryByTea_id(problem.getTea_id());
+		Major major = majorDao.queryByMID(problem.getMid());
+		Student student = selected == null ? null : studentDao
+				.queryByStu_id(selected.getStu_id());
+
+		list.add(problem.getName());
+		list.add(major.getMajor());
+		list.add(teacher.getUsername());
+		list.add(teacher.getRealname());
+		list.add(problem.getWay());
+
+		if (selected == null || student == null) {
+			// 课题还没有人选择时
+			list.add(null);
+			list.add(null);
+			list.add(null);
+		} else {
+			// 学生的姓名和用户名（学号）
+			list.add(student.getRealname());
+			list.add(student.getUsername());
+			// 添加选题学生的选题时间
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+			list.add(df.format(new Date(selected.getTime().getTime())));
+		}
+
+		return list;
+
 	}
 
 	/**

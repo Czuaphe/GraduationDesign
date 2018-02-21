@@ -161,6 +161,41 @@ public class ProblemDao {
 		}
 		return 0L;
 	}
+	/**
+	 * 得到一个专业的当前页的课题
+	 * @param mid 专业ID
+	 * @param page 当前页
+	 * @param pageSize 每页的数量
+	 * @return
+	 */
+	public List<Problem> queryByMIDPage(int mid, int page, int pageSize) {
+		
+		try {
+			String sql = "select * from t_problem where mid = ? limit ?, ?";
+			return runner.query(sql, new BeanListHandler<>(Problem.class), mid, (page - 1) * pageSize, pageSize);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+		
+	}
+	/**
+	 * 查询一个专业的课题总数量
+	 * @param mid
+	 * @return
+	 */
+	public long queryByMIDCount(int mid) {
+		
+		String sql = "select count(1) from t_problem where mid = ?";
+		try {
+			return runner.query(sql, new ScalarHandler<Long>(), mid);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0L;
+		
+	}
 	
 	public List<Problem> queryByTea_id(int tea_id) {
 		
