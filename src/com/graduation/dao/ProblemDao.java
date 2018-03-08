@@ -91,6 +91,26 @@ public class ProblemDao {
 		return false;
 	}
 	
+	public Boolean updateVerify(Problem problem) {
+		
+		String sql = "update t_problem set status = ?, audit_time = ?, audit_opinion = ?  where problem_id = ?";
+		
+		try {
+			int num = runner.update(sql
+					, problem.getStatus()
+					, problem.getAudit_time()
+					, problem.getAudit_opinion()
+					, problem.getProblem_id()
+					);
+			return num > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return false;
+		
+	}
+	
 	public List<Problem> queryAll() {
 		
 		try {
@@ -220,6 +240,19 @@ public class ProblemDao {
 		}
 		
 		return null;
+		
+	}
+	
+public long queryByNameCount(String name) {
+		
+		try {
+			String sql = "select count(1) from t_problem where name = ?";
+			return runner.query(sql, new ScalarHandler<Long>(), name);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return 0;
 		
 	}
 	
