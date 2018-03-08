@@ -12,9 +12,9 @@
 array内容
 ```javascript
   [
-    课题名称[string], 适合专业[int], 新题目[int], 课题类型[int], 
-    课题来源[int], 课题性质[int], 选题方式[int](为0表示盲选，否则是学生ID),
-    课题简介[string], 课题要求[string],
+    name[string], mid[int], is_new[int], type[int], 
+    source[int], nature[int], way[int](为0表示盲选，否则是学生ID),
+    introduction[string], requirement[string],
   ]
 ```
 
