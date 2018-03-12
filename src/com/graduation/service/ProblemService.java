@@ -74,12 +74,20 @@ public class ProblemService {
 
 	public JSONObject redirectToPath() {
 
+		// TODO 插入一个用户
+		HttpSession session = request.getSession();
+		// 学生
+		session.setAttribute("act", 1);
+		session.setAttribute("user", studentDao.queryByStu_id(10011));
+		// 教师
+		// session.setAttribute("act", 2);
+		// session.setAttribute("user", teacherDao.queryByTea_id(20015));
+
 		jsonObjectOutput = new JSONObject();
 		// 判断二级路由
 		switch (pathList.get(1)) {
 		case "add":
 			// 添加一个课题
-			
 			String[] info = request.getParameterValues("info[]");
 			addProblem(info);
 			break;
@@ -95,8 +103,7 @@ public class ProblemService {
 			break;
 		case "details":
 			// 显示课题的详细信息
-			int problem_id = Integer.parseInt(request.getParameter("pro_id"));
-			detailsProblem(problem_id);
+			details();
 			break;
 		case "update":
 			List<String[]> updateStringList = new ArrayList<>();
@@ -188,16 +195,17 @@ public class ProblemService {
 	 */
 	public void show() {
 
-//		HttpSession session = request.getSession();
-//		String error = null;
-//		Object actObject = session.getAttribute("act");
-//
-//		if (actObject == null) {
-//			error = "没有登录！！不能显示课题信息";
-//			System.out.println(error);
-//			return;
-//		}
-		
+		HttpSession session = request.getSession();
+		String error = null;
+
+		// 检测用户是否登录
+		Object actObject = session.getAttribute("act");
+		if (actObject == null) {
+			error = "没有登录！！不能显示课题信息";
+			System.out.println(error);
+			return;
+		}
+
 		// 如果没有三级路由，就使用默认函数
 		if (pathList.size() < 3) {
 			showProblem();
@@ -214,6 +222,9 @@ public class ProblemService {
 		case "teacher":
 			showTeacher();
 			break;
+		// case "details":
+		// showDetails();
+		// break;
 		default:
 			break;
 		}
@@ -282,6 +293,8 @@ public class ProblemService {
 
 		jsonObjectOutput = new JSONObject();
 
+		System.out.println("正在显示一个专业的课题信息");
+
 		HttpSession session = request.getSession();
 		String error = null;
 		Object actObject = session.getAttribute("act");
@@ -294,8 +307,9 @@ public class ProblemService {
 
 		Integer act = Integer.parseInt(String.valueOf(actObject));
 		// 如果是教师或管理员登录，则直接退出
-		if (act == 1 || act == 3) {
+		if (act == 2 || act == 3) {
 			error = "登录用户错误，无法得到一个专业的课题信息。";
+			System.out.println(error);
 			return;
 		}
 
@@ -309,17 +323,28 @@ public class ProblemService {
 
 		if (act == 1) {
 
+			System.out.println("学生登录！！");
 			// 学生用户登录
 			Student student = (Student) session.getAttribute("user");
 			// 得到页数
-			page = Integer.parseInt(request.getParameter("page"));
+			page = Integer.parseInt(request.getParameter("currentPage"));
+			System.out.println("page:" + page);
 
-			// 通过学生的专业得到所有数据
-			problemList = problemDao.queryByMIDPage(student.getMid(), page,
-					pageSize);
-
-			count = problemDao.queryByMIDCount(student.getMid());
-
+			// 判断学生是否指定题目
+			List<Problem> wayList = problemDao.queryByWay(student.getStu_id());
+			System.out.println("stu_id:" + student.getStu_id());
+			if (wayList != null && wayList.size() != 0) {
+				problemList = wayList;
+				count = 1;
+				
+			} else {
+				// 通过学生的专业得到所有盲选题目
+				problemList = problemDao.queryByMIDPage(student.getMid(), page,
+						pageSize);
+				count = problemDao.queryByMIDCount(student.getMid());
+			}
+			System.out.println("指定学生的题目数量：" + wayList.size());
+			System.out.println("总数量：" + count);
 			// 开始生成JSON数据
 			for (Problem problem : problemList) {
 				JSONArray objectArray = new JSONArray();
@@ -333,7 +358,7 @@ public class ProblemService {
 		} else if (act == 4) {
 			// 专业负责人登录
 			// 得到页数
-			page = Integer.parseInt(request.getParameter("page"));
+			page = Integer.parseInt(request.getParameter("currentPage"));
 
 			Teacher teacher = (Teacher) session.getAttribute("user");
 			int mid = majorDao.queryByTea_id(teacher.getTea_id()).getMid();
@@ -341,12 +366,13 @@ public class ProblemService {
 			problemList = problemDao.queryByMIDPage(mid, page, pageSize);
 
 			count = problemDao.queryByMIDCount(mid);
+			// TODO 专业负责人得到一个专业所有课题信息
 
 		}
 
 		// 将专业中的一页数据转换成JSON数据
 		jsonObjectOutput.put("data", problemArray);
-		jsonObjectOutput.put("page", page);
+		jsonObjectOutput.put("currentPage", page);
 		jsonObjectOutput.put("status", true);
 		jsonObjectOutput.put("totalPage", (count - 1) / pageSize + 1);
 
@@ -358,14 +384,100 @@ public class ProblemService {
 		}
 
 	}
-	
+
 	/**
 	 * 显示一个教师的课题信息，教师和专业负责人使用
 	 */
 	public void showTeacher() {
-		
-		
-		
+
+		System.out.println("正在显示教师课题信息！！");
+
+		jsonObjectOutput = new JSONObject();
+
+		HttpSession session = request.getSession();
+		String error = null;
+		Object actObject = session.getAttribute("act");
+
+		if (actObject == null) {
+			error = "没有登录！！不能显示课题信息";
+			System.out.println(error);
+			return;
+		}
+
+		Integer act = Integer.parseInt(String.valueOf(actObject));
+		System.out.println("act:" + act);
+		// 如果不是教师也不是专业负责人登录，则直接退出
+		if (act != 2 && act != 3) {
+			error = "登录用户错误，无法得到一个专业的课题信息。";
+			System.out.println("error:" + error);
+			return;
+		}
+
+		Teacher teacher = (Teacher) session.getAttribute("user");
+		// System.out.println("Teacher info:" + teacher.toString());
+		List<Problem> problemList = problemDao.queryByTea_id(teacher
+				.getTea_id());
+
+		System.out.println("该教师拥有的课题数量为：" + problemList.size());
+
+		JSONArray problemArray = new JSONArray();
+
+		for (Problem problem : problemList) {
+			JSONArray objectArray = new JSONArray();
+			List<Object> objectList = toObjectShow(problem);
+			for (Object object : objectList) {
+				objectArray.add(object);
+			}
+			problemArray.add(objectArray);
+		}
+
+		jsonObjectOutput.put("data", problemArray);
+		jsonObjectOutput.put("status", true);
+
+		// 返回JSON数据
+		try {
+			response.getWriter().write(jsonObjectOutput.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	@Deprecated
+	public void showDetails() {
+
+		jsonObjectOutput = new JSONObject();
+
+		String idString = request.getParameter("pro_id");
+
+		int problem_id = Integer.parseInt(idString);
+
+		Problem problem = problemDao.queryByProblem_id(problem_id);
+
+		if (problem == null) {
+			jsonObjectOutput.put("status", false);
+		} else {
+
+			List<Object> objectList = toObjectDetailsTeacher(problem);
+
+			JSONArray objectArray = new JSONArray();
+
+			for (Object object : objectList) {
+				objectArray.add(object);
+			}
+
+			jsonObjectOutput.put("status", true);
+
+			jsonObjectOutput.put("info", objectArray);
+		}
+
+		// 返回JSON数据
+		try {
+			response.getWriter().write(jsonObjectOutput.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	/**
@@ -419,15 +531,50 @@ public class ProblemService {
 
 	}
 
+	public void details() {
+		HttpSession session = request.getSession();
+		String error = null;
+
+		// 检测用户是否登录
+		Object actObject = session.getAttribute("act");
+		if (actObject == null) {
+			error = "没有登录！！不能显示课题信息";
+			System.out.println(error);
+			return;
+		}
+
+		// 如果没有三级路由，就使用默认函数
+		if (pathList.size() < 3) {
+			detailsProblem();
+			return;
+		}
+
+		switch (pathList.get(2)) {
+		case "":
+			detailsProblem();
+			break;
+		case "teacher":
+			detailsTeacher();
+			break;
+		case "student":
+			detailsStudent();
+			break;
+		default:
+			break;
+		}
+	}
+
 	/**
 	 * 显示某一课题的详情
 	 * 
 	 * @param problem_id
 	 *            课题的ID
 	 */
-	public void detailsProblem(int problem_id) {
+	public void detailsProblem() {
 
 		jsonObjectOutput = new JSONObject();
+
+		int problem_id = Integer.parseInt(request.getParameter("pro_id"));
 
 		Problem problem = problemDao.queryByProblem_id(problem_id);
 
@@ -436,6 +583,80 @@ public class ProblemService {
 		} else {
 
 			List<Object> objectList = toObjectDetails(problem);
+
+			JSONArray objectArray = new JSONArray();
+
+			for (Object object : objectList) {
+				objectArray.add(object);
+			}
+
+			jsonObjectOutput.put("status", true);
+
+			jsonObjectOutput.put("info", objectArray);
+		}
+
+		// 返回JSON数据
+		try {
+			response.getWriter().write(jsonObjectOutput.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public void detailsTeacher() {
+
+		jsonObjectOutput = new JSONObject();
+
+		String idString = request.getParameter("pro_id");
+
+		int problem_id = Integer.parseInt(idString);
+
+		Problem problem = problemDao.queryByProblem_id(problem_id);
+
+		if (problem == null) {
+			jsonObjectOutput.put("status", false);
+		} else {
+
+			List<Object> objectList = toObjectDetailsTeacher(problem);
+
+			JSONArray objectArray = new JSONArray();
+
+			for (Object object : objectList) {
+				objectArray.add(object);
+			}
+
+			jsonObjectOutput.put("status", true);
+
+			jsonObjectOutput.put("info", objectArray);
+		}
+
+		// 返回JSON数据
+		try {
+			response.getWriter().write(jsonObjectOutput.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public void detailsStudent() {
+
+		jsonObjectOutput = new JSONObject();
+
+		System.out.println("正在显示学生选题的题目详情！");
+
+		String idString = request.getParameter("pro_id");
+
+		int problem_id = Integer.parseInt(idString);
+
+		Problem problem = problemDao.queryByProblem_id(problem_id);
+
+		if (problem == null) {
+			jsonObjectOutput.put("status", false);
+		} else {
+
+			List<Object> objectList = toObjectDetailsStudent(problem);
 
 			JSONArray objectArray = new JSONArray();
 
@@ -478,11 +699,13 @@ public class ProblemService {
 			updateProblemList.add(toBeanUpdate(list));
 		}
 
+		System.out.println("修改的课题数量为：" + updateProblemList.size());
+
 		// 更新列表中的所有课题
 		boolean flag = true;
 		int problem_id = 0; // 记录出错的课题的ID
 		for (int i = 0; i < updateProblemList.size(); i++) {
-			System.out.println("Update Student :"
+			System.out.println("Update Problem :"
 					+ updateProblemList.get(i).toString());
 			flag = problemDao.updateAll(updateProblemList.get(i));
 			if (!flag) {
@@ -775,16 +998,16 @@ public class ProblemService {
 		jsonObjectOutput = new JSONObject();
 
 		int problem_id = Integer.parseInt(request.getParameter("pro_id"));
-		String content  = request.getParameter("content");;
+		String content = request.getParameter("content");
+		;
 		boolean status = Boolean.parseBoolean(request.getParameter("accepted"));
-		
+
 		Problem problem = problemDao.queryByProblem_id(problem_id);
 
 		problem.setStatus(status ? 1 : -1);
 
 		problem.setAudit_time(new Timestamp(new Date().getTime()));
 		problem.setAudit_opinion(content);
-		
 
 		boolean b = problemDao.updateVerify(problem);
 
@@ -809,6 +1032,7 @@ public class ProblemService {
 		// 没有登录就不能导出，登录是导出文件的前提。
 		HttpSession session = request.getSession();
 		String error = null;
+
 		Object actObject = session.getAttribute("act");
 
 		if (actObject == null) {
@@ -833,6 +1057,8 @@ public class ProblemService {
 		case "student":
 			selectedStudent();
 			break;
+		case "dels":
+			selectedDels();
 		default:
 			break;
 		}
@@ -964,7 +1190,56 @@ public class ProblemService {
 	 */
 	public void selectedStudent() {
 		// 学生得到的选题信息与其它类型的用户不一样
-		
+
+	}
+
+	public void selectedDels() {
+		String[] selectedIdStrings = request.getParameterValues("ids[]");
+
+		jsonObjectOutput = new JSONObject();
+
+		if (selectedIdStrings.length != 0) {
+
+			List<Integer> delList = new ArrayList<>();
+
+			for (String string : selectedIdStrings) {
+				if (string.equals("\\")) {
+					break;
+				}
+				delList.add(Integer.parseInt(string));
+			}
+
+			List<Boolean> delFlagList = new ArrayList<>();
+
+			for (Integer selected_id : delList) {
+				boolean flag = selectedDao.remove(selected_id);
+				System.out.println("delete selected id: " + selected_id
+						+ ",result: " + flag);
+				delFlagList.add(flag);
+			}
+
+			JSONArray delJsonArray = new JSONArray();
+
+			for (int i = 0; i < delFlagList.size(); i++) {
+				if (delFlagList.get(i)) {
+					delJsonArray.add(delList.get(i));
+				}
+
+			}
+
+			jsonObjectOutput.put("status", true);
+			// 设置返回删除成功的课题的ID
+			jsonObjectOutput.put("ids", delJsonArray);
+
+			// 返回JSON数据
+			try {
+				response.getWriter().write(jsonObjectOutput.toString());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
+
 	}
 
 	public JSONArray problemList2JSON(List<Problem> problemList) {
@@ -1019,7 +1294,7 @@ public class ProblemService {
 					break;
 				}
 			}
-			
+
 			// 选题方式为指定学生，检测此学生是否已经被指定过
 			if (i == 6 && !list.get(i).equals("0")) {
 				List<Problem> wayList = problemDao.queryByWay(Integer
@@ -1068,11 +1343,11 @@ public class ProblemService {
 		problem.setIs_new(Integer.parseInt(String.valueOf(list.get(3))));
 		problem.setType(Integer.parseInt(String.valueOf(list.get(4))));
 		problem.setSource(Integer.parseInt(String.valueOf(list.get(5))));
-		problem.setResearch_name(String.valueOf(list.get(6)));
-		problem.setNature(Integer.parseInt(String.valueOf(list.get(7))));
-		problem.setWay(Integer.parseInt(String.valueOf(list.get(8))));
-		problem.setIntroduction(String.valueOf(list.get(9)));
-		problem.setRequirement(String.valueOf(list.get(10)));
+		problem.setNature(Integer.parseInt(String.valueOf(list.get(6))));
+		problem.setWay(Integer.parseInt(String.valueOf(list.get(7))));
+		problem.setIntroduction(String.valueOf(list.get(8)));
+		problem.setRequirement(String.valueOf(list.get(9)));
+		problem.setResearch_name(String.valueOf(list.get(10)));
 
 		return problem;
 	}
@@ -1107,12 +1382,12 @@ public class ProblemService {
 			break;
 		}
 		list.add(typeString);
-		
+
 		int source = problem.getSource();
 		String sourceString = "未知来源";
 		switch (source) {
 		case 1:
-			sourceString = "自拟题目"; 
+			sourceString = "自拟题目";
 			break;
 		case 2:
 			sourceString = "科研题目 - " + problem.getResearch_name();
@@ -1121,12 +1396,12 @@ public class ProblemService {
 			break;
 		}
 		list.add(sourceString);
-		
+
 		int natrue = problem.getNature();
 		String natrueString = "未知性质";
 		switch (natrue) {
 		case 1:
-			natrueString = "理论研究"; 
+			natrueString = "理论研究";
 			break;
 		case 2:
 			natrueString = "应用基础及其理论研究";
@@ -1141,21 +1416,21 @@ public class ProblemService {
 			break;
 		}
 		list.add(natrueString);
-		
+
 		int way = problem.getWay();
 		String wayString = "未知方式";
 		switch (way) {
 		case 0:
-			wayString = "盲选"; 
+			wayString = "盲选";
 			break;
 		default:
-			wayString= "指定学生 - " + studentDao.queryByStu_id(way).getRealname();
+			wayString = "指定学生 - " + studentDao.queryByStu_id(way).getRealname();
 			break;
 		}
 		list.add(wayString);
-		
+
 		list.add(teacherDao.queryByTea_id(problem.getTea_id()).getRealname());
-		
+
 		int status = problem.getStatus();
 		String statusString = "未知";
 		switch (status) {
@@ -1175,32 +1450,99 @@ public class ProblemService {
 		return list;
 	}
 
-	/**
-	 * 显示一个专业的课题时将对象转换成Object数组
-	 * 
-	 * @param problem
-	 *            要转换的对象
-	 * @return 一个Object 列表
-	 */
-	public List<Object> toObjectShowMajor4Student(Problem problem) {
+	public List<Object> toObjectDetailsTeacher(Problem problem) {
 		List<Object> list = new ArrayList<>();
 
-		// TODO 学生的课题信息数据格式
+		list.add(problem.getProblem_id());
+		list.add(problem.getName());
+		list.add(problem.getMid());
+		list.add(problem.getIs_new());
+		list.add(problem.getType());
+
+		// int source = problem.getSource();
+		// String sourceString = "未知来源";
+		// switch (source) {
+		// case 1:
+		// sourceString = "自拟题目";
+		// break;
+		// case 2:
+		// sourceString = "科研题目 - " + problem.getResearch_name();
+		// break;
+		// default:
+		// break;
+		// }
+		list.add(problem.getSource());
+		list.add(problem.getResearch_name());
+
+		// int natrue = problem.getNature();
+		// String natrueString = "未知性质";
+		// switch (natrue) {
+		// case 1:
+		// natrueString = "理论研究";
+		// break;
+		// case 2:
+		// natrueString = "应用基础及其理论研究";
+		// break;
+		// case 3:
+		// natrueString = "工程技术研究";
+		// break;
+		// case 4:
+		// natrueString = "其它";
+		// break;
+		// default:
+		// break;
+		// }
+		list.add(problem.getNature());
+
+		// int way = problem.getWay();
+		// String wayString = "未知方式";
+		// switch (way) {
+		// case 0:
+		// wayString = "盲选";
+		// break;
+		// default:
+		// wayString = "指定学生 - " + studentDao.queryByStu_id(way).getRealname();
+		// break;
+		// }
+		list.add(problem.getWay());
+
+		list.add(teacherDao.queryByTea_id(problem.getTea_id()).getRealname());
+
+		// int status = problem.getStatus();
+		// String statusString = "未知";
+		// switch (status) {
+		// case 0:
+		// statusString = "未审核";
+		// break;
+		// case -1:
+		// statusString = "未通过审核";
+		// break;
+		// case 1:
+		// statusString = "通过审核";
+		// default:
+		// break;
+		// }
+		list.add(problem.getStatus());
+
+		if (problem.getWay() != 0) {
+			Student student = studentDao.queryByStu_id(problem.getWay());
+			list.add(student.getUsername());
+			list.add(student.getRealname());
+		} else {
+			list.add(null);
+			list.add(null);
+		}
+
+		list.add(problem.getIntroduction());
+		list.add(problem.getRequirement());
+		list.add(problem.getAudit_opinion());
 
 		return list;
 	}
 
-	/**
-	 * 显示课题详情时将对象转换成 Object 数组
-	 * 
-	 * @param problem
-	 *            要转换的对象
-	 * @return 返回一个 Object 列表
-	 */
-	public List<Object> toObjectDetails(Problem problem) {
+	public List<Object> toObjectDetailsStudent(Problem problem) {
 		List<Object> list = new ArrayList<>();
 
-		
 		list.add(problem.getProblem_id());
 		list.add(problem.getName());
 		list.add(majorDao.queryByMID(problem.getMid()).getMajor());
@@ -1221,12 +1563,12 @@ public class ProblemService {
 			break;
 		}
 		list.add(typeString);
-		
+
 		int source = problem.getSource();
 		String sourceString = "未知来源";
 		switch (source) {
 		case 1:
-			sourceString = "自拟题目"; 
+			sourceString = "自拟题目";
 			break;
 		case 2:
 			sourceString = "科研题目 - " + problem.getResearch_name();
@@ -1235,12 +1577,12 @@ public class ProblemService {
 			break;
 		}
 		list.add(sourceString);
-		
+
 		int natrue = problem.getNature();
 		String natrueString = "未知性质";
 		switch (natrue) {
 		case 1:
-			natrueString = "理论研究"; 
+			natrueString = "理论研究";
 			break;
 		case 2:
 			natrueString = "应用基础及其理论研究";
@@ -1255,21 +1597,108 @@ public class ProblemService {
 			break;
 		}
 		list.add(natrueString);
+		list.add(problem.getIntroduction());
+		list.add(problem.getRequirement());
 		
+		return list;
+	}
+
+	/**
+	 * 显示一个专业的课题时将对象转换成Object数组
+	 * 
+	 * @param problem
+	 *            要转换的对象
+	 * @return 一个Object 列表
+	 */
+	public List<Object> toObjectShowMajor4Student(Problem problem) {
+		List<Object> list = new ArrayList<>();
+
+		// TODO 学生的课题信息数据格式
+		list.add(problem.getProblem_id());
+		list.add(problem.getName());
+
+		return list;
+	}
+
+	/**
+	 * 显示课题详情时将对象转换成 Object 数组
+	 * 
+	 * @param problem
+	 *            要转换的对象
+	 * @return 返回一个 Object 列表
+	 */
+	public List<Object> toObjectDetails(Problem problem) {
+		List<Object> list = new ArrayList<>();
+
+		list.add(problem.getProblem_id());
+		list.add(problem.getName());
+		list.add(majorDao.queryByMID(problem.getMid()).getMajor());
+		list.add(problem.getIs_new() == 0 ? "否" : "是");
+		int type = problem.getType();
+		String typeString = "未知类型";
+		switch (type) {
+		case 0:
+			typeString = "请选择课题类型";
+			break;
+		case 1:
+			typeString = "毕业设计";
+			break;
+		case 2:
+			typeString = "毕业论文";
+			break;
+		default:
+			break;
+		}
+		list.add(typeString);
+
+		int source = problem.getSource();
+		String sourceString = "未知来源";
+		switch (source) {
+		case 1:
+			sourceString = "自拟题目";
+			break;
+		case 2:
+			sourceString = "科研题目 - " + problem.getResearch_name();
+			break;
+		default:
+			break;
+		}
+		list.add(sourceString);
+
+		int natrue = problem.getNature();
+		String natrueString = "未知性质";
+		switch (natrue) {
+		case 1:
+			natrueString = "理论研究";
+			break;
+		case 2:
+			natrueString = "应用基础及其理论研究";
+			break;
+		case 3:
+			natrueString = "工程技术研究";
+			break;
+		case 4:
+			natrueString = "其它";
+			break;
+		default:
+			break;
+		}
+		list.add(natrueString);
+
 		int way = problem.getWay();
 		String wayString = "未知方式";
 		switch (way) {
 		case 0:
-			wayString = "盲选"; 
+			wayString = "盲选";
 			break;
 		default:
-			wayString= "指定学生 - " + studentDao.queryByStu_id(way).getRealname();
+			wayString = "指定学生 - " + studentDao.queryByStu_id(way).getRealname();
 			break;
 		}
 		list.add(wayString);
-		
+
 		list.add(teacherDao.queryByTea_id(problem.getTea_id()).getRealname());
-		
+
 		list.add(problem.getIntroduction());
 		list.add(problem.getRequirement());
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -1279,7 +1708,7 @@ public class ProblemService {
 			list.add(null);
 		}
 		list.add(problem.getAudit_opinion());
-		
+
 		int status = problem.getStatus();
 		String statusString = "未知";
 		switch (status) {
@@ -1297,8 +1726,7 @@ public class ProblemService {
 		list.add(statusString);
 		// 课题教师电话
 		list.add(teacherDao.queryByTea_id(problem.getTea_id()).getPhone());
-		
-		
+
 		return list;
 	}
 
@@ -1315,31 +1743,46 @@ public class ProblemService {
 
 		List<Object> list = new ArrayList<>();
 		// 一定有的信息：专业名称，课题名称，教师帐号，教师姓名，选题方式
-		// 可能 有的信息：学生学号，姓名，学生选题时间
+		// 可能 有的信息：学生学号，姓名，学生选题时间,选题ID
 		Teacher teacher = teacherDao.queryByTea_id(problem.getTea_id());
 		Major major = majorDao.queryByMID(problem.getMid());
 		Student student = selected == null ? null : studentDao
 				.queryByStu_id(selected.getStu_id());
 
-		list.add(problem.getName());
-		list.add(major.getMajor());
-		list.add(teacher.getUsername());
-		list.add(teacher.getRealname());
-		list.add(problem.getWay());
-
 		if (selected == null || student == null) {
 			// 课题还没有人选择时
-			list.add(null);
-			list.add(null);
-			list.add(null);
+			String nullString = "\\";
+			list.add(nullString);
+			list.add(nullString);
+			list.add(nullString);
+			list.add(nullString);
 		} else {
+			// 选题ID
+			list.add(selected.getSelected_id());
 			// 学生的姓名和用户名（学号）
 			list.add(student.getRealname());
 			list.add(student.getUsername());
 			// 添加选题学生的选题时间
-			DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			list.add(df.format(new Date(selected.getTime().getTime())));
 		}
+
+		list.add(problem.getName());
+		list.add(major.getMajor());
+		list.add(teacher.getUsername());
+		list.add(teacher.getRealname());
+
+		int way = problem.getWay();
+		String wayString = "未知方式";
+		switch (way) {
+		case 0:
+			wayString = "盲选";
+			break;
+		default:
+			wayString = "指定学生 - " + studentDao.queryByStu_id(way).getRealname();
+			break;
+		}
+		list.add(wayString);
 
 		return list;
 

@@ -182,7 +182,7 @@ public class ProblemDao {
 		return 0L;
 	}
 	/**
-	 * 得到一个专业的当前页的课题
+	 * 得到一个专业的当前页的盲选课题
 	 * @param mid 专业ID
 	 * @param page 当前页
 	 * @param pageSize 每页的数量
@@ -191,7 +191,7 @@ public class ProblemDao {
 	public List<Problem> queryByMIDPage(int mid, int page, int pageSize) {
 		
 		try {
-			String sql = "select * from t_problem where mid = ? limit ?, ?";
+			String sql = "select * from t_problem where way = 0 and mid = ? limit ?, ?";
 			return runner.query(sql, new BeanListHandler<>(Problem.class), mid, (page - 1) * pageSize, pageSize);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -201,13 +201,13 @@ public class ProblemDao {
 		
 	}
 	/**
-	 * 查询一个专业的课题总数量
+	 * 查询一个专业的盲选课题总数量
 	 * @param mid
 	 * @return
 	 */
 	public long queryByMIDCount(int mid) {
 		
-		String sql = "select count(1) from t_problem where mid = ?";
+		String sql = "select count(1) from t_problem where way = 0 and mid = ?";
 		try {
 			return runner.query(sql, new ScalarHandler<Long>(), mid);
 		} catch (SQLException e) {

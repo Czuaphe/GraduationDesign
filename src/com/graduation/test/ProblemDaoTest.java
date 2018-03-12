@@ -105,5 +105,10 @@ public class ProblemDaoTest {
 			e.printStackTrace();
 		}
 	}
+	@Test
+	public void queryByWayTest() {
+		List<Problem> list = problemDao.queryByWay(10011);
+		System.out.println(list.size());
+	}
 
 }
