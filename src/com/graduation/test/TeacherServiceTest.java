@@ -21,7 +21,7 @@ public class TeacherServiceTest {
 	@Test
 	public void showTeacherTest() {
 		int page = 2;
-		teacherService.showTeacher(page);
+		teacherService.showTeacher();
 		JSONObject jsonObject =  teacherService.getJsonObject();
 		Object object = jsonObject.get("data");
 		System.out.println(object.toString());

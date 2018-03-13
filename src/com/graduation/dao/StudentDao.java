@@ -1,6 +1,7 @@
 package com.graduation.dao;
 
 import java.math.BigInteger;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -135,6 +136,20 @@ public class StudentDao {
 		}
 		
 		return null;
+	}
+	
+	public Connection getConnection() {
+		
+		Connection connection = null;
+		
+		try {
+			connection = runner.getDataSource().getConnection();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			
+		}
+		return connection;
 	}
 	
 }

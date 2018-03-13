@@ -1,6 +1,7 @@
 package com.graduation.dao;
 
 import java.math.BigInteger;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -20,6 +21,24 @@ public class SelectedDao {
 		String sql = "insert into p_selected(problem_id, stu_id, time) values(?, ?, ?)";
 		try {
 			int num = runner.update(sql
+					, selected.getProblem_id()
+					, selected.getStu_id()
+					, selected.getTime()
+					);
+			BigInteger id =  runner.query("SELECT LAST_INSERT_ID()", new ScalarHandler<BigInteger>());
+			System.out.println("Save Selected ID: " + id.toString());
+			selected.setSelected_id(Integer.parseInt(id.toString()));
+			return num > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean save(Connection connection, Selected selected) {
+		String sql = "insert into p_selected(problem_id, stu_id, time) values(?, ?, ?)";
+		try {
+			int num = runner.update(connection, sql
 					, selected.getProblem_id()
 					, selected.getStu_id()
 					, selected.getTime()
@@ -89,6 +108,16 @@ public class SelectedDao {
 		String sql = "select * from p_selected where problem_id = ?";
 		try {
 			return runner.query(sql, new BeanHandler<>(Selected.class), problem_id);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public Selected queryByProblem_id(Connection connection, int problem_id) {
+		String sql = "select * from p_selected where problem_id = ?";
+		try {
+			return runner.query(connection, sql, new BeanHandler<>(Selected.class), problem_id);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

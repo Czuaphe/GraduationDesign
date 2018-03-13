@@ -1,25 +1,37 @@
 package com.graduation.service;
 
+import static org.hamcrest.CoreMatchers.nullValue;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
+import oracle.net.aso.l;
+import oracle.net.aso.r;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import com.graduation.dao.MajorDao;
+import com.graduation.dao.SelectedDao;
 import com.graduation.dao.StudentDao;
 import com.graduation.entity.Major;
+import com.graduation.entity.Selected;
 import com.graduation.entity.Student;
 
 public class StudentService {
 	
 	private StudentDao studentDao = new StudentDao();
 	private MajorDao majorDao = new MajorDao();
+	private SelectedDao selectedDao = new SelectedDao();
 	
 	private List<String> pathList = new ArrayList<>();
 	
@@ -36,11 +48,15 @@ public class StudentService {
 	
 	public JSONObject redirectToPath() {
 		
+		HttpSession session = request.getSession();
+		
+//		// 学生
+		session.setAttribute("act", 1);
+		session.setAttribute("user", studentDao.queryByStu_id(10011));
+		
 		switch (pathList.get(1)) {
 		case "show":
-			String  page =  request.getParameter("currentPage");
-//			System.out.println("currentPage=" + page);
-			showStudent(Integer.parseInt(page));
+			showStudent();
 			break;
 		case "dels":
 			String[] delList = request.getParameterValues("ids[]");
@@ -78,6 +94,12 @@ public class StudentService {
 			String username = request.getParameter("stu_id");
 			getStudentInfo(username);
 			break;
+		case "select":
+			selectStudent();
+			break;
+		case "modify":
+			modifyStudent();
+			break;
 		default:
 			break;
 		}
@@ -85,42 +107,85 @@ public class StudentService {
 		return jsonObjectOutput;
 	}
 	
-	public void showStudent(int page) {
+	public void showStudent() {
 		
 		jsonObjectOutput = new JSONObject();
 		
-		// 每页的大小
-		int pageSize = 5;
-		// 得到对应页的数据
-		List<Student> list = studentDao.queryByPage(page, pageSize);
-		// 得到要显示的总数量
-		long count = studentDao.queryCount();
 		
-		// 定义要返回的教师数据的JSON对象
-		JSONArray jsonList = new JSONArray();
+System.out.println("学生进行选题中。。。");
 		
-		/* 将对象转换成JSON数据 */
-		for (Student student : list) {
-			// 把教师对象转换成Object数组
-			List<Object> objectList = toObjectList(student);
-			// 不需要对Object数组进行加工
-//			objectList = produceTeacherOfShow(objectList);
-			
-			// 加入到要返回的教师数据的JSON对象中
-			jsonList.add(objectList);
+		HttpSession session = request.getSession();
+		// 没有登录
+		Object actObject = session.getAttribute("act");
+		String error = null;
+		if (actObject == null) {
+			error = "Not Login";
+			System.out.println(error);
+			return ;
 		}
 		
-		// 返回所有专业
-		jsonObjectOutput.put("majors", getAllMajors());
+		int act = Integer.parseInt(String.valueOf(actObject));
 		
-		// 设置要返回的教师数据
-		jsonObjectOutput.put("data", jsonList);
-		// 设置当前页
-		jsonObjectOutput.put("currentPage", page);
-		// 设置返回状态
-		jsonObjectOutput.put("status", true);
-		// 设置总页数
-		jsonObjectOutput.put("totalPage", (count - 1) / pageSize + 1 );
+		//学生登录
+		if (act == 1) {
+			System.out.println("显示学生的个人信息。。。");
+			Student student = (Student)session.getAttribute("user");
+			
+			JSONArray jsonArray = new JSONArray();
+			
+			List<Object> studentList = toObjectShow4Student(student);
+			
+			for (Object object : studentList) {
+				jsonArray.add(object);
+			}
+			
+			jsonObjectOutput.put("status", true);
+			jsonObjectOutput.put("info", jsonArray);
+			
+			System.out.println("完成");
+		} else if (act == 3) {
+			// 管理员登录
+			int  page =  Integer.parseInt(request.getParameter("currentPage"));
+			
+			// 每页的大小
+			int pageSize = 5;
+			// 得到对应页的数据
+			List<Student> list = studentDao.queryByPage(page, pageSize);
+			// 得到要显示的总数量
+			long count = studentDao.queryCount();
+			
+			// 定义要返回的教师数据的JSON对象
+			JSONArray jsonList = new JSONArray();
+			
+			/* 将对象转换成JSON数据 */
+			for (Student student : list) {
+				// 把教师对象转换成Object数组
+				List<Object> objectList = toObjectList(student);
+				// 不需要对Object数组进行加工
+//				objectList = produceTeacherOfShow(objectList);
+				
+				// 加入到要返回的教师数据的JSON对象中
+				jsonList.add(objectList);
+			}
+			
+			// 返回所有专业
+			jsonObjectOutput.put("majors", getAllMajors());
+			
+			// 设置要返回的教师数据
+			jsonObjectOutput.put("data", jsonList);
+			// 设置当前页
+			jsonObjectOutput.put("currentPage", page);
+			// 设置返回状态
+			jsonObjectOutput.put("status", true);
+			// 设置总页数
+			jsonObjectOutput.put("totalPage", (count - 1) / pageSize + 1 );
+			
+		} else {
+			error = "登录用户类型错误";
+			System.out.println(error);
+		}
+		
+		
 		
 	}
 	
@@ -356,10 +421,136 @@ public class StudentService {
 		}
 		
 	}
+	/**
+	 * 学生选题
+	 */
+	public void selectStudent() {
+		
+		jsonObjectOutput = new JSONObject();
+		
+		System.out.println("学生进行选题中。。。");
+		
+		HttpSession session = request.getSession();
+		// 没有登录
+		Object actObject = session.getAttribute("act");
+		String error = null;
+		if (actObject == null) {
+			error = "Not Login";
+			System.out.println(error);
+			return ;
+		}
+		
+		int act = Integer.parseInt(String.valueOf(actObject));
+		
+		//不是学生登录
+		if (act != 1) {
+			error = "Not Studnet Login";
+			System.out.println(error);
+			return ;
+		}
+		
+		Student student = (Student) session.getAttribute("user");
+		
+		int problem_id = Integer.parseInt(request.getParameter("pro_id"));
+		// 选题状态
+		boolean flag = false;
+		
+		Connection connection = studentDao.getConnection();
+		
+		try {
+			connection.setAutoCommit(false);
+			
+			Selected selected = selectedDao.queryByProblem_id(connection, problem_id);
+			
+			if (selected == null) {
+				// 当前课题可选
+				selected = new Selected();
+				selected.setStu_id(student.getStu_id());
+				selected.setProblem_id(problem_id);
+				selected.setTime(new Timestamp(new Date().getTime()));
+				
+				flag = selectedDao.save(connection, selected);
+			} else {
+				// 已经有人选择该课题
+				System.out.println("already Has Student Select This Problem");
+				System.out.println("Selected Student id :" + selected.getStu_id());
+			}
+			
+			connection.commit();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		}
+		
+		jsonObjectOutput.put("status", flag);
+		
+	}
+	
+	public void modifyStudent() {
+		
+		jsonObjectOutput = new JSONObject();
+		
+		HttpSession session = request.getSession();
+		
+		// 没有登录
+		Object actObject = session.getAttribute("act");
+		String error = null;
+		if (actObject == null) {
+			error = "Not Login";
+			System.out.println(error);
+			return ;
+		}
+		
+		int act = Integer.parseInt(String.valueOf(actObject));
+		
+		//不是学生登录
+		if (act != 1) {
+			error = "Not Studnet Login";
+			System.out.println(error);
+			return ;
+		}
+		
+		Student student = (Student) session.getAttribute("user");
+		
+		
+		String[] studentStringArray = request.getParameterValues("info[]");
+		
+		System.out.println("StudentParameterArray Size : " + studentStringArray.length);
+		
+		List<Object> studentObjectList = new ArrayList<>();
+		
+		for (String string : studentStringArray) {
+			studentObjectList.add(string);
+		}
+		
+		Student studentModify = toBeanModify(studentObjectList);
+		
+		// 将其它的信息加入对象中
+		studentModify.setStu_id(student.getStu_id());
+		studentModify.setUsername(student.getUsername());
+		studentModify.setRemarks(student.getRemarks());
+		if (studentModify.getPassword() == null) {
+			studentModify.setPassword(student.getPassword());
+		}
+		System.out.println("要更改的学生信息为：" + studentModify.toString());
+		System.out.println("更改学生信息中。。。");
+		
+		boolean flag = studentDao.updateAll(studentModify);
+		
+		jsonObjectOutput.put("status", flag);
+		
+	}
 	
 	public List<Object> toObjectList(Student student) {
 		
 		List<Object> list = new ArrayList<>();
+		
 		list.add(student.getStu_id());
 		list.add(student.getUsername());
 		list.add(student.getRealname());
@@ -372,6 +563,22 @@ public class StudentService {
 		
 		return list;
 		
+	}
+	
+	public List<Object> toObjectShow4Student(Student student) {
+		List<Object> list = new ArrayList<>();
+		
+		list.add(student.getStu_id());
+		list.add(student.getUsername());
+		list.add(student.getRealname());
+		list.add(student.getSex());
+		list.add(student.getMid());
+		list.add(student.getQq());
+		list.add(student.getPhone());
+		list.add(student.getEmail());
+		list.add(student.getRemarks());
+		
+		return list;
 	}
 	
 	public Student toBeanUpdate(List<Object> list) {
@@ -401,6 +608,25 @@ public class StudentService {
 		student.setEmail(String.valueOf(list.get(6)));
 		student.setRemarks(String.valueOf(list.get(7)));
 		student.setPassword("123456");
+		
+		return student;
+	}
+	
+	public Student toBeanModify(List<Object> list) {
+		
+		Student student = new Student();
+		
+		student.setRealname(String.valueOf(list.get(0)));
+		student.setSex(Integer.parseInt(String.valueOf(list.get(1))));
+		student.setPhone(String.valueOf(list.get(2)));
+		student.setQq(String.valueOf(list.get(3)));
+		student.setEmail(String.valueOf(list.get(4)));
+		
+		if (list.get(5) != null && list.get(5).equals(list.get(6))) {
+			student.setPassword(String.valueOf(list.get(5)));
+		} else {
+			student.setPassword(null);
+		}
 		
 		return student;
 	}

@@ -25,6 +25,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import com.beust.jcommander.internal.Lists;
 import com.graduation.dao.AdminDao;
 import com.graduation.dao.MajorDao;
 import com.graduation.dao.ProblemDao;
@@ -76,9 +77,9 @@ public class ProblemService {
 
 		// TODO 插入一个用户
 		HttpSession session = request.getSession();
-		// 学生
-		session.setAttribute("act", 1);
-		session.setAttribute("user", studentDao.queryByStu_id(10011));
+		// // 学生
+		 session.setAttribute("act", 1);
+		 session.setAttribute("user", studentDao.queryByStu_id(10011));
 		// 教师
 		// session.setAttribute("act", 2);
 		// session.setAttribute("user", teacherDao.queryByTea_id(20015));
@@ -336,7 +337,7 @@ public class ProblemService {
 			if (wayList != null && wayList.size() != 0) {
 				problemList = wayList;
 				count = 1;
-				
+
 			} else {
 				// 通过学生的专业得到所有盲选题目
 				problemList = problemDao.queryByMIDPage(student.getMid(), page,
@@ -1027,8 +1028,6 @@ public class ProblemService {
 	 */
 	public void selected() {
 
-		test();
-
 		// 没有登录就不能导出，登录是导出文件的前提。
 		HttpSession session = request.getSession();
 		String error = null;
@@ -1036,7 +1035,7 @@ public class ProblemService {
 		Object actObject = session.getAttribute("act");
 
 		if (actObject == null) {
-			error = "没有登录！！无法导出课题。";
+			error = "没有登录！！无法显示选题课题。";
 			System.out.println(error);
 			return;
 		}
@@ -1190,6 +1189,50 @@ public class ProblemService {
 	 */
 	public void selectedStudent() {
 		// 学生得到的选题信息与其它类型的用户不一样
+
+		jsonObjectOutput = new JSONObject();
+
+		System.out.println("学生显示选题信息中。。。");
+
+		HttpSession session = request.getSession();
+		// 没有登录
+		Object actObject = session.getAttribute("act");
+		String error = null;
+		if (actObject == null) {
+			error = "Not Login";
+			System.out.println(error);
+			return;
+		}
+
+		int act = Integer.parseInt(String.valueOf(actObject));
+
+		// 不是学生登录
+		if (act != 1) {
+			System.out.println("Act : " + act);
+			error = "Not Studnet Login";
+			System.out.println(error);
+			return;
+		}
+
+		Student student = (Student) session.getAttribute("user");
+
+		JSONArray jsonArray = new JSONArray();
+
+		List<Object> objectList = toObjectSelectedStudent(student);
+
+		for (Object object : objectList) {
+			jsonArray.add(object);
+		}
+		
+		jsonObjectOutput.put("info", jsonArray);
+		jsonObjectOutput.put("status", true);
+
+		// 返回JSON数据
+		try {
+			response.getWriter().write(jsonObjectOutput.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -1599,7 +1642,7 @@ public class ProblemService {
 		list.add(natrueString);
 		list.add(problem.getIntroduction());
 		list.add(problem.getRequirement());
-		
+
 		return list;
 	}
 
@@ -1783,6 +1826,107 @@ public class ProblemService {
 			break;
 		}
 		list.add(wayString);
+
+		return list;
+
+	}
+
+	/**
+	 * 转换学生的选题信息
+	 * 
+	 * @param problem
+	 * @param selected
+	 * @param teacher
+	 * @return
+	 */
+	public List<Object> toObjectSelectedStudent(Student student) {
+		List<Object> list = new ArrayList<>();
+
+		Selected selected = selectedDao.queryByStu_id(student.getStu_id());
+		Problem problem = problemDao
+				.queryByProblem_id(selected.getProblem_id());
+		Teacher teacher = teacherDao.queryByTea_id(problem.getTea_id());
+
+		// 课题信息
+		list.add(problem.getProblem_id());
+		list.add(problem.getName());
+		list.add(majorDao.queryByMID(problem.getMid()).getMajor());
+		list.add(problem.getIs_new() == 0 ? "否" : "是");
+		int type = problem.getType();
+		String typeString = "未知类型";
+		switch (type) {
+		case 0:
+			typeString = "请选择课题类型";
+			break;
+		case 1:
+			typeString = "毕业设计";
+			break;
+		case 2:
+			typeString = "毕业论文";
+			break;
+		default:
+			break;
+		}
+		list.add(typeString);
+
+		int source = problem.getSource();
+		String sourceString = "未知来源";
+		switch (source) {
+		case 1:
+			sourceString = "自拟题目";
+			break;
+		case 2:
+			sourceString = "科研题目 - " + problem.getResearch_name();
+			break;
+		default:
+			break;
+		}
+		list.add(sourceString);
+
+		int natrue = problem.getNature();
+		String natrueString = "未知性质";
+		switch (natrue) {
+		case 1:
+			natrueString = "理论研究";
+			break;
+		case 2:
+			natrueString = "应用基础及其理论研究";
+			break;
+		case 3:
+			natrueString = "工程技术研究";
+			break;
+		case 4:
+			natrueString = "其它";
+			break;
+		default:
+			break;
+		}
+		list.add(natrueString);
+
+		int way = problem.getWay();
+		String wayString = "未知方式";
+		switch (way) {
+		case 0:
+			wayString = "盲选";
+			break;
+		default:
+			wayString = "指定学生 - " + studentDao.queryByStu_id(way).getRealname();
+			break;
+		}
+		list.add(wayString);
+
+		list.add(problem.getIntroduction());
+		list.add(problem.getRequirement());
+
+		// 教师信息
+		list.add(teacher.getRealname());
+		list.add(teacher.getPhone());
+
+		// 学生信息
+		list.add(student.getUsername());
+		list.add(student.getRealname());
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		list.add(df.format(new Date(selected.getTime().getTime())));
 
 		return list;
 

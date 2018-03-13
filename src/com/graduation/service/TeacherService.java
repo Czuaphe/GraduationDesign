@@ -34,6 +34,7 @@ import com.graduation.dao.TeacherDao;
 import com.graduation.db.DBUtils;
 import com.graduation.entity.Major;
 import com.graduation.entity.Problem;
+import com.graduation.entity.Student;
 import com.graduation.entity.Teacher;
 
 import net.sf.json.JSONArray;
@@ -66,9 +67,7 @@ public class TeacherService {
 		
 		switch (pathList.get(1)) {
 		case "show":
-			String  page =  request.getParameter("currentPage");
-//			System.out.println("currentPage=" + page);
-			showTeacher(Integer.parseInt(page));
+			showTeacher();
 			break;
 		case "dels":
 			
@@ -132,6 +131,9 @@ public class TeacherService {
 			System.out.println("正在上传文件");
 			importTeacher(request);
 			break;
+		case "modify":
+			modifyTeacher();
+			break;
 		default:
 			
 			System.out.println("链接不存在！");
@@ -146,46 +148,88 @@ public class TeacherService {
 	 * 显示教师的信息，将信息转换成JSON数据
 	 * @param page 要显示的页数
 	 */
-	public void showTeacher(int page) {
+	public void showTeacher() {
 		
 		jsonObjectOutput = new JSONObject();
 		
-		// 每页的大小
-		int pageSize = 5;
-		// 得到对应页的数据
-		List<Teacher> list = teacherDao.queryByPage(page, pageSize);
-		// 得到要显示的总数量
-		long count = teacherDao.queryCount();
+		HttpSession session = request.getSession();
 		
-		// 定义要返回的教师数据的JSON对象
-		JSONArray jsonList = new JSONArray();
-		
-		/* 将对象转换成JSON数据 */
-		for (Teacher teacher : list) {
-			// 添加专业负责姓名
-			Major major =  majorDao.queryByMID(teacher.getMid());
-			// 得到专业负责人姓名
-			String realname = teacherDao.queryByTea_id(major.getTea_id()).getRealname();
-			
-			// 把教师对象转换成Object数组
-			List<Object> objectList = toObjectList(teacher, realname);
-			// 对Object数组进行加工
-//			objectList = produceTeacherOfShow(objectList);
-			
-			// 加入到要返回的教师数据的JSON对象中
-			jsonList.add(objectList);
+		// 没有登录
+		Object actObject = session.getAttribute("act");
+		String error = null;
+		if (actObject == null) {
+			error = "Not Login";
+			System.out.println(error);
+			return ;
 		}
 		
-		jsonObjectOutput.put("majors", getAllMajors());
+		int act = Integer.parseInt(String.valueOf(actObject));
 		
-		// 设置要返回的教师数据
-		jsonObjectOutput.put("data", jsonList);
-		// 设置当前页
-		jsonObjectOutput.put("currentPage", page);
-		// 设置返回状态
-		jsonObjectOutput.put("status", true);
-		// 设置总页数
-		jsonObjectOutput.put("totalPage", (count - 1) / pageSize + 1 );
+		//是教师登录
+		if (act == 2) {
+			
+			Teacher teacher = (Teacher) session.getAttribute("user");
+
+			JSONArray jsonArray = new JSONArray();
+			
+			List<Object> teacherList = toObjectShow4Teacher(teacher);
+			
+			for (Object object : teacherList) {
+				jsonArray.add(object);
+			}
+			
+			jsonObjectOutput.put("status", true);
+			jsonObjectOutput.put("info", jsonArray);
+			
+			System.out.println("完成");
+			
+		} else if (act == 3) {
+			// 管理员登录 
+			
+			int page =  Integer.parseInt(request.getParameter("currentPage"));
+			
+			// 每页的大小
+			int pageSize = 5;
+			// 得到对应页的数据
+			List<Teacher> list = teacherDao.queryByPage(page, pageSize);
+			// 得到要显示的总数量
+			long count = teacherDao.queryCount();
+			
+			// 定义要返回的教师数据的JSON对象
+			JSONArray jsonList = new JSONArray();
+			
+			/* 将对象转换成JSON数据 */
+			for (Teacher teacher : list) {
+				// 添加专业负责姓名
+				Major major =  majorDao.queryByMID(teacher.getMid());
+				// 得到专业负责人姓名
+				String realname = teacherDao.queryByTea_id(major.getTea_id()).getRealname();
+				
+				// 把教师对象转换成Object数组
+				List<Object> objectList = toObjectList(teacher, realname);
+				// 对Object数组进行加工
+//				objectList = produceTeacherOfShow(objectList);
+				
+				// 加入到要返回的教师数据的JSON对象中
+				jsonList.add(objectList);
+			}
+			
+			jsonObjectOutput.put("majors", getAllMajors());
+			
+			// 设置要返回的教师数据
+			jsonObjectOutput.put("data", jsonList);
+			// 设置当前页
+			jsonObjectOutput.put("currentPage", page);
+			// 设置返回状态
+			jsonObjectOutput.put("status", true);
+			// 设置总页数
+			jsonObjectOutput.put("totalPage", (count - 1) / pageSize + 1 );
+			
+		}
+		
+		
+		
+		
 		
 	}
 	
@@ -357,6 +401,62 @@ public class TeacherService {
 			
 		}
 	}
+	/**
+	 * 更改教师信息
+	 */
+	public void modifyTeacher() {
+		jsonObjectOutput = new JSONObject();
+		
+		HttpSession session = request.getSession();
+		
+		// 没有登录
+		Object actObject = session.getAttribute("act");
+		String error = null;
+		if (actObject == null) {
+			error = "Not Login";
+			System.out.println(error);
+			return ;
+		}
+		
+		int act = Integer.parseInt(String.valueOf(actObject));
+		
+		//不是教师登录
+		if (act != 2) {
+			error = "Not Studnet Login";
+			System.out.println(error);
+			return ;
+		}
+		
+		Teacher teacher = (Teacher) session.getAttribute("user");
+		
+		
+		String[] teacherStringArray = request.getParameterValues("info[]");
+		
+		System.out.println("TeacherParameterArray Size : " + teacherStringArray.length);
+		
+		List<Object> teacherObjectList = new ArrayList<>();
+		
+		for (String string : teacherStringArray) {
+			teacherObjectList.add(string);
+		}
+		
+		Teacher teacherModify = toBeanModify(teacherObjectList);
+		
+		// 将其它的信息加入对象中
+		teacherModify.setTea_id(teacher.getTea_id());
+		teacherModify.setUsername(teacher.getUsername());
+		teacherModify.setRemarks(teacher.getRemarks());
+		if (teacherModify.getPassword() == null) {
+			teacherModify.setPassword(teacher.getPassword());
+		}
+		System.out.println("要更改的教师信息为：" + teacherModify.toString());
+		System.out.println("更改教师信息中。。。");
+		
+		boolean flag = teacherDao.updateAll(teacherModify);
+		
+		jsonObjectOutput.put("status", flag);
+	}
+	
 	/**
 	 * TODO 导入教师文件功能，还有很多问题
 	 * @param request 其中可以得到文件
@@ -775,6 +875,25 @@ public class TeacherService {
 		return teacher;
 	}
 	
+	public Teacher toBeanModify(List<Object> list) {
+		
+		Teacher teacher = new Teacher();
+		
+		teacher.setRealname(String.valueOf(list.get(0)));
+		teacher.setSex(Integer.parseInt(String.valueOf(list.get(1))));
+		teacher.setPhone(String.valueOf(list.get(2)));
+		teacher.setQq(String.valueOf(list.get(3)));
+		teacher.setEmail(String.valueOf(list.get(4)));
+		
+		if (list.get(5) != null && list.get(5).equals(list.get(6))) {
+			teacher.setPassword(String.valueOf(list.get(5)));
+		} else {
+			teacher.setPassword(null);
+		}
+		
+		return teacher;
+	}
+	
 	/**
 	 * 
 	 * @param teacher
@@ -798,6 +917,22 @@ public class TeacherService {
 		return list;
 	}
 	
+	public List<Object> toObjectShow4Teacher(Teacher teacher) {
+		List<Object> list = new ArrayList<>();
+		
+		list.add(teacher.getTea_id());
+		list.add(teacher.getUsername());
+		list.add(teacher.getRealname());
+		list.add(teacher.getSex());
+		list.add(teacher.getMid());
+		list.add(teacher.getQq());
+		list.add(teacher.getPhone());
+		list.add(teacher.getEmail());
+		list.add(teacher.getRemarks());
+		
+		
+		return list;
+	}
 	
 	@Deprecated
 	public List<Object> objectToJSONArray(Teacher teacher) {
