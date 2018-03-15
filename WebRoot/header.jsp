@@ -9,10 +9,13 @@
         <title>毕业设计选题系统</title>
         <link href="./css/bootstrap.min.css" rel="stylesheet">
         <link href="./css/bootstrap-datepicker.min.css" rel="stylesheet">
+        <link href="./css/bootstrap-datetimepicker.min.css" rel="stylesheet">
         <script src="./js/jquery-3.2.1.min.js"></script>
         <script src="./js/bootstrap.min.js"></script>
         <script src="./js/bootstrap-datepicker.min.js"></script>
+        <script src="./js/bootstrap-datetimepicker.min.js"></script>
         <script src="./js/dynamicTables.js"></script>
+        <script src="./js/formCheck.js.js"></script>
 </head>
 <body>
         <nav class="navbar navbar-inverse">
@@ -37,7 +40,7 @@
 <div class="row">
         <div class="col-md-2 well">
                 <ul class="nav nav-pills nav-stacked">
-                        <li class="active"><a href="index.html">首页</a></li>
+                        <li class="active"><a href="index.jsp">首页</a></li>
                 <%
                         int act = Integer.parseInt(String.valueOf(session.getAttribute("act")));
                         if ( act == 3) {
@@ -46,20 +49,20 @@
                         <li><a href="teacherInfoManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;教师信息管理</a></li>
                         <li><a href="studentInfoManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学生信息管理</a></li>
                         <li><a href="majorManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学科信息管理</a></li>
-                        <li><a href="setting.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选题系统配置</a></li>
-                        <li><a href="exportProblem.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出选题信息</a></li>
-                        <li><a href="noticeEdit.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公告编辑</a></li>
+                        <li><a href="setting.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选题系统配置</a></li>
+                        <li><a href="exportProblem.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出选题信息</a></li>
+                        <li><a href="noticeEdit.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公告编辑</a></li>
                 <% } else if(act == 2) { %>
 
                         <li><a href="javascript:;" style="color:black">教师菜单</a></li>
-                        <li><a href="problemAnalysis.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目审核</a></li>
-                        <li><a href="addProblem.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;添加题目</a></li>
-                        <li><a href="problemManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目管理</a></li>
-                        <li><a href="problemSelect.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看选题结果</a></li>
+                        <li><a href="problemAnalysis.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目审核</a></li>
+                        <li><a href="addProblem.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;添加题目</a></li>
+                        <li><a href="problemManager.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目管理</a></li>
+                        <li><a href="problemSelect.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看选题结果</a></li>
                 <% } else if(act == 1) { %>
                         <li><a href="javascript:;" style="color:black">学生菜单</a></li>
-                        <li><a href="main.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目浏览</a></li>
-                        <li><a href="mySelect.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看选题结果</a></li>
+                        <li><a href="main.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目浏览</a></li>
+                        <li><a href="mySelect.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看选题结果</a></li>
                 <% } %>
                 </ul>
         </div>
