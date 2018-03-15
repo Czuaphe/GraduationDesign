@@ -105,8 +105,9 @@ public class MajorService {
 			Teacher teacher = teacherDao.queryByTea_id(major.getTea_id());
 			String realname = teacher.getRealname();
 			String username = teacher.getUsername();
+			
 			// 得到本专业的人数
-			Long num = teacherDao.queryMajorCount(major.getMid());
+			Long num = studentDao.queryMajorCount(major.getMid());
 			
 			// 把教师对象和其它数据一起转换成Object数组
 			List<Object> objectList = toObjectList(major, username, realname, num);
@@ -115,7 +116,7 @@ public class MajorService {
 			jsonList.add(objectList);
 		}
 		
-		// 设置要返回的教师数据
+		// 设置要返回的专业数据
 		jsonObjectOutput.put("data", jsonList);
 		// 设置返回状态
 		jsonObjectOutput.put("status", true);

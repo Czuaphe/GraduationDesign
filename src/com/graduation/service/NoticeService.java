@@ -6,12 +6,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
-import oracle.net.aso.s;
 
 import com.graduation.dao.AdminDao;
 import com.graduation.dao.NoticeDao;
@@ -112,26 +113,23 @@ public class NoticeService {
 			list.add(string);
 		}
 
-		List<String> errorList = checkNotice(list);
+		Map<Integer, String> errorMap = checkNotice(list);
+		System.out.println("error size:" + errorMap.size());
+		if (errorMap.size() > 0) {
 
-		boolean errorflag = false;
-
-		for (String string : errorList) {
-			if (string != null) {
-				errorflag = true;
-			}
-		}
-
-		if (errorList != null && errorflag) {
-
-			JSONArray array = new JSONArray();
-
-			for (String string : errorList) {
-				array.add(string);
+			JSONArray errorArray = new JSONArray();
+			
+			Set<Integer> set = errorMap.keySet();
+			
+			for (Integer integer : set) {
+				JSONArray array = new JSONArray();
+				array.add(integer);
+				array.add(errorMap.get(integer));
+				errorArray.add(array);
 			}
 
 			jsonObjectOutput.put("status", false);
-			jsonObjectOutput.put("errors", array);
+			jsonObjectOutput.put("errors", errorArray);
 			return;
 		}
 
@@ -296,29 +294,47 @@ public class NoticeService {
 
 	}
 
-	public List<String> checkNotice(List<String> list) {
+	public Map<Integer, String> checkNotice(List<String> list) {
 
-		List<String> errorList = new ArrayList<>();
-
+		Map<Integer, String> map = new HashMap<Integer, String>();
+		
+		String NOT_NULL = "不能为空！";
+		String END_ERROR = "结束时间不能早于开始时间";
+		
 		for (int i = 0; i < list.size(); i++) {
-			String error = null;
-			// 检测所有数据的非空
-			if (list.get(i) == null || list.get(i).equals("")) {
-				error = "数据不能为空！" + i;
-				System.out.println("null index:" + i);
+			
+			String string = list.get(i);
+			if (i == 0) {
+				if (string == null || string.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
 			}
-			errorList.add(error);
+			if (i == 1) {
+				if (string == null || string.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+			}
+			if (i == 2) {
+				if (string == null || string.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+				String start = list.get(1);
+				if (start== null || start.compareTo(string) > 0) {
+					map.put(i, END_ERROR);
+				}
+			}
+			if (i == 3) {
+				if (string == null || string.equals("")) {
+					map.put(i, NOT_NULL);
+					continue;
+				}
+			}
 		}
-
-		// TODO 检测每一项数据
-		if (list.get(1) != null && list.get(2) != null
-				&& list.get(1).compareTo(list.get(2)) > 0) {
-			String error = errorList.get(2);
-			error = "结束时间不能早于开始时间";
-			list.set(2, error);
-		}
-
-		return errorList;
+		
+		return map;
 
 	}
 
