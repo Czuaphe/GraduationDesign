@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>毕业设计选题系统</title>
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <script src="./js/jquery-3.2.1.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap-datepicker.min.js"></script>
+    <script src="./js/dynamicTables.js"></script>
+    <script src="./js/formCheck.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">毕业设计选题系统</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="userCenter.html">个人中心</a></li>
+                <li><a href="login.html">退出登录</a></li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<div class="row">
+    <div class="col-md-2 well">
+        <ul class="nav nav-pills nav-stacked">
+            <li class="active"><a href="index.html">首页</a></li>
+            <li><a href="javascript:;" style="color:black">后台管理</a></li>
+            <li><a href="teacherInfoManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;教师信息管理</a></li>
+            <li><a href="studentInfoManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学生信息管理</a></li>
+            <li><a href="majorManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学科信息管理</a></li>
+            <li><a href="setting.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选题系统配置</a></li>
+            <li><a href="exportProblem.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出选题信息</a></li>
+            <li><a href="noticeEdit.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公告编辑</a></li>
+            <li><a href="javascript:;" style="color:black">教师菜单</a></li>
+            <li><a href="problemAnalysis.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目审核</a></li>
+            <li><a href="addProblem.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;添加题目</a></li>
+            <li><a href="problemManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目管理</a></li>
+            <li><a href="problemSelect.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看选题结果</a></li>
+            <li><a href="javascript:;" style="color:black">学生菜单</a></li>
+            <li><a href="main.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目浏览</a></li>
+            <li><a href="mySelect.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看选题结果</a></li>
+        </ul>
+    </div>
+
+    <div class="col-md-4 col-md-offset-2">
+        <h1>修改用户信息</h1>
+        <hr/>
+        <form class="form-horizontal" id="userInfo">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">用户名</label>
+                <div class="col-sm-6">
+                    <input type="text" value="" disabled class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">姓名</label>
+                <div class="col-sm-6">
+                    <input type="text" id="name" formCheck-noEmpty formCheck-info="姓名不能为空" value="" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">性别</label>
+                <div class="col-sm-6">
+                    <select class="form-control" id="sex">
+                        <option value="0">男</option>
+                        <option value="1">女</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">联系方式</label>
+                <div class="col-sm-6">
+                    <input type="text" id="phone" formCheck-regex="[1-9]{1}[0-9]{10}" formCheck-info="联系方式填写错误" value="" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">QQ</label>
+                <div class="col-sm-6">
+                    <input type="text" id="qq" formCheck-regex="\d{5,12}" formCheck-info="QQ填写错误" value="" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">电子邮件</label>
+                <div class="col-sm-6">
+                    <input type="text" id="mail" formCheck-email value="" class="form-control">
+                </div>
+            </div>
+            <hr/>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">新密码</label>
+                <div class="col-sm-6">
+                    <input type="password" id="password1" placeholder="如需修改密码，请填写" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">确认密码</label>
+                <div class="col-sm-6">
+                    <input type="password" id="password2" placeholder="如需修改密码，请填写" class="form-control">
+                </div>
+            </div>
+        </form>
+        <button id="save" class="btn btn-danger" style="float:right" type="button">保存</button>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $.get("http://10.165.215.202:8080/GraduationDesign/student/show", function(response){
+            if(response. status == true) {
+                $(":text:disabled").val(response.info[1]);
+                $("#name").val(response.info[2]);
+                $("#sex").val(response.info[3]);
+                $("#phone").val(response.info[6]);
+                $("#qq").val(response.info[5]);
+                $("#mail").val(response.info[7]);
+            }
+        })
+
+        $("#save").click(function(){
+            if($.formCheck($("form"))) {
+                var password1 = $("#password1").val();
+                var password2 = $("#password2").val();
+
+                if(password1.length != 0 && password1 != password2) {
+                    $("#password1").parent().addClass('has-error');
+                    $("#password2").parent().addClass('has-error');
+                } else {
+                    var info = new Array();
+                    $("#userInfo").find(".form-control").each(function(){
+                        if(typeof $(this).attr("id") !== "undefined") {
+                            info.push($(this).val());
+                        }
+                    })
+                    $.post("http://10.165.215.202:8080/GraduationDesign/student/modify", {info:info}, function (response) {
+                        if(response.status == true) {
+                            alert("更新成功");
+                            window.location.reload();
+                        } else {
+                            alert("更新失败");
+                        }
+                    })
+                }
+            }
+        })
+    })
+</script>
+<hr/>
+<nav class="navbar navbar-default navbar-fixed-bottom">
+    <p class="text-center navbar-text">毕业设计选题系统</p>
+</nav>
+</body>
+</html>
