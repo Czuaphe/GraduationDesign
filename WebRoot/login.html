@@ -65,7 +65,7 @@
                 } else {
                     $.post("/GraduationDesign/login", {username:username, password:password, act:act}, function(response){
                         if(response.status == true) {
-                            window.location.reload();
+                            window.location.href = '/GraduationDesign/index.jsp';
                         } else {
                             $("#info").html("用户名或者密码错误！");
                         }
