@@ -70,7 +70,7 @@
         
         $("#choose").click(function(){
             if(pro_id != -1) {
-                $.post("http://10.165.215.202:8080/GraduationDesign/student/select", {pro_id:pro_id}, function (response) {
+                $.post("<%= basePath %>student/select", {pro_id:pro_id}, function (response) {
                     if(response.status == true) {
                         alert("选题成功");
                     } else {
@@ -87,7 +87,7 @@
                 $(this).parent().children('.active').removeClass('active');
                 $(this).addClass('active');
                 var id = $(this).children().eq(0).html();
-                $.get("http://10.165.215.202:8080/GraduationDesign/problem/details/student?pro_id=" + id, function (response) {
+                $.get("<%= basePath %>problem/details/student?pro_id=" + id, function (response) {
                     if(response.status == true) {
                         $("#problem").children().eq(0).removeAttr("hidden");
                         pro_id = response.info[0];
@@ -108,7 +108,7 @@
 
     function update(page) {
         $("#problemList").children().remove();
-        $.get("http://10.165.215.202:8080/GraduationDesign/problem/show/major?currentPage=1", function(response){
+        $.get("<%= basePath %>problem/show/major?currentPage=1", function(response){
             if(response.status == true) {
                 str = '';
                 for(var i = 0; i < response.data.length; i++) {

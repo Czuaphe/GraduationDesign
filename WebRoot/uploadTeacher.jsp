@@ -20,7 +20,7 @@
         })
 
         $("#uploadFile").AjaxFileUpload({
-           'action' : 'http://10.165.195.6:8080/GraduationDesign/teacher/import',
+           'action' : '<%= basePath %>teacher/import',
             onComplete : function(response){
 
             }

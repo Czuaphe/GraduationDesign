@@ -30,16 +30,16 @@
 <script>
     var currID = -1;
     $(document).ready(function(){
-        $.get("http://10.165.215.202:8080/GraduationDesign/teacher/show?currentPage=1", function(response){
+        $.get("<%= basePath %>teacher/show?currentPage=1", function(response){
             if(response.status == true) {
                 $("#info").html("");
                 $("#teacherInfo").dynamicTables({
                     'title': ['编号', '账户', '姓名', '性别', '所属专业', '职称', '学位', 'QQ', '联系方式', '电子邮件', '备注', '专业负责人', '出题数量'],
                     'data' : response.data,
-                    'delsURL': 'http://10.165.195.6:8080/GraduationDesign/teacher/dels',
-                    'saveURL': 'http://10.165.195.6:8080/GraduationDesign/teacher/update',
-                    'addURL' : 'http://10.165.195.6:8080/GraduationDesign/teacher/add',
-                    'paginationURL' : 'http://10.165.195.6:8080/GraduationDesign/teacher/show',
+                    'delsURL': '<%= basePath %>teacher/dels',
+                    'saveURL': '<%= basePath %>teacher/update',
+                    'addURL' : '<%= basePath %>teacher/add',
+                    'paginationURL' : '<%= basePath %>teacher/show',
                     'totalPage': response.totalPage,
                     'currentPage': response.currentPage,
                     'noOperator': false,
@@ -101,7 +101,7 @@
 
     function do_repass() {
         if(currID != -1) {
-            $.post("http://10.165.195.6:8080/GraduationDesign/teacher/resetPassword", {id:currID}, function(data){
+            $.post("<%= basePath %>teacher/resetPassword", {id:currID}, function(data){
                 if(data.status == true) {
                     $("#repassInfo").html("重置成功 密码已经更改为123456");
                     $("#reset").hide();

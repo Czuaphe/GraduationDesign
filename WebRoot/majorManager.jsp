@@ -10,14 +10,14 @@
 </div>
 <script>
     $(document).ready(function(){
-        $.get("http://10.165.195.6:8080/GraduationDesign/major/show", function(response){
+        $.get("<%= basePath %>major/show", function(response){
             if(response.status == true)
                 $("#majorTable").dynamicTables({
                 'title' : ['编号', '专业名称', '专业负责人账号','专业负责人姓名', '专业人数'],
                 'data' : response.data,
-                'delsURL':'http://10.165.195.6:8080/GraduationDesign/major/dels',
-                'addURL':'http://10.165.195.6:8080/GraduationDesign/major/add',
-                'saveURL':'http://10.165.195.6:8080/GraduationDesign/major/update',
+                'delsURL':'<%= basePath %>major/dels',
+                'addURL':'<%= basePath %>major/add',
+                'saveURL':'<%= basePath %>major/update',
                 'typeConfig' : [
                     {'edit':  false},
                     {'type':  'text'},
