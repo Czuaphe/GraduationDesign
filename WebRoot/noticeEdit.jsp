@@ -19,14 +19,14 @@
 </div>
 <script>
     $(document).ready(function(){
-        $.get("http://10.165.215.202:8080/GraduationDesign/notice/show?currentPage=1", function(response){
+        $.get("<%= basePath %>notice/show?currentPage=1", function(response){
             $("#notice").html("");
             $("#notice").dynamicTables({
                 title : ["编号", "公告内容", "开始显示时间", "结束显示时间","可见性控制"
                 ],
-                delsURL : 'http://10.165.215.202:8080/GraduationDesign/notice/dels',
-                saveURL  : 'http://10.165.215.202:8080/GraduationDesign/notice/update',
-                addURL : 'http://10.165.215.202:8080/GraduationDesign/notice/add',
+                delsURL : '<%= basePath %>notice/dels',
+                saveURL  : '<%= basePath %>notice/update',
+                addURL : '<%= basePath %>notice/add',
                 totalPage : response.totalPage,
                 currentPage : response.currentPage,
                 data : response.data,

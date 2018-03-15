@@ -30,16 +30,16 @@
 <script>
      currID = -1;
     $(document).ready(function() {
-        $.get("http://10.165.195.202:8080/GraduationDesign/student/show?currentPage=1", function (response) {
+        $.get("<%= basePath %>student/show?currentPage=1", function (response) {
             if (response.status == true) {
                 $("#info").html("");
                 $("#studentInfo").dynamicTables({
                     'title': ['编号', '学号', '姓名', '性别', '所属专业', 'QQ', '联系方式', '电子邮件', '备注'],
                     'data': response.data,
-                    'delsURL': 'http://10.165.195.6:8080/GraduationDesign/student/dels',
-                    'saveURL': 'http://10.165.195.6:8080/GraduationDesign/student/update',
-                    'addURL': 'http://10.165.195.6:8080/GraduationDesign/student/add',
-                    'paginationURL': 'http://10.165.195.6:8080/GraduationDesign/student/show',
+                    'delsURL': '<%= basePath %>student/dels',
+                    'saveURL': '<%= basePath %>student/update',
+                    'addURL': '<%= basePath %>student/add',
+                    'paginationURL': '<%= basePath %>student/show',
                     'totalPage': response.totalPage,
                     'currentPage': response.currentPage,
                     'noOperator': false,
@@ -142,7 +142,7 @@
                  var info = new Array(
                      name,major, newPro,type,from,attr,stu_id == -1 ? 0 : stu_id, description,require,scienceName
                  );
-                 $.post("http://10.165.215.202:8080/GraduationDesign/problem/add", {info : info}, function(response){
+                 $.post("<%= basePath %>problem/add", {info : info}, function(response){
                      if(response.status == true) {
                          alert("添加成功！");
                          stu_id = -1;
@@ -172,7 +172,7 @@
                  $("#studentID").parent().parent().addClass('has-error');
              } else {
                  var id = $("#studentID").val();
-                 $.post("http://10.165.215.202:8080/GraduationDesign/student/info", {stu_id:id}, function(data){
+                 $.post("<%= basePath %>student/info", {stu_id:id}, function(data){
                      if(data.status == true) {
                          $("#studentName").val(data.stu_name);
                          stu_id = data.id;
@@ -202,7 +202,7 @@
 
     function do_repass() {
         if(currID != -1) {
-            $.post("http://10.165.195.6:8080/GraduationDesign/student/resetPassword", {id:currID}, function(data){
+            $.post("<%= basePath %>student/resetPassword", {id:currID}, function(data){
                 if(data.status == true) {
                     $("#repassI nfo").html("重置成功 密码已经更改为123456");
                     $("#reset").hide();

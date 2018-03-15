@@ -10,11 +10,11 @@
 </div>
 <script>
     $(document).ready(function(){
-        $.get("http://10.165.215.202:8080/GraduationDesign/problem/selected?currentPage=1", function (response) {
+        $.get("<%= basePath %>problem/selected?currentPage=1", function (response) {
             $("#selectInfo").dynamicTables({
                 'title' : ['编号', '学生姓名', '学生学号', '选题时间', '课题名称', '专业', '教师账号', '教师姓名', '选题方式'],
                 'data' : response.data,
-                'delsURL': 'http://10.165.215.202:8080/GraduationDesign/problem/selected/dels',
+                'delsURL': '<%= basePath %>problem/selected/dels',
                 'noAdd' : true,
                 'noSave' : true,
                 'typeConfig' : [
