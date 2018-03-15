@@ -64,7 +64,7 @@
 </div>
 <script>
     $(document).ready(function () {
-        $.get("<%= basePath %>student/show", function(response){
+        $.get("/student/show", function(response){
             if(response. status == true) {
                 $(":text:disabled").val(response.info[1]);
                 $("#name").val(response.info[2]);
@@ -90,7 +90,7 @@
                             info.push($(this).val());
                         }
                     })
-                    $.post("<%= basePath %>student/modify", {info:info}, function (response) {
+                    $.post("/student/modify", {info:info}, function (response) {
                         if(response.status == true) {
                             alert("更新成功");
                             window.location.reload();

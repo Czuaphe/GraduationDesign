@@ -30,16 +30,16 @@
 <script>
     var currID = -1;
     $(document).ready(function(){
-        $.get("<%= basePath %>teacher/show?currentPage=1", function(response){
+        $.get("/teacher/show?currentPage=1", function(response){
             if(response.status == true) {
                 $("#info").html("");
                 $("#teacherInfo").dynamicTables({
                     'title': ['编号', '账户', '姓名', '性别', '所属专业', '职称', '学位', 'QQ', '联系方式', '电子邮件', '备注', '专业负责人', '出题数量'],
                     'data' : response.data,
-                    'delsURL': '<%= basePath %>teacher/dels',
-                    'saveURL': '<%= basePath %>teacher/update',
-                    'addURL' : '<%= basePath %>teacher/add',
-                    'paginationURL' : '<%= basePath %>teacher/show',
+                    'delsURL': '/teacher/dels',
+                    'saveURL': '/teacher/update',
+                    'addURL' : '/teacher/add',
+                    'paginationURL' : '/teacher/show',
                     'totalPage': response.totalPage,
                     'currentPage': response.currentPage,
                     'noOperator': false,
@@ -101,7 +101,7 @@
 
     function do_repass() {
         if(currID != -1) {
-            $.post("<%= basePath %>teacher/resetPassword", {id:currID}, function(data){
+            $.post("/teacher/resetPassword", {id:currID}, function(data){
                 if(data.status == true) {
                     $("#repassInfo").html("重置成功 密码已经更改为123456");
                     $("#reset").hide();

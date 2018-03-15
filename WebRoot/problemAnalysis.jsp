@@ -71,13 +71,13 @@
 <script>
     var pid = -1;
     $(document).ready(function(){
-        $.get("<%= basePath %>problem/show?currentPage=1", function(response) {
+        $.get("/problem/show?currentPage=1", function(response) {
             $("#problems").dynamicTables({
                 'title' : ['编号', '课题名称', '适合专业', '新题目', '课题类型', '课题来源', '课题性质', '选题方式', '教师姓名','审核状态'],
                 'data' : response.data,
                 currentPage : response.currentPage,
                 totalPage : response.totalPage,
-                paginationURL : "<%= basePath %>problem/show",
+                paginationURL : "/problem/show",
                 'typeConfig' : [
                     {"edit": false},
                     {"edit" : false},
@@ -107,7 +107,7 @@
             if(str.length == 0) {
                 alert("审核意见为空！");
             } else {
-                $.post("<%= basePath %>problem/verify", {accepted:false, pro_id:pid, content:str}, function(response){
+                $.post("/problem/verify", {accepted:false, pro_id:pid, content:str}, function(response){
                     if(response.status == true) {
                         alert("提交成功");
                         $("#commit").val("");
@@ -126,7 +126,7 @@
             return;
         }
         var id = $(target).children().eq(0).html();
-        $.post("<%= basePath %>problem/verify", {accepted:true, pro_id:id, content:""}, function(response){
+        $.post("/problem/verify", {accepted:true, pro_id:id, content:""}, function(response){
             if(response.status == true) {
                 alert("提交成功");
                 window.location.reload();
@@ -144,7 +144,7 @@
 
     function show(target){
         var id = $(target).children().eq(0).html();
-        $.get("<%= basePath %>problem/details?pro_id=" + id, function(response){
+        $.get("/problem/details?pro_id=" + id, function(response){
             if(response.status == true) {
                 $("#name").html(response.info[1]);
                 $("#info1").children().eq(0).children().eq(0).html(response.info[2]);

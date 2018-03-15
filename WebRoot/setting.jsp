@@ -52,7 +52,7 @@
     var mid = -1;
     var data = new Array();
     $(document).ready(function () {
-        $.get("<%= basePath %>major/showTime", function(response){
+        $.get("/major/showTime", function(response){
             if(response.status == true) {
                 var str = '';
                 for(var i = 0; i < response.info.length; i++) {
@@ -101,7 +101,7 @@
                         var info = new Array(
                           mid, t["t1"], t["t2"], t["t3"], t["t4"], t["t5"], t["t6"]
                         );
-                        $.post("<%= basePath %>major/updateTime", {info:info}, function (response) {
+                        $.post("/major/updateTime", {info:info}, function (response) {
                             if(response.status == true) {
                                 alert("更新成功");
                                 window.location.reload()

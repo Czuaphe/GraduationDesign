@@ -20,7 +20,7 @@
         })
 
         $("#uploadFile").AjaxFileUpload({
-           'action' : '<%= basePath %>teacher/import',
+           'action' : '/teacher/import',
             onComplete : function(response){
 
             }
