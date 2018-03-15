@@ -13,7 +13,7 @@
     <script src="./js/dynamicTables.js"></script>
 </head>
 <body>
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -24,30 +24,36 @@
             </button>
             <a class="navbar-brand" href="#">毕业设计选题系统</a>
         </div>
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="index.html">首页</a></li>
-                <li><a href="#">教师信息管理</a></li>
-                <li><a href="#">学生信息管理</a></li>
-                <li><a href="#">选题系统配置</a></li>
-                <li><a href="#">导出选题信息</a></li>
-                <li><a href="#">公告编辑</a></li>
-                <li><a href="#">题目审核</a></li>
-                <li><a href="#">题目管理</a></li>
-                <li><a href="#">查看选题结果</a></li>
-                <li><a href="#">修改密码</a></li>
-                <li><a href="#">题目浏览</a></li>
-                <li><a href="#">查看选题结果</a></li>
-                <li><a href="#">修改密码</a></li>
-            </ul>
+        <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#">退出登录</a></li>
+                <li><a href="userCenter.html">个人中心</a></li>
+                <li><a href="login.html">退出登录</a></li>
             </ul>
-        </div>
-    </div>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
 </nav>
 <div class="row">
-    <div class="col-md-8 col-md-offset-2">
+    <div class="col-md-2 well">
+        <ul class="nav nav-pills nav-stacked">
+            <li class="active"><a href="index.html">首页</a></li>
+            <li><a href="javascript:;" style="color:black">后台管理</a></li>
+            <li><a href="teacherInfoManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;教师信息管理</a></li>
+            <li><a href="studentInfoManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学生信息管理</a></li>
+            <li><a href="majorManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学科信息管理</a></li>
+            <li><a href="setting.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选题系统配置</a></li>
+            <li><a href="exportProblem.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出选题信息</a></li>
+            <li><a href="noticeEdit.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公告编辑</a></li>
+            <li><a href="javascript:;" style="color:black">教师菜单</a></li>
+            <li><a href="problemAnalysis.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目审核</a></li>
+            <li><a href="addProblem.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;添加题目</a></li>
+            <li><a href="problemManager.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目管理</a></li>
+            <li><a href="problemSelect.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看选题结果</a></li>
+            <li><a href="javascript:;" style="color:black">学生菜单</a></li>
+            <li><a href="main.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目浏览</a></li>
+            <li><a href="mySelect.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看选题结果</a></li>
+        </ul>
+    </div>
+    <div class="col-md-8">
         <h1>学生信息管理</h1>
         <hr/>
         <h4 class="text-danger text-center" id="info"></h4>
@@ -76,8 +82,7 @@
     <p>毕业设计选题系统 版本1.0</p>
 </div>
 <script>
-
-    var currID = -1;
+     currID = -1;
     $(document).ready(function() {
         $.get("http://10.165.195.6:8080/GraduationDesign/student/show?currentPage=1", function (response) {
             if (response.status == true) {
@@ -126,6 +131,124 @@
         })
     })
 
+     var stu_id = -1;
+     $(document).ready(function () {
+
+         if(stu_id != -1) {
+             $("#bind").hide();
+         } else {
+             $("#bind").show();
+             $("#studentName").val("");
+             $("#studentID").val("");
+         }
+
+         if($("#selectType").val() != 1)
+             $("#typeTab").parent().hide();
+         if($("#from").val() == 2)
+             $("#scienceName").parent().parent().show();
+         $("#selectType").change(function(){
+             if($(this).val() == 1)
+                 $("#typeTab").parent().show();
+             else
+                 $("#typeTab").parent().hide();
+         })
+
+         $("#save").click(function(){
+             var name = $("#name").val();
+             var major = $("#major").val();
+             var newPro = $(":radio[name='r0']").val();
+             var scienceName = $("#scienceName").val();
+             var type = $("#type").val();
+             var from = $("#from").val();
+             var attr = $("#attr").val();
+             var selectType = $("#selectType").val();
+             var description = $("#description").val();
+             var require = $("#require").val();
+
+             if(name.length == 0)
+                 $("#name").parent().parent().addClass('has-error');
+             else if(major == 0)
+                 $("#major").parent().parent().addClass('has-error');
+             else if(type == 0)
+                 $("#type").parent().parent().addClass('has-error');
+             else if(from == 0)
+                 $("#from").parent().parent().addClass('has-error');
+             else if(from == 2 && scienceName.length == 0)
+                 $("#scienceName").parent().parent().addClass('has-error');
+             else if(attr == 0)
+                 $("#attr").parent().parent().addClass('has-error');
+             else if(selectType == -1)
+                 $("#selectType").parent().parent().addClass('has-error');
+             else if($("div .has-error").length != 0)
+                 $("[aria-controls='t1']").html("<span class='text-danger'>基本设置 <span class='glyphicon glyphicon-warning-sign'></span></span>");
+             else if(description.length == 0)
+             {
+                 $("[aria-controls='t2']").html("<span class='text-danger'>课题简介 <span class='glyphicon glyphicon-warning-sign'></span></span>");
+             }
+             else if(require.length == 0)
+             {
+                 $("[aria-controls='t3']").html("<span class='text-danger'>课题要求 <span class='glyphicon glyphicon-warning-sign'></span></span>");
+             }
+             else if($("#selectType").val() == 1 && ($("#stu_id").val() == -1 || $("#stu_id").val() == "")) {
+                 $("[aria-controls='t4']").html("<span class='text-danger'>指定学生 <span class='glyphicon glyphicon-warning-sign'></span></span>");
+             }
+             else {
+                 var info = new Array(
+                     name,major, newPro,type,from,attr,stu_id == -1 ? 0 : stu_id, description,require,scienceName
+                 );
+                 $.post("http://10.165.215.202:8080/GraduationDesign/problem/add", {info : info}, function(response){
+                     if(response.status == true) {
+                         alert("添加成功！");
+                         stu_id = -1;
+                         document.forms[0].reset();
+                         document.forms[1].reset();
+                         document.forms[2].reset();
+                         document.forms[3].reset();
+                         window.location.reload();
+                     } else {
+                         alert("添加失败-" + response.info);
+                     }
+                 })
+             }
+             window.setTimeout(function(){
+                     $(".has-error").removeClass("has-error");
+                     $("[aria-controls=\'t1\']").html("基本设置");
+                     $("[aria-controls=\'t2\']").html("课题简介");
+                     $("[aria-controls=\'t3\']").html("课题要求");
+                     $("[aria-controls=\'t4\']").html("指定学生");
+                 }
+                 , 3000);
+         })
+
+         $("#searchStudent").click(function(){
+             $("#studentID").next().html("");
+             if($("#studentID").val().length == 0) {
+                 $("#studentID").parent().parent().addClass('has-error');
+             } else {
+                 var id = $("#studentID").val();
+                 $.post("http://10.165.215.202:8080/GraduationDesign/student/info", {stu_id:id}, function(data){
+                     if(data.status == true) {
+                         $("#studentName").val(data.stu_name);
+                         stu_id = data.id;
+                     } else {
+                         $("#studentID").next().html("学号错误，找不到相关学生!");
+                     }
+                 })
+             }
+         })
+
+         $("#bind").click(function(){
+             $(this).hide();
+             $("#stu_id").val(stu_id);
+         })
+
+         $("#unbind").click(function(){
+             $("#bind").show()
+             $("#studentName").val("");
+             $("#stu_id").val(-1);
+         })
+     })
+
     function refresh_password(target) {
         currID = $(target).children().eq(1).html();
         $("#repassModal").modal({});
@@ -135,7 +258,7 @@
         if(currID != -1) {
             $.post("http://10.165.195.6:8080/GraduationDesign/student/resetPassword", {id:currID}, function(data){
                 if(data.status == true) {
-                    $("#repassInfo").html("重置成功 密码已经更改为123456");
+                    $("#repassI nfo").html("重置成功 密码已经更改为123456");
                     $("#reset").hide();
                 } else {
                     $("#repassInfo").html("重置失败，请重试！");

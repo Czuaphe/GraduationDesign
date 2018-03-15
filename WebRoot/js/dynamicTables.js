@@ -1,12 +1,14 @@
 ;(function($) {
     $.fn.dynamicTables = function(options) {
         var defaults = {
-            'class' : 'table table-hover',
+            'class' : 'table table-bordered table-condensed ',
             'title' : [],
             'data' : [],
             'delsURL' : '',
             'saveURL' : '',
             'addURL' : '',
+            'fetchURL' : '',
+            'fetch' : '',
             'paginationURL': '',
             'typeConfig' : [],
             'titleConfig' : [],
@@ -25,11 +27,11 @@
          * 初始化表格 样式表 和表头
          */
         $(this).append("<tbody></tbody>");
-        $(this).addClass("table table-bordered table-condensed ");
+        $(this).addClass(settings.class);
         function initTableHeader() {
             var str = '<tr>';
             if (!(settings.noAdd && settings.noDel && settings.noSave))
-                str += '<th><input class="form-control" type="checkbox" name="ids" /></th>';
+                str += '<th width="40px"  class="text-center"><input type="checkbox" name="ids" /></th>';
             for (var i = 0; i < settings.title.length; i++) {
                 var find = false;
                 for (var j = 0; j < settings.titleConfig.length; ++j) {
@@ -38,14 +40,17 @@
                         str += '<th><a tabindex="0" data-trigger="focus" class="btn btn-link" datadata-placement="bottom"  role="button" data-toggle="popover" title="筛选" data-content="';
                         if (settings.titleConfig[j].type == 'select') {
                             for (var k = 0; k < settings.titleConfig[j].value.length; ++k) {
-                                str += '<label><input type=\'radio\'  name=\'radio\' value=\'' + settings.titleConfig[j].value[k] + '\'> ' + settings.titleConfig[j].options[k] + '</label><br/>';
+                                str += '<label><input type=\'radio\'  name=\'fetch\' value=\'' + settings.titleConfig[j].value[k] + '\'> ' + settings.titleConfig[j].options[k] + '</label><br/>';
                             }
                             str += '">' + settings.title[i] + '</a></th>';
                         }
                     }
                 }
                 if (!find) {
-                    str += '<th>' + settings.title[i] + '</th>'
+                    if(settings.typeConfig[i].edit === false)
+                        str += '<th>' + settings.title[i] + '</th>'
+                    else
+                        str += '<th class="text-danger">' + settings.title[i] + '</th>'
                 }
             }
             if (settings.noOperator == false) {
@@ -55,8 +60,22 @@
             $(target).children().eq(0).append(str);
         }
         initTableHeader();
-        $(this).on("change", ":radio", function(){
-            //alert("ok");
+
+        $(this).on("click", ":radio[name='fetch']", function(){
+            var val = $(this).val();
+            settings.fetch = val;
+            $.get(settings.fetchURL + "?fetch=" + val,  function(response){
+                if(response.status == true) {
+                    settings.data = response.data;
+                    settings.currentPage = response.currentPage;
+                    settings.totalPage = response.totalPage;
+                    initTableData();
+                    initPagination();
+                } else {
+                    $("#alertInfo").html("请求失败!!!");
+                    $("#alertModal").modal();
+                }
+            })
         })
 
         /**
@@ -69,7 +88,7 @@
             for (var i = 0; i < settings.data.length; i++) {
                 var str = '<tr>'
                 if(!(settings.noAdd && settings.noDel && settings.noSave))
-                    str += '<th><input class="form-control" type="checkbox" name="id" /></th>';
+                    str += '<th width="40px" class="text-center"><input type="checkbox" name="id" /></th>';
                 for (var j = 0; j < settings.data[i].length; j++) {
                     if (settings.typeConfig[j].type == 'textarea')
                         str += '<td style="cursor: pointer">' + settings.data[i][j].substr(0, 10) + '......<input type="hidden" value="' + b.encode(settings.data[i][j]) + '" /></td>';
@@ -106,6 +125,7 @@
                 if(settings.typeConfig[cel].type == 'text') {
                     if ($(this).html().indexOf("input") == -1) {
                         $(this).html('<input type="text" onkeypress="if(event.which == 13)$(this).parent().html($(this).val());" value="' + $(this).html() + '" class="form-control"/>')
+                        $(":text").focus();
                     }
 
                 } else if(settings.typeConfig[cel].type == 'select') {
@@ -125,6 +145,32 @@
                     $("#longTextCel").val(cel);
                     $("#longTextModal textarea").val(str);
                     $("#longTextModal").modal();
+                } else if(settings.typeConfig[cel].type == 'date') {
+                    if ($(this).html().indexOf("input") == -1) {
+                        $(this).html('<input type="text" date-type onkeypress="if(event.which == 13)$(this).parent().html($(this).val());" value="' + $(this).html() + '" class="form-control"/>')
+                        $(":text").focus();
+                            $.fn.datepicker.dates['zh-CN'] = {
+                                days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+                                daysShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+                                daysMin:  ["日", "一", "二", "三", "四", "五", "六"],
+                                months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                                monthsShort: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+                                today: "今日",
+                                clear: "清除",
+                                format: "yyyy年mm月dd日",
+                                titleFormat: "yyyy年mm月",
+                                weekStart: 1
+                            };
+                            $(this).datepicker({
+                                format: 'yyyy-mm-dd',
+                                language: 'zh-CN',
+                                autoclose: true,
+                                todayBtn: "linked",
+                                todayHighlight: true,
+                            }).on('hide', function (ev) {
+                                $(this).html(ev.format());
+                            });
+                    }
                 }
             }
 
@@ -134,9 +180,11 @@
          * 正在编辑中的表单失去焦点
          */
         $(this).on("blur", ":text", function(){
-            $(this).parent().html($(this).val());
+            if(typeof $(this).attr("date-type") != 'undefined')
+                ;
+            else
+                $(this).parent().html($(this).val());
         })
-
         /**
          * 一行数据被选中
          */
@@ -205,7 +253,7 @@
             if(!$(this).hasClass('disabled')) {
                 var page = $(this).children().eq(0).html();
                 $(this).html('<span class="glyphicon glyphicon-refresh"></span>')
-                $.get(settings.paginationURL + "?currentPage=" + page,  function(response){
+                $.get(settings.paginationURL + "?currentPage=" + page + "&fetch=" + settings.fetch,  function(response){
                     if(response.status == true) {
                         settings.data = response.data;
                         settings.currentPage = response.currentPage;
@@ -259,10 +307,13 @@
                 if($(this).prop('checked')) {
                     var target = $(this).parent().parent();
                     var ele = new Array();
-                    for(var i = 1; i < $(target).children().length - 1; i++) {
+                    var len = $(target).children().length;
+                    if(settings.noOperator == false)
+                        len--;
+                    for(var i = 1; i < len; i++) {
                         if(settings.typeConfig[i-1].edit == false)
                             ele.push($(target).children().eq(i).html())
-                        else if(settings.typeConfig[i - 1].type == 'text')
+                        else if(settings.typeConfig[i - 1].type == 'text' || settings.typeConfig[i - 1].type == 'date')
                             ele.push($(target).children().eq(i).html())
                         else if (settings.typeConfig[i - 1].type == 'select') {
                             for(var k = 0; k < settings.typeConfig[i-1].options.length; k++) {
@@ -331,6 +382,14 @@
                         '<textarea class="form-control" rows="10"></textarea>'+
                         '</div>' +
                         '</div>');
+                } else if(settings.typeConfig[i].type == 'date') {
+                    $("#addForm").append('' +
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">' + settings.title[i] + '</label>' +
+                        '<div class="col-sm-6">' +
+                        '<input type="date" value="" class="form-control"/>' +
+                        '</div>' +
+                        '</div>');
                 }
             }
             $("#addModal").modal();
@@ -348,7 +407,7 @@
             '   提醒'+
             '     </div>' +
             '     <div class="modal-body" >' +
-                '<p id="alertInfo" class="text-center text-danger"></p>' +
+            '<p id="alertInfo" class="text-center text-danger"></p>' +
             '     </div>  '+
             '    </div>' +
             '  </div>' +
@@ -405,6 +464,7 @@
                 var target = $("#addForm").children().eq(i).children().eq(1).children().eq(0);
                 info[i] = $(target).val();
             }
+
             $.post(settings.addURL, {info:info}, function(response){
                 if(response.status == true) {
                     $("#save").next().html("保存成功！")

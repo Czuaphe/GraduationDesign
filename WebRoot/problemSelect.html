@@ -66,27 +66,26 @@
 </div>
 <script>
     $(document).ready(function(){
-        $("#selectInfo").dynamicTables({
-            'title' : ['编号', '学生姓名', '学生学号', '专业', '课题名称', '教师账号', '教师姓名', '选题方式', '选题时间'],
-            'data' : [
-                ['1', '诸葛亮','1407064101', '计算机科学与技术', '毕业设计系统', 'teacher', 'teacher', '在线选题', '2018-01-01 12:34:56'],
-            ],
-            'delsURL': 'http://localhost/pm/apis/del',
-            'saveURL': 'http://localhost/pm/apis/save',
-            'noAdd' : true,
-            'noSave' : true,
-            'typeConfig' : [
-                {"edit": false},
-                {"edit": false},
-                {"edit" : false},
-                {"edit" : false},
-                {"edit": false},
-                {"edit": false},
-                {"edit" : false},
-                {"edit" : false},
-                {"edit" : false},
-            ],
-        });
+        $.get("http://10.165.215.202:8080/GraduationDesign/problem/selected?currentPage=1", function (response) {
+            $("#selectInfo").dynamicTables({
+                'title' : ['编号', '学生姓名', '学生学号', '选题时间', '课题名称', '专业', '教师账号', '教师姓名', '选题方式'],
+                'data' : response.data,
+                'delsURL': 'http://10.165.215.202:8080/GraduationDesign/problem/selected/dels',
+                'noAdd' : true,
+                'noSave' : true,
+                'typeConfig' : [
+                    {"edit": false},
+                    {"edit": false},
+                    {"edit" : false},
+                    {"edit" : false},
+                    {"edit": false},
+                    {"edit": false},
+                    {"edit" : false},
+                    {"edit" : false},
+                    {"edit" : false},
+                ],
+            });
+        })
     })
 </script>
 </body>

@@ -196,6 +196,14 @@
     var stu_id = -1;
     $(document).ready(function () {
 
+        if(stu_id != -1) {
+            $("#bind").hide();
+        } else {
+            $("#bind").show();
+            $("#studentName").val("");
+            $("#studentID").val("");
+        }
+
         if($("#selectType").val() != 1)
             $("#typeTab").parent().hide();
         if($("#from").val() == 2)
@@ -243,20 +251,44 @@
             {
                 $("[aria-controls='t3']").html("<span class='text-danger'>课题要求 <span class='glyphicon glyphicon-warning-sign'></span></span>");
             }
+            else if($("#selectType").val() == 1 && ($("#stu_id").val() == -1 || $("#stu_id").val() == "")) {
+                $("[aria-controls='t4']").html("<span class='text-danger'>指定学生 <span class='glyphicon glyphicon-warning-sign'></span></span>");
+            }
             else {
-                $.post("", {}, function(){
-
+                var info = new Array(
+                    name,major, newPro,type,from,attr,stu_id == -1 ? 0 : stu_id, description,require,scienceName
+                );
+                $.post("http://10.165.215.202:8080/GraduationDesign/problem/add", {info : info}, function(response){
+                    if(response.status == true) {
+                        alert("添加成功！");
+                        stu_id = -1;
+                        document.forms[0].reset();
+                        document.forms[1].reset();
+                        document.forms[2].reset();
+                        document.forms[3].reset();
+                        window.location.reload();
+                    } else {
+                        alert("添加失败-" + response.info);
+                    }
                 })
             }
-            window.setTimeout('$(".has-error").removeClass("has-error");$("[aria-controls=\'t1\']").html("基本设置");$("[aria-controls=\'t2\']").html("课题简介");$("[aria-controls=\'t3\']").html("课题要求");', 3000);
+            window.setTimeout(function(){
+                $(".has-error").removeClass("has-error");
+                $("[aria-controls=\'t1\']").html("基本设置");
+                $("[aria-controls=\'t2\']").html("课题简介");
+                $("[aria-controls=\'t3\']").html("课题要求");
+                $("[aria-controls=\'t4\']").html("指定学生");
+                }
+                , 3000);
         })
 
         $("#searchStudent").click(function(){
+            $("#studentID").next().html("");
             if($("#studentID").val().length == 0) {
                 $("#studentID").parent().parent().addClass('has-error');
             } else {
                 var id = $("#studentID").val();
-                $.post("/student/info", {stu_id:id}, function(data){
+                $.post("http://10.165.215.202:8080/GraduationDesign/student/info", {stu_id:id}, function(data){
                     if(data.status == true) {
                         $("#studentName").val(data.stu_name);
                         stu_id = data.id;
@@ -268,10 +300,13 @@
         })
 
         $("#bind").click(function(){
+            $(this).hide();
             $("#stu_id").val(stu_id);
         })
 
         $("#unbind").click(function(){
+            $("#bind").show()
+            $("#studentName").val("");
             $("#stu_id").val(-1);
         })
     })

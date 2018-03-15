@@ -60,59 +60,120 @@
         <p>题目数量：102题</p>
         <hr/>
         <div class="row">
-            <div class="col-md-2 col-md-offset-2">
-                <div class="list-group">
-                    <button type="button" class="list-group-item active">基于Java的毕业设计选题系统</button>
-                    <button type="button" class="list-group-item">基于C语言的XXX系统</button>
-                    <button type="button" class="list-group-item">基于C语言的XXX系统</button>
-                    <button type="button" class="list-group-item">基于C语言的XXX系统</button>
-                    <button type="button" class="list-group-item">基于C语言的XXX系统</button>
+            <div class="col-md-2">
+                <div class="list-group" id="problemList">
                 </div>
                 <div class="row">
                     <div class="col-sm-3 text-center">
-                        <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-arrow-left"></span></button>
+                        <button type="button" class="btn btn-default" id="prevPage"><span class="glyphicon glyphicon-arrow-left"></span></button>
                     </div>
                     <div class="col-sm-6 text-center">
-                        <span>第1页 / 共1页</span>
+                        <span id="pages">第1页 / 共1页</span>
                     </div>
                     <div class="col-sm-3 text-center">
-                        <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-arrow-right"></span></button>
+                        <button type="button" class="btn btn-default" id="nextPage"><span class="glyphicon glyphicon-arrow-right"></span></button>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="panel panel-default">
+            <div class="col-md-8 well" id="problem">
+                <div class="panel panel-default" hidden>
                     <div class="panel-heading">
-                        <h3 class="text-center">基于Java的毕业设计选题系统</h3>
+                        <h3 class="text-center" id="name"></h3>
                     </div>
                     <div class="panel-body">
-                        <h5>适合专业：<small>计算机科学与技术</small></h5>
-                        <h5>课题类型：<small>毕业设计</small></h5>
-                        <h5>课题来源：<small>自拟题目</small></h5>
-                        <h5>课题性质：<small>其他</small></h5>
-                        <h5>选题方式：<small>盲选</small></h5>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h5>适合专业：<small id="major"></small></h5>
+                                <h5>课题类型：<small id="type"></small></h5>
+                            </div>
+                            <div class="col-sm-6">
+                                <h5>课题来源：<small id="from"></small></h5>
+                                <h5>课题性质：<small id="attr"></small></h5>
+                            </div>
+                        </div>
+
                         <h5>课题简介:</h5>
-                        <pre>
-Java是一门面向对象编程语言，不仅吸收了C++语言的各种优点，
-还摒弃了C++里难以理解的多继承、指针等概念，因此Java语言具有功能强大和简单易用两个特征。
-Java语言作为静态面向对象编程语言的代表，
-极好地实现了面向对象理论，允许程序员以优雅的思维方式进行复杂的编程[1]  。
-Java具有简单性、面向对象、分布式、健壮性、安全性、平台独立与可移植性、多线程、动态性等特点[2]  。
-Java可以编写桌面应用程序、Web应用程序、分布式系统和嵌入式系统应用程序等[3]  。
-</pre>
+                        <textarea id="description" rows="5" class="form-control" disabled></textarea>
                         <h5>课题要求</h5>
-                        <pre>
-XXXXXXXXXXXXXXXXXXX
-                        </pre>
+                        <textarea id="require" rows="5" class="form-control" disabled></textarea>
                     </div>
                     <div class="panel-footer">
-                        <button class="btn btn-danger" type="button">选择此题</button>
+                        <button class="btn btn-danger" type="button" id="choose">选择此题</button>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
+<script>
+    var currentPage = 1;
+    var totalPage = 1;
+    var pro_id = -1;
+    $(document).ready(function () {
+        update(1);
+        $("#nextPage").click(function(){
+            update(Math.min(currentPage + 1, totalPage));
+        })
+
+        $("#prevPage").click(function () {
+            update(Math.max(currentPage - 1, 1));
+        })
+        
+        $("#choose").click(function(){
+            if(pro_id != -1) {
+                $.post("http://10.165.215.202:8080/GraduationDesign/student/select", {pro_id:pro_id}, function (response) {
+                    if(response.status == true) {
+                        alert("选题成功");
+                    } else {
+                        alert(response.info);
+                    }
+                })
+            }
+        })
+
+        $("#problemList").on('click', ".list-group-item", function(){
+            if($(this).hasClass('active')) {
+
+            } else {
+                $(this).parent().children('.active').removeClass('active');
+                $(this).addClass('active');
+                var id = $(this).children().eq(0).html();
+                $.get("http://10.165.215.202:8080/GraduationDesign/problem/details/student?pro_id=" + id, function (response) {
+                    if(response.status == true) {
+                        $("#problem").children().eq(0).removeAttr("hidden");
+                        pro_id = response.info[0];
+                        $("#name").html(response.info[1]);
+                        $("#major").html(response.info[2]);
+                        $("#type").html(response.info[4]);
+                        $("#attr").html(response.info[5]);
+                        $("#from").html(response.info[6]);
+                        $("#description").html(response.info[7]);
+                        $("#require").html(response.info[8]);
+                    } else {
+                        $("#problem").html('<h2 class="text-danger text-center">获取题目失败</h2>')
+                    }
+                })
+            }
+        })
+    })
+
+    function update(page) {
+        $("#problemList").children().remove();
+        $.get("http://10.165.215.202:8080/GraduationDesign/problem/show/major?currentPage=1", function(response){
+            if(response.status == true) {
+                str = '';
+                for(var i = 0; i < response.data.length; i++) {
+                    str += '<button type="button" class="list-group-item">' + response.data[i][1]+' <span hidden>' + response.data[i][0]+'</span></button>'
+                }
+                $("#problemList").html(str);
+                currentPage = response.currentPage;
+                totalPage = response.totalPage;
+                $("#pages").html("第" + currentPage + "页 / 共" +totalPage + " 页");
+            }
+        })
+    }
+</script>
 <hr/>
 <nav class="navbar navbar-default navbar-fixed-bottom">
     <p class="text-center navbar-text">毕业设计选题系统</p>
