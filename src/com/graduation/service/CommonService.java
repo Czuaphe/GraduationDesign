@@ -73,7 +73,7 @@ public class CommonService {
 		case 4:
 			loginTeacher(username, password);
 			break;
-		case 13:
+		case 3:
 			loginAdmin(username, password);
 			break;
 		default:

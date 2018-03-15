@@ -63,8 +63,8 @@ public class StudentService {
 		HttpSession session = request.getSession();
 		
 //		// 学生
-		session.setAttribute("act", 1);
-		session.setAttribute("user", studentDao.queryByStu_id(10011));
+//		session.setAttribute("act", 1);
+//		session.setAttribute("user", studentDao.queryByStu_id(10011));
 		
 		switch (pathList.get(1)) {
 		case "show":
