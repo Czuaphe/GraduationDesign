@@ -32,7 +32,7 @@
                 <div class="collapse navbar-collapse">
                         <ul class="nav navbar-nav navbar-right">
                                 <li><a href="userCenter.jsp">个人中心</a></li>
-                                <li><a href="login.html">退出登录</a></li>
+                                <li><a href="/GraduationDesign/logout">退出登录</a></li>
                         </ul>
                 </div><!-- /.navbar-collapse -->
         </div><!-- /.container-fluid -->
