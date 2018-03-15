@@ -204,7 +204,7 @@
         if(currID != -1) {
             $.post("/GraduationDesign/student/resetPassword", {id:currID}, function(data){
                 if(data.status == true) {
-                    $("#repassI nfo").html("重置成功 密码已经更改为123456");
+                    $("#repassInfo").html("重置成功 密码已经更改为123456");
                     $("#reset").hide();
                 } else {
                     $("#repassInfo").html("重置失败，请重试！");
