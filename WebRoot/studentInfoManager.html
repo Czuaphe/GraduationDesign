@@ -84,7 +84,7 @@
 <script>
      currID = -1;
     $(document).ready(function() {
-        $.get("http://10.165.195.6:8080/GraduationDesign/student/show?currentPage=1", function (response) {
+        $.get("http://10.165.195.202:8080/GraduationDesign/student/show?currentPage=1", function (response) {
             if (response.status == true) {
                 $("#info").html("");
                 $("#studentInfo").dynamicTables({
