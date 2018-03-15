@@ -15,7 +15,7 @@
         <script src="./js/bootstrap-datepicker.min.js"></script>
         <script src="./js/bootstrap-datetimepicker.min.js"></script>
         <script src="./js/dynamicTables.js"></script>
-        <script src="./js/formCheck.js.js"></script>
+        <script src="./js/formCheck.js"></script>
 </head>
 <body>
         <nav class="navbar navbar-inverse">
