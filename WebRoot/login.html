@@ -63,7 +63,7 @@
                 } else if(act == 0) {
                     $("#act").parent().parent().addClass('has-error');
                 } else {
-                    $.post("/login", {username:username, password:password, act:act}, function(response){
+                    $.post("/GraduationDesign/login", {username:username, password:password, act:act}, function(response){
                         if(response.status == true) {
                             window.location.reload();
                         } else {
