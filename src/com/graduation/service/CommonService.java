@@ -1,10 +1,14 @@
 package com.graduation.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.websocket.Session;
 
 import com.graduation.dao.AdminDao;
 import com.graduation.dao.MajorDao;
@@ -26,6 +30,7 @@ public class CommonService {
 	private List<String> pathList = new ArrayList<>();
 
 	private HttpServletRequest request = null;
+	private HttpServletResponse response = null;
 	
 	private JSONObject jsonObjectOutput = new JSONObject();
 	
@@ -34,6 +39,11 @@ public class CommonService {
 	public CommonService(List<String> pathList, HttpServletRequest request) {
 		this.pathList = pathList;
 		this.request = request;
+	}
+	
+	public CommonService(List<String> pathList, HttpServletRequest request, HttpServletResponse response) {
+		this(pathList, request);
+		this.response = response;
 	}
 	
 	public JSONObject redirectToPath() {
@@ -45,7 +55,7 @@ public class CommonService {
 			login();
 			break;
 		case "logout":
-			
+			logout();
 			break;
 			
 		default:
@@ -80,6 +90,21 @@ public class CommonService {
 			System.out.println("末识别的用户类型！");
 			break;
 		}
+	}
+	
+	public void logout() {
+		
+		HttpSession session = request.getSession();
+		
+		session.removeAttribute("act");
+		session.removeAttribute("user");
+		
+		try {
+			request.getRequestDispatcher("login.html").forward(request, response);
+		} catch (ServletException | IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	public void loginStudent(String username, String password) {

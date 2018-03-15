@@ -128,7 +128,7 @@ public class AllServlet extends HttpServlet {
 			jsonObjectOutput = noticeService.redirectToPath();
 			break;
 		default:
-			CommonService commonService = new CommonService(pathList, request);
+			CommonService commonService = new CommonService(pathList, request, response);
 			jsonObjectOutput = commonService.redirectToPath();
 			break;
 		}
