@@ -64,8 +64,8 @@ public class AllServlet extends HttpServlet {
 		
 		HttpSession session = request.getSession();
 		// 管理员
-		session.setAttribute("act", 3);
-		session.setAttribute("user", new AdminDao().queryByUsername("admin"));
+//		session.setAttribute("act", 3);
+//		session.setAttribute("user", new AdminDao().queryByUsername("admin"));
 		// 学生
 //		 session.setAttribute("act", 1);
 //		 session.setAttribute("user", new StudentDao().queryByStu_id(10011));
@@ -128,7 +128,7 @@ public class AllServlet extends HttpServlet {
 			jsonObjectOutput = noticeService.redirectToPath();
 			break;
 		default:
-			CommonService commonService = new CommonService(pathList, request);
+			CommonService commonService = new CommonService(pathList, request, response);
 			jsonObjectOutput = commonService.redirectToPath();
 			break;
 		}
