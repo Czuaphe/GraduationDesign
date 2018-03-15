@@ -77,12 +77,6 @@ public class ProblemService {
 
 		// TODO 插入一个用户
 		HttpSession session = request.getSession();
-		// // 学生
-		 session.setAttribute("act", 1);
-		 session.setAttribute("user", studentDao.queryByStu_id(10011));
-		// 教师
-		// session.setAttribute("act", 2);
-		// session.setAttribute("user", teacherDao.queryByTea_id(20015));
 
 		jsonObjectOutput = new JSONObject();
 		// 判断二级路由
@@ -167,7 +161,7 @@ public class ProblemService {
 			jsonObjectOutput.put("info", error);
 
 		} else {
-
+			
 			// 数据转换成对象
 			Problem problem = toBeanAdd(list);
 
@@ -780,7 +774,7 @@ public class ProblemService {
 	}
 
 	/**
-	 * 按照用户导出课题，学生无法导出选题，管理员导出所有课题的选题情况，教师或专业负责人导出自己的 所有课题的选题信息
+	 * 按照用户导出课题，管理员导出所有课题的选题情况，教师或专业负责人导出自己的 所有课题的选题信息
 	 */
 	public void exportUser() {
 
@@ -951,8 +945,8 @@ public class ProblemService {
 	}
 
 	public void Title2XSSFRow(XSSFRow titleRow) {
-		String[] titles = { "课题ID", "课题名称", "所属专业", "课题类型", "课题来源", "课题性质",
-				"选题方式", "出题时间", "所属教师姓名", "选题学生姓名" };
+		String[] titles = { "课题ID", "课题名称", "所属专业", "新课题？","课题类型", "课题来源", "课题性质",
+				"选题方式", "出题时间", "所属教师姓名", "选题学生姓名", "选题时间" };
 		// 插入标题信息
 		for (int i = 0; i < titles.length; i++) {
 			titleRow.createCell(i).setCellValue(titles[i]);
@@ -966,29 +960,103 @@ public class ProblemService {
 		dataRow.createCell(1).setCellValue(problem.getName());
 		dataRow.createCell(2).setCellValue(
 				majorDao.queryByMID(problem.getMid()).getMajor());
-		dataRow.createCell(3).setCellValue(problem.getType());
-		dataRow.createCell(4).setCellValue(problem.getSource());
-		dataRow.createCell(5).setCellValue(problem.getNature());
-		dataRow.createCell(6).setCellValue(problem.getWay());
-		// 第7列是出题日期，设置日期格式
-		XSSFCell cell = dataRow.createCell(7);
+		
+		dataRow.createCell(3).setCellValue(problem.getIs_new() == 0 ? "否" : "是");
+		
+		// 第4列为课题类型
+		int type = problem.getType();
+		String typeString = "未知类型";
+		switch (type) {
+		case 0:
+			typeString = "请选择课题类型";
+			break;
+		case 1:
+			typeString = "毕业设计";
+			break;
+		case 2:
+			typeString = "毕业论文";
+			break;
+		default:
+			break;
+		}
+		dataRow.createCell(4).setCellValue(typeString);
+		
+		// 第5列为课题来源
+		int source = problem.getSource();
+		String sourceString = "未知来源";
+		switch (source) {
+		case 1:
+			sourceString = "自拟题目";
+			break;
+		case 2:
+			sourceString = "科研题目 - " + problem.getResearch_name();
+			break;
+		default:
+			break;
+		}
+		dataRow.createCell(5).setCellValue(sourceString);
+		
+		// 第6列为课题性质
+		int natrue = problem.getNature();
+		String natrueString = "未知性质";
+		switch (natrue) {
+		case 1:
+			natrueString = "理论研究";
+			break;
+		case 2:
+			natrueString = "应用基础及其理论研究";
+			break;
+		case 3:
+			natrueString = "工程技术研究";
+			break;
+		case 4:
+			natrueString = "其它";
+			break;
+		default:
+			break;
+		}
+		dataRow.createCell(6).setCellValue(natrueString);
+		
+		// 第7列为选题方式
+		int way = problem.getWay();
+		String wayString = "未知方式";
+		switch (way) {
+		case 0:
+			wayString = "盲选";
+			break;
+		default:
+			wayString = "指定学生 - " + studentDao.queryByStu_id(way).getRealname();
+			break;
+		}
+		dataRow.createCell(7).setCellValue(wayString);
+		
+		// 第8列是出题日期，设置日期格式
+		XSSFCell cell = dataRow.createCell(8);
 		CellStyle cellStyle = workbook.createCellStyle();
 		CreationHelper creationHelper = workbook.getCreationHelper();
 		cellStyle.setDataFormat(creationHelper.createDataFormat().getFormat(
 				"yyyy-MM-dd  hh:mm:ss"));
-		cellStyle.setAlignment(HorizontalAlignment.CENTER);
+//		cellStyle.setAlignment(HorizontalAlignment.CENTER);  // 文本居中
 		cell.setCellStyle(cellStyle);
 		cell.setCellValue(new Date(problem.getProblem_time().getTime()));
-		// 第8列课题所属教师的姓名
-		dataRow.createCell(8).setCellValue(
+		// 第9列课题所属教师的姓名
+		dataRow.createCell(9).setCellValue(
 				teacherDao.queryByTea_id(problem.getTea_id()).getRealname());
-		// 第九列是选择这个课题的学生的姓名
+		// 第10列是选择这个课题的学生的姓名
 		Selected selected = selectedDao.queryByProblem_id(problem
 				.getProblem_id());
-		dataRow.createCell(9).setCellValue(
+		dataRow.createCell(10).setCellValue(
 				selected == null ? "待选" : studentDao.queryByStu_id(
 						selected.getStu_id()).getRealname());
-
+		// 第11列选题时间
+		XSSFCell selectedCell = dataRow.createCell(11);
+		if (selected == null) {
+			selectedCell.setCellValue("待选");
+		} else {
+			selectedCell.setCellStyle(cellStyle);
+			selectedCell.setCellValue(new Date(selected.getTime().getTime()));
+		}
+		
 	}
 
 	/**

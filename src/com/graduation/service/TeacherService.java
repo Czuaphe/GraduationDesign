@@ -465,6 +465,7 @@ public class TeacherService {
 		
 		jsonObjectOutput = new JSONObject();
 		
+		
 		// 将上传的文件转换成一个对象列表
 		List<List<Object>> teacherList = new ArrayList<>();
 		DiskFileItemFactory factory = new DiskFileItemFactory();
@@ -474,6 +475,7 @@ public class TeacherService {
 			request.setCharacterEncoding("utf-8");
 			
 			List<FileItem> list = upload.parseRequest(new ServletRequestContext(request));
+			System.out.println("文件数量为：" + list.size());
 			// 读取每 一个文件
 			if (list.get(0) != null) {
 				FileItem item = list.get(0);
@@ -510,12 +512,22 @@ public class TeacherService {
 		System.out.println(teacherList.size());
 		
 		for (List<Object> teacher : teacherList) {
-			// 返回专业名称转换成专业ID
-			Object obj = teacher.get(3);
-			obj = produceTeacherMajorReverse(obj);
 			
 			JSONArray array = new JSONArray();
-			for (Object object : teacher) {
+			for (int i = 0; i < teacher.size(); i ++) {
+				Object object = teacher.get(i);
+				if (i == 2) {
+					object = object.equals("男")? 0 : 1;
+				}
+				if (i == 3) {
+					object = produceTeacherMajorReverse(object);
+				}
+//				if (i == 6) {
+//					System.out.println("index 6 : " + object);
+//				}
+//				if (i == 7) {
+//					System.out.println("index 7 : " + object);
+//				}
 				array.add(object);
 			}
 			teacherArray.add(array);
@@ -524,8 +536,6 @@ public class TeacherService {
 		jsonObjectOutput.put("status", true);
 		
 		jsonObjectOutput.put("infos", teacherArray);
-		
-		
 		
 	}
 	
@@ -546,17 +556,15 @@ public class TeacherService {
 			// 目前只读取第一个Sheet的数据
 			Sheet sheet = xssfWorkbook.getSheetAt(0);
 			System.out.println("一共有" + sheet.getLastRowNum() + "条数据");
-			for (int rowNum = 0; rowNum <= sheet.getLastRowNum(); rowNum ++) {
+			for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum ++) {
 //				System.out.println("正在加载第" + rowNum + "数据");
 				Row row = sheet.getRow(rowNum);
 				List<Object> list = new ArrayList<>();
 				for (int i = 0; i < 10; i++) {
 					Cell cell = row.getCell(i);
-					if (i == 6) {
-						list.add(cell.getNumericCellValue());
-					} else {
-						list.add(cell.getStringCellValue());
-					}
+					
+					list.add(cell.getStringCellValue());
+					
 //					System.out.println(i);
 				}
 //				System.out.println(list.size());
@@ -580,51 +588,12 @@ public class TeacherService {
 		try {
 			HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		return null;
 	}
 	
-	public void exportTeacherProblems(HttpServletRequest request) {
-		
-		jsonObjectOutput = new JSONObject();
-		
-		HttpSession session = request.getSession();
-		String error = null;
-		Object actObject = session.getAttribute("act");
-		
-		if (actObject == null) {
-			error = "没有登录！！无法导出课题。";
-			System.out.println(error);
-			return ;
-		}
-		
-		Integer act = Integer.parseInt(String.valueOf(actObject));
-		
-		if (act != 2 || act != 4) {
-			error = "登录身份不是教师或专业负责人，无法导出课题。";
-			System.out.println(error);
-			return ;
-		}
-		
-		Teacher teacher = (Teacher) session.getAttribute("user");
-		
-		if (teacher == null) {
-			error = "无法得到教师信息，不能导出课题。";
-			System.out.println(error);
-			return ;
-		}
-		
-		// 得到当前教师的所有课题
-		List<Problem> problemList = problemDao.queryByTea_id(teacher.getTea_id());
-		
-		
-		
-		
-		
-	}
 	
 	/**
 	 * 得到要返回的JSON数据
@@ -822,7 +791,7 @@ public class TeacherService {
 	 * @return 返回专业ID
 	 */
 	public Object produceTeacherMajorReverse(Object object) {
-		return majorDao.queryByMajorName(String.valueOf(object)).getMajor();
+		return majorDao.queryByMajorName(String.valueOf(object)).getMid();
 	}
 	
 	/**

@@ -9,11 +9,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONObject;
 
+import com.graduation.dao.AdminDao;
+import com.graduation.dao.StudentDao;
+import com.graduation.dao.TeacherDao;
 import com.graduation.service.CommonService;
 import com.graduation.service.MajorService;
+import com.graduation.service.NoticeService;
 import com.graduation.service.ProblemService;
 import com.graduation.service.StudentService;
 import com.graduation.service.TeacherService;
@@ -56,6 +61,17 @@ public class AllServlet extends HttpServlet {
 		response.setCharacterEncoding("utf-8");
 		response.setContentType("application/json");
 		response.setHeader("Access-Control-Allow-Origin", "*");
+		
+		HttpSession session = request.getSession();
+		session.setAttribute("act", 3);
+		session.setAttribute("user", new AdminDao().queryByUsername("admin"));
+		
+		// 学生
+//		 session.setAttribute("act", 1);
+//		 session.setAttribute("user", new StudentDao().queryByStu_id(10011));
+		// 教师
+//		 session.setAttribute("act", 2);
+//		 session.setAttribute("user", new TeacherDao().queryByTea_id(20015));
 		
 		System.out.println( "pathInfo: " +  request.getPathInfo());
 		System.out.println("ServletPath: " + request.getServletPath());
@@ -107,6 +123,10 @@ public class AllServlet extends HttpServlet {
 			jsonObjectOutput = problemService.redirectToPath();
 			// 所以 ProblemService 中请求的返回值由自己选择
 			return ;
+		case "notice":
+			NoticeService noticeService = new NoticeService(pathList, request);
+			jsonObjectOutput = noticeService.redirectToPath();
+			break;
 		default:
 			CommonService commonService = new CommonService(pathList, request);
 			jsonObjectOutput = commonService.redirectToPath();

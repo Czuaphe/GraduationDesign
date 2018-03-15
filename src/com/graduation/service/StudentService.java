@@ -2,6 +2,8 @@ package com.graduation.service;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -14,6 +16,16 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.servlet.ServletRequestContext;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import oracle.net.aso.l;
 import oracle.net.aso.r;
@@ -400,7 +412,125 @@ System.out.println("学生进行选题中。。。");
 	 * @param request
 	 */
 	public void importStudent(HttpServletRequest request) {
+		jsonObjectOutput = new JSONObject();
 		
+		// 将上传的文件转换成一个对象列表
+		List<List<Object>> studentList = new ArrayList<>();
+		DiskFileItemFactory factory = new DiskFileItemFactory();
+		ServletFileUpload upload = new ServletFileUpload(factory);
+		try {
+			
+			request.setCharacterEncoding("utf-8");
+			
+			List<FileItem> list = upload.parseRequest(new ServletRequestContext(request));
+			System.out.println("文件数量为：" + list.size());
+			// 读取每 一个文件
+			if (list.get(0) != null) {
+				FileItem item = list.get(0);
+				String filename = item.getName();
+				System.out.println("文件名为：" + filename);
+				String extName = filename.substring(filename.lastIndexOf("."));
+				System.out.println("后缀为：" + extName);
+				InputStream inputStream = item.getInputStream();
+				if (extName.equals(".xlsx")) {
+					studentList = importXlsxData(inputStream);
+				} else if (extName.equals(".xls")) {
+					studentList = importXlsData(inputStream);
+				} else {
+					// 文件不是
+					System.out.println("文件不是规则格式");
+				}
+				
+				inputStream.close();
+			} else {
+				
+				// 没有找到文件
+				System.out.println("没有找到文件");
+			}
+			
+		} catch (FileUploadException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		// 开始创建JSON数据
+		JSONArray teacherArray = new JSONArray();
+		
+		System.out.println(studentList.size());
+		
+		for (List<Object> teacher : studentList) {
+			
+			JSONArray array = new JSONArray();
+			for (int i = 0; i < teacher.size(); i ++) {
+				Object object = teacher.get(i);
+				if (i == 2) {
+					object = object.equals("男")? 0 : 1;
+				}
+				if (i == 3) {
+					object = majorDao.queryByMajorName(String.valueOf(object)).getMid();
+
+				}
+//				if (i == 6) {
+//					System.out.println("index 6 : " + object);
+//				}
+//				if (i == 7) {
+//					System.out.println("index 7 : " + object);
+//				}
+				array.add(object);
+			}
+			teacherArray.add(array);
+		}
+		
+		jsonObjectOutput.put("status", true);
+		
+		jsonObjectOutput.put("infos", teacherArray);
+		
+	}
+	
+	public List<List<Object>> importXlsxData(InputStream inputStream) {
+		
+		System.out.println("开始加载数据中。。。");
+		
+		List<List<Object>> studentList = new ArrayList<>();
+		
+		try {
+			
+			XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
+			// 目前只读取第一个Sheet的数据
+			Sheet sheet = xssfWorkbook.getSheetAt(0);
+			System.out.println("一共有" + sheet.getLastRowNum() + "条数据");
+			for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum ++) {
+//				System.out.println("正在加载第" + rowNum + "数据");
+				Row row = sheet.getRow(rowNum);
+				List<Object> list = new ArrayList<>();
+				for (int i = 0; i < 8; i++) {
+					Cell cell = row.getCell(i);
+					
+					list.add(cell.getStringCellValue());
+					
+//					System.out.println(i);
+				}
+//				System.out.println(list.size());
+				
+				studentList.add(list);
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return studentList;
+	}
+	
+	/**
+	 * TODO 待开发
+	 * @param inputStream
+	 * @return
+	 */
+	public List<List<Object>> importXlsData(InputStream inputStream) {
+		
+		return null;
 	}
 	/**
 	 * 返回中学生的部分信息
