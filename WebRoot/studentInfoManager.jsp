@@ -30,16 +30,16 @@
 <script>
      currID = -1;
     $(document).ready(function() {
-        $.get("<%= basePath %>student/show?currentPage=1", function (response) {
+        $.get("/GraduationDesign/student/show?currentPage=1", function (response) {
             if (response.status == true) {
                 $("#info").html("");
                 $("#studentInfo").dynamicTables({
                     'title': ['编号', '学号', '姓名', '性别', '所属专业', 'QQ', '联系方式', '电子邮件', '备注'],
                     'data': response.data,
-                    'delsURL': '<%= basePath %>student/dels',
-                    'saveURL': '<%= basePath %>student/update',
-                    'addURL': '<%= basePath %>student/add',
-                    'paginationURL': '<%= basePath %>student/show',
+                    'delsURL': '/GraduationDesign/student/dels',
+                    'saveURL': '/GraduationDesign/student/update',
+                    'addURL': '/GraduationDesign/student/add',
+                    'paginationURL': '/GraduationDesign/student/show',
                     'totalPage': response.totalPage,
                     'currentPage': response.currentPage,
                     'noOperator': false,
@@ -142,7 +142,7 @@
                  var info = new Array(
                      name,major, newPro,type,from,attr,stu_id == -1 ? 0 : stu_id, description,require,scienceName
                  );
-                 $.post("<%= basePath %>problem/add", {info : info}, function(response){
+                 $.post("/GraduationDesign/problem/add", {info : info}, function(response){
                      if(response.status == true) {
                          alert("添加成功！");
                          stu_id = -1;
@@ -172,7 +172,7 @@
                  $("#studentID").parent().parent().addClass('has-error');
              } else {
                  var id = $("#studentID").val();
-                 $.post("<%= basePath %>student/info", {stu_id:id}, function(data){
+                 $.post("/GraduationDesign/student/info", {stu_id:id}, function(data){
                      if(data.status == true) {
                          $("#studentName").val(data.stu_name);
                          stu_id = data.id;
@@ -202,7 +202,7 @@
 
     function do_repass() {
         if(currID != -1) {
-            $.post("<%= basePath %>student/resetPassword", {id:currID}, function(data){
+            $.post("/GraduationDesign/student/resetPassword", {id:currID}, function(data){
                 if(data.status == true) {
                     $("#repassI nfo").html("重置成功 密码已经更改为123456");
                     $("#reset").hide();

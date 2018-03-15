@@ -206,7 +206,7 @@
                 var info = new Array(
                     name,major, newPro,type,from,attr,stu_id == -1 ? 0 : stu_id, description,require,scienceName
                 );
-                $.post("<%= basePath %>problem/add", {info : info}, function(response){
+                $.post("/GraduationDesign/problem/add", {info : info}, function(response){
                     if(response.status == true) {
                         alert("添加成功！");
                         stu_id = -1;
@@ -236,7 +236,7 @@
                 $("#studentID").parent().parent().addClass('has-error');
             } else {
                 var id = $("#studentID").val();
-                $.post("<%= basePath %>student/info", {stu_id:id}, function(data){
+                $.post("/GraduationDesign/student/info", {stu_id:id}, function(data){
                     if(data.status == true) {
                         $("#studentName").val(data.stu_name);
                         stu_id = data.id;

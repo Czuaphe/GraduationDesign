@@ -36,7 +36,7 @@
 </div>
 <script>
     $(document).ready(function(){
-        $.get("<%= basePath %>problem/selected/student", function (response) {
+        $.get("/GraduationDesign/problem/selected/student", function (response) {
             if(response.status == true) {
                 $("#problem").children().eq(0).removeAttr("hidden");
                 $("#name").html(response.info[1]);

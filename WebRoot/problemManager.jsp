@@ -176,7 +176,7 @@
     var stu_id = -1;
     var pro_id = -1;
     $(document).ready(function(){
-        $.get("<%= basePath %>problem/show/teacher", function(response){
+        $.get("/GraduationDesign/problem/show/teacher", function(response){
             if(response.status == true) {
                 $("#problemInfo").children().remove();
 
@@ -185,7 +185,7 @@
                     'data': response.data,
                     'noAdd': true,
                     'noSave': true,
-                    'delsURL': '<%= basePath %>problem/dels',
+                    'delsURL': '/GraduationDesign/problem/dels',
                     'typeConfig': [
                         {"edit": false},
                         {"edit": false},
@@ -256,7 +256,7 @@
                 var info = new Array(
                     new Array(pro_id,name,major, newPro,type,from,attr,stu_id == -1 ? 0 : stu_id, description,require,scienceName)
                 );
-                $.post("<%= basePath %>problem/update", {infos : info}, function(response){
+                $.post("/GraduationDesign/problem/update", {infos : info}, function(response){
                     if(response.status == true) {
                         alert("修改成功！");
                         stu_id = -1;
@@ -286,7 +286,7 @@
                 $("#studentID").parent().parent().addClass('has-error');
             } else {
                 var id = $("#studentID").val();
-                $.post("<%= basePath %>student/info", {stu_id:id}, function(data){
+                $.post("/GraduationDesign/student/info", {stu_id:id}, function(data){
                     if(data.status == true) {
                         $("#studentName").val(data.stu_name);
                         stu_id = data.id;
@@ -310,7 +310,7 @@
     })
     function edit(target) {
         var id = $(target).children().eq(1).html();
-        $.get("<%= basePath %>problem/details/teacher?pro_id=" + id, function(response){
+        $.get("/GraduationDesign/problem/details/teacher?pro_id=" + id, function(response){
             if(response.status == true) {
                 pro_id = response.info[0];
                 $("#name").val(response.info[1]);

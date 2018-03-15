@@ -10,14 +10,14 @@
 </div>
 <script>
     $(document).ready(function(){
-        $.get("<%= basePath %>major/show", function(response){
+        $.get("/GraduationDesign/major/show", function(response){
             if(response.status == true)
                 $("#majorTable").dynamicTables({
                 'title' : ['编号', '专业名称', '专业负责人账号','专业负责人姓名', '专业人数'],
                 'data' : response.data,
-                'delsURL':'<%= basePath %>major/dels',
-                'addURL':'<%= basePath %>major/add',
-                'saveURL':'<%= basePath %>major/update',
+                'delsURL':'/GraduationDesign/major/dels',
+                'addURL':'/GraduationDesign/major/add',
+                'saveURL':'/GraduationDesign/major/update',
                 'typeConfig' : [
                     {'edit':  false},
                     {'type':  'text'},
