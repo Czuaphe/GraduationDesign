@@ -51,7 +51,7 @@ public class MajorDao {
 	}
 	
 	/**
-	 * 更改一个专业的信息
+	 * 更改一个专业的名称，专业负责人ID信息
 	 * @param major 
 	 * @return
 	 */
@@ -66,6 +66,29 @@ public class MajorDao {
 		
 		return false;
 		
+	}
+	/**
+	 * 更新专业出题，审核，选题时间信息
+	 * @param major
+	 * @return
+	 */
+	public boolean updateTime(Major major) {
+		
+		String sql = "update t_major set problem_start = ?, problem_end = ?, verify_start = ?, verify_end = ?, select_start = ?, select_end = ? where mid = ?";
+		try {
+			return runner.update(sql
+					, major.getProblem_start()
+					, major.getProblem_end()
+					, major.getVerify_start()
+					, major.getVerify_end()
+					, major.getSelect_start()
+					, major.getSelect_end()
+					, major.getMid()
+					) > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	/**

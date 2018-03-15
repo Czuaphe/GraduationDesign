@@ -164,7 +164,7 @@ public class TeacherService {
 		}
 		
 		int act = Integer.parseInt(String.valueOf(actObject));
-		
+		System.out.println("act : " + act);
 		//是教师登录
 		if (act == 2) {
 			

@@ -2,14 +2,21 @@ package com.graduation.service;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
+import oracle.net.aso.d;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -46,6 +53,9 @@ public class MajorService {
 			System.out.println("正在显示专业中。。。");
 			showMajor();
 			break;
+		case "showTime":
+			showMajorTime();
+			break;
 		case "dels":
 			String[] delList = request.getParameterValues("ids[]");
 			deleteMajor(delList);
@@ -68,6 +78,9 @@ public class MajorService {
 			System.out.println("正在添加教师到数据库中！");
 			String[] infoList = request.getParameterValues("info[]");
 			addMajor(infoList);
+			break;
+		case "updateTime":
+			updateMajorTime();
 			break;
 		default:
 			break;
@@ -235,6 +248,145 @@ public class MajorService {
 			jsonObjectOutput.put("status", b);
 			
 		}
+	}
+	
+	public void showMajorTime() {
+		jsonObjectOutput = new JSONObject();
+		// 管理员使用
+		HttpSession session =request.getSession();
+		
+		Object actObject = session.getAttribute("act");
+		System.out.println("act Object : " + actObject);
+		
+		boolean flag = true;
+		List<Major> majorList = majorDao.getAllMajor();
+		
+		System.out.println("Major Size : " + majorList.size());
+		
+		JSONArray majorArray = new JSONArray();
+		
+		if (majorList == null || majorList.size() == 0) {
+			flag = false;
+		} else {
+			for (Major major : majorList) {
+//				System.out.println(major.toString());
+				List<Object> list = toObjectShowTime(major);
+				JSONArray array = new JSONArray();
+				for (Object object : list) {
+					array.add(object);
+				}
+				majorArray.add(array);
+			}
+		}
+		
+		
+		jsonObjectOutput.put("status", flag);
+		jsonObjectOutput.put("info", majorArray);
+		
+		
+	}
+	
+	public void updateMajorTime() {
+		
+		jsonObjectOutput = new JSONObject();
+		
+		String[] updateStringArray = request.getParameterValues("info[]");
+		for (int i = 0; i < updateStringArray.length; i++) {
+			System.out.println(updateStringArray[i]);
+		}
+		List<Object> updateStringList = new ArrayList<>();
+		for (String string : updateStringArray) {
+			updateStringList.add(string);
+		}
+		
+		try {
+			
+			Major major = toBeanUpdateTime(updateStringList);
+			
+			Boolean b = majorDao.updateTime(major);
+			
+			jsonObjectOutput.put("status", b);
+			
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public List<Object> toObjectShowTime(Major major) {
+		List<Object> list = new ArrayList<>();
+		
+		list.add(major.getMid());
+		list.add(major.getMajor());
+		
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		// 出题时间
+		if (major.getProblem_start() == null) {
+			list.add(null);
+		} else {
+			list.add(df.format(new Date(major.getProblem_start().getTime())));
+		}
+		if (major.getProblem_end() == null) {
+			list.add(null);
+		} else {
+			list.add(df.format(new Date(major.getProblem_end().getTime())));
+		}
+		
+		// 审核时间
+		if (major.getVerify_start() == null) {
+			list.add(null);
+		} else {
+			list.add(df.format(new Date(major.getVerify_start().getTime())));
+		}
+		if (major.getVerify_start() == null) {
+			list.add(null);
+		} else {
+			list.add(df.format(new Date(major.getVerify_end().getTime())));
+		}
+		
+		// 选题时间
+		if (major.getSelect_start() == null) {
+			list.add(null);
+		} else{
+			list.add(df.format(new Date(major.getSelect_start().getTime())));
+		}
+		if (major.getSelect_start() == null) {
+			list.add(null);
+		} else{
+			list.add(df.format(new Date(major.getSelect_end().getTime())));
+		}
+		
+		return list;
+	}
+	
+	public Major toBeanUpdateTime(List<Object> list) throws ParseException {
+		Major major = new Major();
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		
+		major.setMid(Integer.parseInt(String.valueOf(list.get(0))));
+			System.out.println("出题开始时间为：" + list.get(1));
+		major.setProblem_start(new Timestamp(
+				df.parse(String.valueOf(list.get(1)).trim()).getTime()
+				));
+		major.setProblem_end(new Timestamp(
+				df.parse(String.valueOf(list.get(2))).getTime()
+				));
+		
+		major.setVerify_start(new Timestamp(
+				df.parse(String.valueOf(list.get(3))).getTime()
+				));
+		major.setVerify_end(new Timestamp(
+				df.parse(String.valueOf(list.get(4))).getTime()
+				));
+		
+		major.setSelect_start(new Timestamp(
+				df.parse(String.valueOf(list.get(5))).getTime()
+				));
+		major.setSelect_end(new Timestamp(
+				df.parse(String.valueOf(list.get(6))).getTime()
+				));
+		
+		return major;
 	}
 	
 	public Map<Integer, String> checkMajor(List<Object> list) {
