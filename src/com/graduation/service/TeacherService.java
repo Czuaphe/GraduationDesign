@@ -500,6 +500,10 @@ public class TeacherService {
 		// 将其它的信息加入对象中
 		teacherModify.setTea_id(teacher.getTea_id());
 		teacherModify.setUsername(teacher.getUsername());
+		teacherModify.setMid(teacher.getMid());
+		teacherModify.setNumber(teacher.getNumber());
+		teacherModify.setTitle(teacher.getTitle());
+		teacherModify.setDegree(teacher.getDegree());
 		teacherModify.setRemarks(teacher.getRemarks());
 		if (teacherModify.getPassword() == null) {
 			teacherModify.setPassword(teacher.getPassword());

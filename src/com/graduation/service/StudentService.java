@@ -716,8 +716,9 @@ System.out.println("学生信息显示中。。。");
 		// 将其它的信息加入对象中
 		studentModify.setStu_id(student.getStu_id());
 		studentModify.setUsername(student.getUsername());
+		studentModify.setMid(student.getMid());
 		studentModify.setRemarks(student.getRemarks());
-		if (studentModify.getPassword() == null) {
+		if (studentModify.getPassword() == null || studentModify.getPassword().equals("")) {
 			studentModify.setPassword(student.getPassword());
 		}
 		System.out.println("要更改的学生信息为：" + studentModify.toString());
@@ -806,7 +807,7 @@ System.out.println("学生信息显示中。。。");
 		student.setQq(String.valueOf(list.get(3)));
 		student.setEmail(String.valueOf(list.get(4)));
 		
-		if (list.get(5) != null && list.get(5).equals(list.get(6))) {
+		if (list.get(5) != null && !list.get(5).equals("") && list.get(5).equals(list.get(6))) {
 			student.setPassword(String.valueOf(list.get(5)));
 		} else {
 			student.setPassword(null);

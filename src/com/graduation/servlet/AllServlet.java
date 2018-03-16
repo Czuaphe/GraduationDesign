@@ -64,8 +64,8 @@ public class AllServlet extends HttpServlet {
 		
 		HttpSession session = request.getSession();
 		// 管理员
-		session.setAttribute("act", 3);
-		session.setAttribute("user", new AdminDao().queryByUsername("admin"));
+//		session.setAttribute("act", 3);
+//		session.setAttribute("user", new AdminDao().queryByUsername("admin"));
 		// 学生
 //		 session.setAttribute("act", 1);
 //		 session.setAttribute("user", new StudentDao().queryByStu_id(10011));

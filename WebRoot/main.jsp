@@ -12,6 +12,9 @@
 <%@ include file="header.jsp"%>
     <%
     	Student student = (Student) session.getAttribute("user");
+    	if (student == null) {
+    		response.sendRedirect("login.html");
+    	}
     	Selected selected = new SelectedDao().queryByStu_id(student.getStu_id());
     	MajorDao majorDao = new MajorDao();
     	ProblemDao problemDao = new ProblemDao();
