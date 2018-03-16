@@ -1,12 +1,33 @@
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.text.DateFormat"%>
+<%@page import="com.graduation.dao.ProblemDao"%>
+<%@page import="com.graduation.entity.Teacher"%>
+<%@page import="com.graduation.entity.Major"%>
+<%@page import="com.graduation.dao.MajorDao"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ include file="header.jsp"%>
+<%
+	Teacher teacher = (Teacher) session.getAttribute("user");
+	MajorDao majorDao = new MajorDao();
+	Major timeMajor = majorDao.queryByMID(teacher.getMid());
+	Date now = new Date();
+	boolean verifyFlag = now.getTime() >= timeMajor.getVerify_start().getTime() && 
+						now.getTime() <= timeMajor.getVerify_end().getTime();
+	DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+ %>
+    <% if(!verifyFlag) { %>
+    <div class="col-md-6 col-md-offset-1 well">
+        <h2>当前专业的审核时间为<%=df.format(timeMajor.getVerify_start()) %> ~ <%=df.format(timeMajor.getVerify_end()) %></h2>
+    </div>
+    <%	} else { %>
     <div class="col-md-10">
         <h1>题目审核</h1>
         <hr/>
         <table id="problems">
         </table>
     </div>
+    <%	} %>
 </div>
 <div class="modal fade" tabindex="-1" id="detailModal" role="dialog" aria-labelledby="detailModalLabel">
     <div class="modal-dialog modal-lg" role="document">

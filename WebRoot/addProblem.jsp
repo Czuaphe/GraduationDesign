@@ -1,3 +1,5 @@
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.text.DateFormat"%>
 <%@page import="com.graduation.dao.ProblemDao"%>
 <%@page import="com.graduation.entity.Teacher"%>
 <%@page import="com.graduation.entity.Major"%>
@@ -9,10 +11,25 @@
 	Teacher teacher = (Teacher) session.getAttribute("user");
 	ProblemDao problemDao = new ProblemDao();
 	MajorDao majorDao = new MajorDao();
-	int trueCount = problemDao.queryByTeacherCount(teacher.getTea_id());
-	Major major = majorDao.queryByMID(teacher.getMid());
-	
+	long trueCount = problemDao.queryByTeacherCount(teacher.getTea_id());
+	Major timeMajor = majorDao.queryByMID(teacher.getMid());
+	boolean countFlag = trueCount >= teacher.getNumber();
+	Date now = new Date();
+	boolean timeFlag = now.getTime() >= timeMajor.getProblem_start().getTime() && 
+						now.getTime() <= timeMajor.getProblem_end().getTime();
  %>
+ 	<% 	if (countFlag || !timeFlag) { %>
+ 	<div class="col-md-6 col-md-offset-1 well">
+        <% 	if (countFlag) { %>
+        <h2>当前出题数量达到上限（上限为:<%=teacher.getNumber() %>)</h2>
+        <% 	} %>
+        <% 	if  (!timeFlag) {
+        		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        %>
+        <h2>当前专业的出题时间为<%=df.format(timeMajor.getProblem_start()) %> ~ <%=df.format(timeMajor.getProblem_end()) %></h2>
+        <%	} %>
+    </div>
+ 	<%	} else { %>
     <div class="col-md-6 col-md-offset-1">
         <h1>添加题目</h1>
         <hr/>
@@ -155,10 +172,7 @@
             </div>
         <p class="text-right"><button class="btn btn-primary" id="save" type="button"><span class="glyphicon glyphicon-floppy-disk"></span> 保存</button></p>
     </div>
-    <div class="col-md-6 col-md-offset-1 well">
-        <h2>当前出题数量达到上限（上限为:7)</h2>
-        <h2>当前专业的出题时间为2018-01-01 09:00:00 ~ 2018-03-01 09:00:00</h2>
-    </div>
+    <%	} %>
 </div>
 <script>
     var stu_id = -1;
