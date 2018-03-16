@@ -155,6 +155,10 @@
             </div>
         <p class="text-right"><button class="btn btn-primary" id="save" type="button"><span class="glyphicon glyphicon-floppy-disk"></span> 保存</button></p>
     </div>
+    <div class="col-md-6 col-md-offset-1 well">
+        <h2>当前出题数量达到上限（上限为:7)</h2>
+        <h2>当前专业的出题时间为2018-01-01 09:00:00 ~ 2018-03-01 09:00:00</h2>
+    </div>
 </div>
 <script>
     var stu_id = -1;
