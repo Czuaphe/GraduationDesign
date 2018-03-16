@@ -124,7 +124,7 @@ public class StudentService {
 		jsonObjectOutput = new JSONObject();
 		
 		
-System.out.println("学生进行选题中。。。");
+System.out.println("学生信息显示中。。。");
 		
 		HttpSession session = request.getSession();
 		// 没有登录

@@ -41,7 +41,11 @@
         <div class="col-md-2 well">
                 <ul class="nav nav-pills nav-stacked">
                         <li class="active"><a href="index.jsp">首页</a></li>
-                <%
+                <%		Object actObject = session.getAttribute("act");
+                		if (actObject == null) {
+                			request.getRequestDispatcher("login.html").forward(request, response);
+                		}
+                		
                         int act = Integer.parseInt(String.valueOf(session.getAttribute("act")));
                         if ( act == 3) {
                  %>

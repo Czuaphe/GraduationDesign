@@ -138,6 +138,17 @@ public class StudentDao {
 		return null;
 	}
 	
+	public Long queryMajorCount(int mid) {
+		
+		String sql = "select count(1) from t_student where mid = ?";
+		try {
+			return runner.query(sql, new ScalarHandler<Long>(), mid);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0L;
+	}
+	
 	public Connection getConnection() {
 		
 		Connection connection = null;
