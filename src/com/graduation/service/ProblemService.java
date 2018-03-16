@@ -842,6 +842,7 @@ public class ProblemService {
 
 		// 返回文件数据
 		try {
+			response.setCharacterEncoding("utf-8");
 			response.setContentType("application/vnd.ms-excel");
 			response.setHeader("Content-Disposition", "attachment;filename="
 					+ URLEncoder.encode(fileName, "utf-8") + ".xlsx");
@@ -900,6 +901,7 @@ public class ProblemService {
 
 		// 返回文件数据
 		try {
+			response.setCharacterEncoding("utf-8");
 			response.setContentType("application/vnd.ms-excel");
 			response.setHeader("Content-Disposition", "attachment;filename="
 					+ URLEncoder.encode(major.getMajor() + "专业选题数据", "utf-8")
@@ -931,6 +933,7 @@ public class ProblemService {
 
 		// 返回文件数据
 		try {
+			response.setCharacterEncoding("utf-8");
 			response.setContentType("application/vnd.ms-excel");
 			response.setHeader("Content-Disposition",
 					"attachment;filename=exportDataByTeacherID.xlsx");

@@ -15,6 +15,7 @@
         <script src="./js/bootstrap-datepicker.min.js"></script>
         <script src="./js/bootstrap-datetimepicker.min.js"></script>
         <script src="./js/dynamicTables.js"></script>
+        <script src="./js/AjaxFileUpload.js"></script>
         <script src="./js/formCheck.js"></script>
 </head>
 <body>
@@ -54,22 +55,22 @@
                         <li><a href="studentInfoManager.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学生信息管理</a></li>
                         <li><a href="majorManager.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学科信息管理</a></li>
                         <li><a href="setting.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选题系统配置</a></li>
-                        <li><a href="exportProblem.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出选题信息</a></li>
+                        <li><a href="/GraduationDesign/problem/export">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出选题信息</a></li>
                         <li><a href="noticeEdit.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公告编辑</a></li>
                 <% } else if(act == 2) { %>
                         <li><a href="javascript:;" style="color:black">教师菜单</a></li>
                         <li><a href="addProblem.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;添加题目</a></li>
                         <li><a href="problemManager.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目管理</a></li>
                         <li><a href="problemSelect.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看选题结果</a></li>
-                        <li><a href="exportProblem.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出选题信息</a></li>
+                        <li><a href="/GraduationDesign/problem/export">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出选题信息</a></li>
                 <% } else if(act == 4) { %>
                         <li><a href="javascript:;" style="color:black">教师菜单</a></li>
                         <li><a href="addProblem.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;添加题目</a></li>
                         <li><a href="problemManager.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目管理</a></li>
                         <li><a href="problemSelect.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看选题结果</a></li>
                         <li><a href="problemSelect.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看专业选题结果</a></li>
-                        <li><a href="exportProblem.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出选题信息</a></li>
-                        <li><a href="exportProblem.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出专业选题信息</a></li>
+                        <li><a href="/GraduationDesign/problem/export">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出选题信息</a></li>
+                        <li><a href="/GraduationDesign/problem/export/majors">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出专业选题信息</a></li>
                         <li><a href="problemAnalysis.jsp">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目审核</a></li>
                 <% } else if(act == 1) { %>
                         <li><a href="javascript:;" style="color:black">学生菜单</a></li>

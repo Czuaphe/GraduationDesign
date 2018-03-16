@@ -12,17 +12,39 @@
 </div>
 <script>
     $(document).ready(function(){
-        $("#teacherInfo").dynamicTables({
-            'title' : ['账户', '姓名', '性别', '所属专业', '职称', '学位', 'QQ', '联系方式', '电子邮件', '备注'],
-            'noDel' : true,
-            'noAdd' : true,
-            'noSave' : true,
-        })
+        
 
         $("#uploadFile").AjaxFileUpload({
            'action' : '/GraduationDesign/teacher/import',
             onComplete : function(response){
-
+				$("#teacherInfo").dynamicTables({
+		            'title' : ['账户', '姓名', '性别', '所属专业', '职称', '学位', 'QQ', '联系方式', '电子邮件', '备注'],
+		            'data' : response.infos,
+		            typeConfig : [
+		                {'type' : 'text'},
+		                {'type' : 'text'},
+		                {
+		                	'type' : 'select',
+		                	'options' : [
+		                		['0', '男'],
+		                		['1', '女'],
+		                	]
+		                },
+		                {
+		                	'type' : 'select',
+		                	'options' : response.major
+		                },
+		                {'type' : 'text'},
+		                {'type' : 'text'},
+		                {'type' : 'text'},
+		                {'type' : 'text'},
+		                {'type' : 'text'},
+		                {'type' : 'text'},
+		            ],
+		            'noDels' : true,
+		            'noAdd' : true,
+		            'noSave' : true,
+		        })
             }
         });
     })
