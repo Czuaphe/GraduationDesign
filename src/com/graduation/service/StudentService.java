@@ -36,6 +36,7 @@ import com.graduation.dao.StudentDao;
 import com.graduation.entity.Major;
 import com.graduation.entity.Selected;
 import com.graduation.entity.Student;
+import com.graduation.entity.Teacher;
 
 public class StudentService {
 	
@@ -91,6 +92,9 @@ public class StudentService {
 			System.out.println("正在添加教师到数据库中！");
 			String[] infoList = request.getParameterValues("info[]");
 			addStudent(infoList);
+			break;
+		case "adds":
+			addsStudent();
 			break;
 		case "resetPassword":
 			String id = request.getParameter("id");
@@ -339,6 +343,53 @@ System.out.println("学生信息显示中。。。");
 			jsonObjectOutput.put("status", b);
 			
 		}
+	}
+	/**
+	 * 管理员使用，批量保存用户
+	 */
+	public void addsStudent() {
+		
+		jsonObjectOutput = new JSONObject();
+		
+		List<String[]> addsStringList = new ArrayList<>();
+		int num = 0;
+		while (true) {
+			String infos = "infos["+ (num ++) + "][]";
+			String[] addList = request.getParameterValues(infos);
+			if (addList != null) {
+				addsStringList.add(addList);
+			} else {
+				break;
+			}
+		}
+		
+		List<Student> addsStudentList = new ArrayList<>();
+		
+		for (String[] strings : addsStringList) {
+			
+			List<Object> objectList = new ArrayList<>();
+			
+			for (String string : strings) {
+				objectList.add(string);
+			}
+			
+			Student student = toBeanAdd(objectList);
+			
+			addsStudentList.add(student);
+		}
+		
+		boolean b = true;
+		// TODO 应该放入一个事务中去
+		for (Student student : addsStudentList) {
+			b = studentDao.save(student);
+			if (!b) {
+				System.out.println(student.toString());
+				break;
+			}
+		}
+		
+		jsonObjectOutput.put("status", b);
+		
 	}
 	
 	public Map<Integer, String> checkStudent(List<Object> list) {

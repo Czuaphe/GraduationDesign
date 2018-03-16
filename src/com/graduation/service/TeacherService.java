@@ -17,6 +17,9 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import jdk.nashorn.internal.ir.Flags;
+import oracle.net.aso.s;
+
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -126,6 +129,9 @@ public class TeacherService {
 			System.out.println("正在添加教师到数据库中！");
 			String[] infoList = request.getParameterValues("info[]");
 			addTeacher(infoList);
+			break;
+		case "adds":
+			addsTeacher();
 			break;
 		case "import":
 			System.out.println("正在上传文件");
@@ -403,6 +409,52 @@ public class TeacherService {
 			
 		}
 	}
+	public void addsTeacher() {
+		
+		jsonObjectOutput = new JSONObject();
+		
+		List<String[]> addsStringList = new ArrayList<>();
+		int num = 0;
+		while (true) {
+			String infos = "infos["+ (num ++) + "][]";
+			String[] addList = request.getParameterValues(infos);
+			if (addList != null) {
+				addsStringList.add(addList);
+			} else {
+				break;
+			}
+		}
+		
+		List<Teacher> addsTeacherList = new ArrayList<>();
+		
+		for (String[] strings : addsStringList) {
+			
+			List<Object> objectList = new ArrayList<>();
+			
+			for (String string : strings) {
+				objectList.add(string);
+			}
+			
+			Teacher teacher = toBeanAdds(objectList);
+			
+			addsTeacherList.add(teacher);
+		}
+		
+		boolean b = true;
+		// TODO 应该放入一个事务中去
+		for (Teacher teacher : addsTeacherList) {
+			b = teacherDao.saveTeacher(teacher);
+			if (!b) {
+				break;
+			}
+		}
+		
+		jsonObjectOutput.put("status", b);
+		
+		
+		
+	}
+	
 	/**
 	 * 更改教师信息
 	 */
@@ -845,6 +897,25 @@ public class TeacherService {
 		teacher.setRemarks(String.valueOf(list.get(9)));
 		
 		teacher.setNumber(Integer.parseInt(String.valueOf(list.get(10))));
+		teacher.setPassword("123456");
+		return teacher;
+	}
+	
+	public Teacher toBeanAdds(List<Object> list) {
+		Teacher teacher = new Teacher();
+		teacher.setUsername(String.valueOf(list.get(0)));
+		teacher.setRealname(String.valueOf(list.get(1)));
+		teacher.setSex(Integer.parseInt(String.valueOf(list.get(2))));
+//		System.out.println("sex = " + teacher.getSex());
+		teacher.setMid(Integer.parseInt(String.valueOf(list.get(3))));
+		teacher.setTitle(String.valueOf(list.get(4)));
+		teacher.setDegree(String.valueOf(list.get(5)));
+		teacher.setQq(String.valueOf(list.get(6)));
+		teacher.setPhone(String.valueOf(list.get(7)));
+		teacher.setEmail(String.valueOf(list.get(8)));
+		teacher.setRemarks(String.valueOf(list.get(9)));
+		// 默认课题数为5
+		teacher.setNumber(5);
 		teacher.setPassword("123456");
 		return teacher;
 	}
