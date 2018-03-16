@@ -1,3 +1,5 @@
+<%@page import="com.graduation.entity.Major"%>
+<%@page import="com.graduation.dao.MajorDao"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ include file="header.jsp"%>
@@ -25,7 +27,11 @@
                             <div class="col-sm-6">
                                 <select class="form-control" id="major">
                                     <option value="0">请选择专业</option>
-                                    <option value="1">计算机科学与技术</option>
+                                    <% 	List<Major> majorList = new MajorDao().getAllMajor();
+                                    	for (Major major : majorList) {
+                                     %>
+                                    <option value="<%=major.getMid() %>"><%=major.getMajor() %></option>
+                                    <%	} %>
                                 </select>
                             </div>
                         </div>

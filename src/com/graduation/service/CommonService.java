@@ -160,7 +160,7 @@ public class CommonService {
 			
 			// TODO 判断是否为专业负责人
 			HttpSession session = request.getSession();
-			if (majorDao.queryByMID(teacher.getMid()) != null) {
+			if (majorDao.queryByTea_id(teacher.getTea_id()) != null) {
 				session.setAttribute("act", 4);
 			} else {
 				session.setAttribute("act", 2);

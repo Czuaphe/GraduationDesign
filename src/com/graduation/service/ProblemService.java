@@ -146,12 +146,31 @@ public class ProblemService {
 	public void addProblem(String[] info) {
 
 		jsonObjectOutput = new JSONObject();
-
+		
+		HttpSession session = request.getSession();
+		String actError =null; 
+		Object actObject = session.getAttribute("act");
+		if (actObject == null) {
+			actError = "没有登录！！不能显示课题信息";
+			System.out.println(actError);
+			return;
+		}
+		int act = Integer.parseInt(String.valueOf(actObject));
+		
+		if (act != 2 || act != 4) {
+			actError = "登录用户错误";
+			System.out.println(actError);
+			return ;
+		}
+		
+		Teacher teacher = (Teacher) session.getAttribute("user");
+		// TODO 进行登录 检验， 登录教师信息插入课题中
+		
 		List<String> list = new ArrayList<>();
 		for (String string : info) {
 			list.add(string);
 		}
-
+		
 		// 检测数据的正确性
 		String error = checkProblem(list);
 
@@ -164,7 +183,9 @@ public class ProblemService {
 			
 			// 数据转换成对象
 			Problem problem = toBeanAdd(list);
-
+			// 设置教师ID
+			problem.setTea_id(teacher.getTea_id());
+			
 			// 保存到数据库中
 			boolean b = problemDao.save(problem);
 
@@ -402,7 +423,7 @@ public class ProblemService {
 		Integer act = Integer.parseInt(String.valueOf(actObject));
 		System.out.println("act:" + act);
 		// 如果不是教师也不是专业负责人登录，则直接退出
-		if (act != 2 && act != 3) {
+		if (act != 2 && act != 4) {
 			error = "登录用户错误，无法得到一个专业的课题信息。";
 			System.out.println("error:" + error);
 			return;
@@ -1150,7 +1171,11 @@ public class ProblemService {
 
 		Integer act = Integer.parseInt(String.valueOf(actObject));
 		System.out.println("selected act: " + act);
-
+		
+		Integer page = null;
+		int pageSize = 5;
+		Long count = null;
+		
 		List<Problem> problemList = null;
 
 		if (act == 1) {
@@ -1160,9 +1185,12 @@ public class ProblemService {
 			return;
 		} else if (act == 3) {
 			// 管理员登录
+			page = Integer.parseInt(request.getParameter("currentPage"));
 			// TODO 应该是得到一页的数据
-			problemList = problemDao.queryAll();
-
+			problemList = problemDao.queryByPage(page, pageSize);
+			
+			count = problemDao.queryCount();
+			
 		} else {
 			// 教师或专业负责人登录
 			Teacher teacher = (Teacher) session.getAttribute("user");
@@ -1190,10 +1218,17 @@ public class ProblemService {
 
 		// 将每一个课题得到是否被学生选择的信息，变成JSON数据。
 		JSONArray arrayList = problemList2JSON(problemList);
-
+		
+		if (act == 3) {
+			// 管理员登录
+			jsonObjectOutput.put("currentPage", page);
+			// TODO 总页数还没有写，数据不完整
+		} 
+		
 		// 生成JSON数据
 		jsonObjectOutput.put("data", arrayList);
 		jsonObjectOutput.put("status", true);
+		
 
 		// 返回JSON数据
 		try {
