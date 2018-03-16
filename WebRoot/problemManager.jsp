@@ -216,7 +216,7 @@
         $("#update").click(function(){
             var name = $("#name").val();
             var major = $("#major").val();
-            var newPro = $(":radio[name='r0']").val();
+            var newPro = $("[name='r0']").val();
             var scienceName = $("#scienceName").val();
             var type = $("#type").val();
             var from = $("#from").val();
