@@ -60,12 +60,10 @@
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label">新题目</label>
                                     <div class="col-sm-6">
-                                        <label class="radio-inline">
-                                            <input type="radio" name="r0"  id="new1" value="1" checked> 是
-                                        </label>
-                                        <label class="radio-inline">
-                                            <input type="radio" name="r0" id="new0" value="0"> 否
-                                        </label>
+                                        <select class="form-control" id="newPro">
+                                            <option value="1" selected>是</option>
+                                            <option value="0">否</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -222,7 +220,7 @@
         $("#update").click(function(){
             var name = $("#name").val();
             var major = $("#major").val();
-            var newPro = $(":radio[name='r0']").val();
+            var newPro = $("#newPro").val();
             var scienceName = $("#scienceName").val();
             var type = $("#type").val();
             var from = $("#from").val();
@@ -321,8 +319,7 @@
                 pro_id = response.info[0];
                 $("#name").val(response.info[1]);
                 $("#major").val(response.info[2]);
-                $(":radio[name='r0']").removeAttr("checked");
-                $("#new" + response.info[3]).prop("checked", true);
+                $("#newPro").val(response.info[3]);
 
                 $("#type").val(response.info[4]);
                 $("#from").val(response.info[5]);
