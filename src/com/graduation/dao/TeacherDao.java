@@ -11,6 +11,7 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 import com.graduation.db.DBUtils;
+import com.graduation.entity.Student;
 import com.graduation.entity.Teacher;
 
 public class TeacherDao {
@@ -87,6 +88,16 @@ public class TeacherDao {
 					,teacher.getRemarks()
 					,teacher.getTea_id()
 					) > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean updatePassword(Teacher teacher) {
+		String sql = "update t_teacher set password = ? where tea_id = ?";
+		try {
+			return runner.update(sql, teacher.getPassword(), teacher.getTea_id()) > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

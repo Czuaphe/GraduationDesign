@@ -1,11 +1,44 @@
+<%@page import="com.graduation.dao.SelectedDao"%>
+<%@page import="com.graduation.entity.Selected"%>
+<%@page import="com.graduation.entity.Problem"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.text.DateFormat"%>
+<%@page import="com.graduation.dao.ProblemDao"%>
+<%@page import="com.graduation.dao.MajorDao"%>
+<%@page import="com.graduation.entity.Major"%>
+<%@page import="com.graduation.entity.Student"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ include file="header.jsp"%>
+    <%
+    	Student student = (Student) session.getAttribute("user");
+    	Selected selected = new SelectedDao().queryByStu_id(student.getStu_id());
+    	MajorDao majorDao = new MajorDao();
+    	ProblemDao problemDao = new ProblemDao();
+    	Major major = majorDao.queryByMID(student.getMid());
+    	// System.out.print(major.getMid());
+    	List<Problem> problemList = problemDao.queryByMid(major.getMid());
+    	// System.out.print(problemList.size());
+    	Date now = new Date();
+    	boolean isSelectTime = now.getTime() >= major.getSelect_start().getTime() &&
+    							now.getTime() <= major.getSelect_end().getTime();
+    	DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    	
+     %>
+    <% 	if (!isSelectTime) { %>
+    <div class="col-md-6 col-md-offset-1 well">
+        <h2>当前专业的审核时间为<%=df.format(major.getSelect_start()) %> ~ <%=df.format(major.getSelect_end()) %></h2>
+    </div>
+    <%	} else if (selected != null) { %>
+    <div class="col-md-6 col-md-offset-1 well">
+        <h2>你已经选题，请查看选题结果</h2>
+    </div>
+    <%	} else { %>
     <div class="col-md-10">
         <h1>毕设选题</h1>
         <hr/>
-        <p>时间：2018-01-17 17:00 ~ 2018-01-17 17:00</p>
-        <p>题目数量：102题</p>
+        <p>时间：<%=df.format(major.getSelect_start()) %> ~ <%=df.format(major.getSelect_end()) %></p>
+        <p>题目数量：<%=problemList.size() %>题</p>
         <hr/>
         <div class="row">
             <div class="col-md-2">
@@ -53,6 +86,7 @@
             </div>
         </div>
     </div>
+    <%	} %>
 </div>
 <script>
     var currentPage = 1;

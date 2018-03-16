@@ -1,7 +1,15 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ include file="header.jsp"%>
-
+<%
+	String user = null;
+	if (act == 1) {
+		user = "student";
+	}
+	if(act == 2 || act == 4) {
+		user = "teacher";
+	}
+ %>
     <div class="col-md-4 col-md-offset-2">
         <h1>修改用户信息</h1>
         <hr/>
@@ -64,7 +72,7 @@
 </div>
 <script>
     $(document).ready(function () {
-        $.get("/GraduationDesign/student/show", function(response){
+        $.get("/GraduationDesign/<%=user %>/show", function(response){
             if(response. status == true) {
                 $(":text:disabled").val(response.info[1]);
                 $("#name").val(response.info[2]);
@@ -90,7 +98,7 @@
                             info.push($(this).val());
                         }
                     })
-                    $.post("/GraduationDesign/student/modify", {info:info}, function (response) {
+                    $.post("/GraduationDesign/<%=user %>/modify", {info:info}, function (response) {
                         if(response.status == true) {
                             alert("更新成功");
                             window.location.reload();

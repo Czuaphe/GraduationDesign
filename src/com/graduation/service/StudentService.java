@@ -1,7 +1,5 @@
 package com.graduation.service;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -142,6 +140,8 @@ System.out.println("学生信息显示中。。。");
 		if (act == 1) {
 			System.out.println("显示学生的个人信息。。。");
 			Student student = (Student)session.getAttribute("user");
+			// 刷新学生信息
+			student = studentDao.queryByStu_id(student.getStu_id());
 			
 			JSONArray jsonArray = new JSONArray();
 			
@@ -656,6 +656,7 @@ System.out.println("学生信息显示中。。。");
 		List<Object> studentObjectList = new ArrayList<>();
 		
 		for (String string : studentStringArray) {
+			System.out.println("Modify Student Parameters : " + string);
 			studentObjectList.add(string);
 		}
 		
@@ -671,9 +672,11 @@ System.out.println("学生信息显示中。。。");
 		System.out.println("要更改的学生信息为：" + studentModify.toString());
 		System.out.println("更改学生信息中。。。");
 		
+		boolean pswdFlag = studentDao.updatePassword(studentModify);
+		
 		boolean flag = studentDao.updateAll(studentModify);
 		
-		jsonObjectOutput.put("status", flag);
+		jsonObjectOutput.put("status", flag && pswdFlag);
 		
 	}
 	

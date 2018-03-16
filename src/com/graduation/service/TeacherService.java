@@ -166,10 +166,12 @@ public class TeacherService {
 		int act = Integer.parseInt(String.valueOf(actObject));
 		System.out.println("act : " + act);
 		//是教师登录
-		if (act == 2) {
+		if (act == 2 || act == 4) {
 			
 			Teacher teacher = (Teacher) session.getAttribute("user");
-
+			
+			teacher = teacherDao.queryByTea_id(teacher.getTea_id());
+			
 			JSONArray jsonArray = new JSONArray();
 			
 			List<Object> teacherList = toObjectShow4Teacher(teacher);
@@ -405,6 +407,7 @@ public class TeacherService {
 	 * 更改教师信息
 	 */
 	public void modifyTeacher() {
+		
 		jsonObjectOutput = new JSONObject();
 		
 		HttpSession session = request.getSession();
@@ -421,8 +424,8 @@ public class TeacherService {
 		int act = Integer.parseInt(String.valueOf(actObject));
 		
 		//不是教师登录
-		if (act != 2) {
-			error = "Not Studnet Login";
+		if (act != 2 && act != 4) {
+			error = "Not Teacher Login";
 			System.out.println(error);
 			return ;
 		}
@@ -451,6 +454,8 @@ public class TeacherService {
 		}
 		System.out.println("要更改的教师信息为：" + teacherModify.toString());
 		System.out.println("更改教师信息中。。。");
+		
+		boolean pswdFlag = teacherDao.updatePassword(teacherModify);
 		
 		boolean flag = teacherDao.updateAll(teacherModify);
 		

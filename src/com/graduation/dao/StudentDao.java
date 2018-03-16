@@ -12,6 +12,7 @@ import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 import com.graduation.db.DBUtils;
 import com.graduation.entity.Student;
+import com.graduation.entity.Teacher;
 
 public class StudentDao {
 
@@ -67,6 +68,16 @@ public class StudentDao {
 					,student.getRemarks()
 					,student.getStu_id()
 					) > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean updatePassword(Student student) {
+		String sql = "update t_student set password = ? where stu_id = ?";
+		try {
+			return runner.update(sql, student.getPassword(), student.getStu_id()) > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

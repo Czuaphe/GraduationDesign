@@ -164,7 +164,6 @@ public class ProblemService {
 		}
 		
 		Teacher teacher = (Teacher) session.getAttribute("user");
-		// TODO 进行登录 检验， 登录教师信息插入课题中
 		
 		List<String> list = new ArrayList<>();
 		for (String string : info) {
@@ -1222,7 +1221,8 @@ public class ProblemService {
 		if (act == 3) {
 			// 管理员登录
 			jsonObjectOutput.put("currentPage", page);
-			// TODO 总页数还没有写，数据不完整
+			// 设置总页数
+			jsonObjectOutput.put("totalPage", (count - 1) / pageSize + 1 );
 		} 
 		
 		// 生成JSON数据
