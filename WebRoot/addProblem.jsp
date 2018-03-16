@@ -1,8 +1,18 @@
+<%@page import="com.graduation.dao.ProblemDao"%>
+<%@page import="com.graduation.entity.Teacher"%>
 <%@page import="com.graduation.entity.Major"%>
 <%@page import="com.graduation.dao.MajorDao"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ include file="header.jsp"%>
+<% 	
+	Teacher teacher = (Teacher) session.getAttribute("user");
+	ProblemDao problemDao = new ProblemDao();
+	MajorDao majorDao = new MajorDao();
+	int trueCount = problemDao.queryByTeacherCount(teacher.getTea_id());
+	Major major = majorDao.queryByMID(teacher.getMid());
+	
+ %>
     <div class="col-md-6 col-md-offset-1">
         <h1>添加题目</h1>
         <hr/>

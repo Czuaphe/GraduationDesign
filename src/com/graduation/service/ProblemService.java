@@ -156,8 +156,8 @@ public class ProblemService {
 			return;
 		}
 		int act = Integer.parseInt(String.valueOf(actObject));
-		
-		if (act != 2 || act != 4) {
+		System.out.println("act : " + act);
+		if (act != 2 && act != 4) {
 			actError = "登录用户错误";
 			System.out.println(actError);
 			return ;

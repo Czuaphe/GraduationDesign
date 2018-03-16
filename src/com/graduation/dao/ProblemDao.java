@@ -217,6 +217,17 @@ public class ProblemDao {
 		
 	}
 	
+	public long queryByTeacherCount(int tea_id) {
+		String sql = "select count(1) from t_problem where tea_id = ?";
+		
+		try {
+			return runner.query(sql, new ScalarHandler<Long>(), tea_id);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0L;
+	}
+	
 	public List<Problem> queryByTea_id(int tea_id) {
 		
 		try {
