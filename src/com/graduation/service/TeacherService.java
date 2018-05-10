@@ -999,26 +999,26 @@ public class TeacherService {
 				System.out.println(propertyDescriptor.getName());
 			}
 			// 14
-			int[] mapping = DBUtils.getTeacherMapping();
-			
-			for (int i = 0; i < mapping.length; i++) {
-				PropertyDescriptor propertyDescriptor = propertyDescriptors[mapping[i]];
-				Method method = propertyDescriptor.getReadMethod();
-				try {
-					
-					list.add(method.invoke(teacher));
-					
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
-				}
-				
-			}
-			// 对数组中的数据进行加工
-			list = produceTeacherOfShow(list);
+//			int[] mapping = DBUtils.getTeacherMapping();
+//			
+//			for (int i = 0; i < mapping.length; i++) {
+//				PropertyDescriptor propertyDescriptor = propertyDescriptors[mapping[i]];
+//				Method method = propertyDescriptor.getReadMethod();
+//				try {
+//					
+//					list.add(method.invoke(teacher));
+//					
+//				} catch (IllegalAccessException e) {
+//					e.printStackTrace();
+//				} catch (IllegalArgumentException e) {
+//					e.printStackTrace();
+//				} catch (InvocationTargetException e) {
+//					e.printStackTrace();
+//				}
+//				
+//			}
+//			// 对数组中的数据进行加工
+//			list = produceTeacherOfShow(list);
 			
 			
 		} catch (IntrospectionException e) {
@@ -1035,15 +1035,15 @@ public class TeacherService {
 		BeanInfo beanInfo = Introspector.getBeanInfo(teacher.getClass());
 		PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
 		
-		int[] mapping = DBUtils.getTeacherMapping();
-		
-		for (int i = 0; i < mapping.length; i++) {
-			Object object = array.get(i);
-			
-			Method method = propertyDescriptors[mapping[i]].getWriteMethod();
-			method.invoke(teacher, object);
-			
-		}
+//		int[] mapping = DBUtils.getTeacherMapping();
+//		
+//		for (int i = 0; i < mapping.length; i++) {
+//			Object object = array.get(i);
+//			
+//			Method method = propertyDescriptors[mapping[i]].getWriteMethod();
+//			method.invoke(teacher, object);
+//			
+//		}
 		
 		
 		return teacher;

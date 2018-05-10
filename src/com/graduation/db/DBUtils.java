@@ -27,7 +27,7 @@ public class DBUtils {
 //	private static String PASSWORD = "0509";
 	
 	// 教师对象与接口中的映射方式 
-	private static int[] teacherMapping = {12, 14, 9, 11, 3, 13, 1, 8, 6, 2, 10, 7};
+//	private static int[] teacherMapping = {12, 14, 9, 11, 3, 13, 1, 8, 6, 2, 10, 7};
 	
 	
 	private static ComboPooledDataSource cpds = new ComboPooledDataSource();
@@ -45,9 +45,9 @@ public class DBUtils {
 		return queryRunner;
 	}
 	
-	public static int[] getTeacherMapping() {
-		return teacherMapping;
-	}
+//	public static int[] getTeacherMapping() {
+//		return teacherMapping;
+//	}
 	
 	
 	

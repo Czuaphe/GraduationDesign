@@ -673,6 +673,9 @@ System.out.println("学生信息显示中。。。");
 		
 	}
 	
+	/**
+	 * 更改学生信息
+	 */
 	public void modifyStudent() {
 		
 		jsonObjectOutput = new JSONObject();
