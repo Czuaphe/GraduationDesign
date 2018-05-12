@@ -1765,7 +1765,10 @@ public class ProblemService {
 		// TODO 学生的课题信息数据格式
 		list.add(problem.getProblem_id());
 		list.add(problem.getName());
-
+		// 是否可以选择此课题
+		Selected selected = selectedDao.queryByProblem_id(problem.getProblem_id());
+		list.add(selected== null);
+		
 		return list;
 	}
 

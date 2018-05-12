@@ -23,7 +23,7 @@ public class TeacherDao {
 	 * @return boolean 返回保存结果
 	 */
 	public boolean saveTeacher(Teacher teacher) {
-		String sql = "insert into t_teacher(username, password, realname, sex, mid, number, title, degree, qq, phone, email, remarks) "
+		String sql = "insert into t_teacher(username, password, realname, sex, mid, number, title, degree, qq, phone, email, remarks, experience, show4stu) "
 				+ "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
 		try {
@@ -40,6 +40,8 @@ public class TeacherDao {
 					,teacher.getPhone()
 					,teacher.getEmail()
 					,teacher.getRemarks()
+					,teacher.getExperience()
+					,teacher.getShow4stu()
 					);
 			BigInteger id =  runner.query("SELECT LAST_INSERT_ID()", new ScalarHandler<BigInteger>());
 			System.out.println("新插入的教师对象的ID为：" + id.toString());
@@ -72,7 +74,7 @@ public class TeacherDao {
 	 * @return boolean 返回更新的结果
 	 */
 	public boolean updateAll(Teacher teacher) {
-		String sql = "update t_teacher set username = ?, realname = ?, sex = ?, mid = ?, number = ?, title = ?, degree = ?, qq= ?, phone = ?, email = ?, remarks = ? where tea_id = ?";
+		String sql = "update t_teacher set username = ?, realname = ?, sex = ?, mid = ?, number = ?, title = ?, degree = ?, qq= ?, phone = ?, email = ?, remarks = ?, experience = ?, show4stu = ? where tea_id = ?";
 		try {
 			return runner.update(sql
 					,teacher.getUsername()
@@ -86,6 +88,8 @@ public class TeacherDao {
 					,teacher.getPhone()
 					,teacher.getEmail()
 					,teacher.getRemarks()
+					,teacher.getExperience()
+					,teacher.getShow4stu()
 					,teacher.getTea_id()
 					) > 0;
 		} catch (SQLException e) {

@@ -19,7 +19,8 @@ public class Teacher implements Serializable {
 	private String phone;
 	private String email;
 	private String remarks;	// 备注
-	
+	private String experience; // 个人经历
+	private int show4stu;	// 是否向学生显示个人信息
 	
 	public int getTea_id() {
 		return tea_id;
@@ -100,6 +101,19 @@ public class Teacher implements Serializable {
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
 	}
+	
+	public String getExperience() {
+		return experience;
+	}
+	public void setExperience(String experience) {
+		this.experience = experience;
+	}
+	public int getShow4stu() {
+		return show4stu;
+	}
+	public void setShow4stu(int show4stu) {
+		this.show4stu = show4stu;
+	}
 	@Override
 	public String toString() {
 		return "Teacher [tea_id=" + tea_id + ", username=" + username
@@ -107,7 +121,8 @@ public class Teacher implements Serializable {
 				+ ", sex=" + sex + ", mid=" + mid + ", number=" + number
 				+ ", title=" + title + ", degree=" + degree + ", qq=" + qq
 				+ ", phone=" + phone + ", email=" + email + ", remarks="
-				+ remarks + "]";
+				+ remarks + ", experience=" + experience + ", show4stu="
+				+ show4stu + "]";
 	}
 	
 	

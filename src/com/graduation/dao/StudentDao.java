@@ -12,7 +12,6 @@ import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 import com.graduation.db.DBUtils;
 import com.graduation.entity.Student;
-import com.graduation.entity.Teacher;
 
 public class StudentDao {
 

@@ -25,8 +25,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import oracle.net.aso.l;
-import oracle.net.aso.r;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -36,7 +34,6 @@ import com.graduation.dao.StudentDao;
 import com.graduation.entity.Major;
 import com.graduation.entity.Selected;
 import com.graduation.entity.Student;
-import com.graduation.entity.Teacher;
 
 public class StudentService {
 	
@@ -59,7 +56,7 @@ public class StudentService {
 	
 	public JSONObject redirectToPath() {
 		
-		HttpSession session = request.getSession();
+//		HttpSession session = request.getSession();
 		
 //		// 学生
 //		session.setAttribute("act", 1);
@@ -110,6 +107,9 @@ public class StudentService {
 			break;
 		case "select":
 			selectStudent();
+			break;
+		case "unselect":
+			unselectStudent();
 			break;
 		case "modify":
 			modifyStudent();
@@ -459,7 +459,7 @@ System.out.println("学生信息显示中。。。");
 	}
 	
 	/**
-	 * TODO 还没有开发，等待中
+	 * 导入学生信息
 	 * @param request
 	 */
 	public void importStudent(HttpServletRequest request) {
@@ -566,7 +566,7 @@ System.out.println("学生信息显示中。。。");
 				
 				studentList.add(list);
 			}
-			
+			xssfWorkbook.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -603,9 +603,10 @@ System.out.println("学生信息显示中。。。");
 		
 	}
 	/**
-	 * 学生选题
+	 * 学生选题,
+	 * 同步方法
 	 */
-	public void selectStudent() {
+	public synchronized void selectStudent() {
 		
 		jsonObjectOutput = new JSONObject();
 		
@@ -671,6 +672,50 @@ System.out.println("学生信息显示中。。。");
 		
 		jsonObjectOutput.put("status", flag);
 		
+	}
+	
+	/**
+	 * 退选课题
+	 */
+	public synchronized void unselectStudent() {
+		
+		jsonObjectOutput = new JSONObject();
+		
+		System.out.println("学生进行退选中。。。");
+		
+		HttpSession session = request.getSession();
+		// 没有登录
+		Object actObject = session.getAttribute("act");
+		String error = null;
+		if (actObject == null) {
+			error = "Not Login";
+			System.out.println(error);
+			return ;
+		}
+		
+		int act = Integer.parseInt(String.valueOf(actObject));
+		
+		//不是学生登录
+		if (act != 1) {
+			error = "Not Studnet Login";
+			System.out.println(error);
+			return ;
+		}
+		
+		Student student = (Student) session.getAttribute("user");
+		
+		Selected selected = selectedDao.queryByStu_id(student.getStu_id());
+		
+		
+		boolean flag = false;
+		if (selected == null) {
+			// 没有选题，无法退选
+		} else {
+			// 退选
+			flag = selectedDao.remove(selected.getSelected_id());
+		}
+		
+		jsonObjectOutput.put("status", flag);
 	}
 	
 	/**

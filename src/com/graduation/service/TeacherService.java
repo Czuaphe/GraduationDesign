@@ -505,7 +505,7 @@ public class TeacherService {
 		teacherModify.setTitle(teacher.getTitle());
 		teacherModify.setDegree(teacher.getDegree());
 		teacherModify.setRemarks(teacher.getRemarks());
-		if (teacherModify.getPassword() == null) {
+		if (teacherModify.getPassword() == null || teacherModify.getPassword().equals("")) {
 			teacherModify.setPassword(teacher.getPassword());
 		}
 		System.out.println("要更改的教师信息为：" + teacherModify.toString());
@@ -979,6 +979,8 @@ public class TeacherService {
 		list.add(teacher.getEmail());
 		list.add(teacher.getRemarks());
 		
+		list.add(teacher.getExperience());
+		list.add(teacher.getShow4stu());
 		
 		return list;
 	}
