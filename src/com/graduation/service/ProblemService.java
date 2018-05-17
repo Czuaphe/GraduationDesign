@@ -1332,6 +1332,27 @@ public class ProblemService {
 		
 		jsonObjectOutput.put("info", jsonArray);
 		jsonObjectOutput.put("status", true);
+		
+		// 添加教师的额外信息
+		Selected selected = selectedDao.queryByStu_id(student.getStu_id());
+		Problem problem = problemDao
+				.queryByProblem_id(selected.getProblem_id());
+		Teacher teacher = teacherDao.queryByTea_id(problem.getTea_id());
+		
+		JSONArray teacherArray = new JSONArray();
+		
+		jsonObjectOutput.put("check", teacher.getShow4stu() == 1 ? true : false);
+		
+		if (teacher.getShow4stu() == 1) {
+			
+			teacherArray.add(teacher.getTitle());
+			teacherArray.add(teacher.getDegree());
+			teacherArray.add(teacher.getExperience());
+			
+			jsonObjectOutput.put("teacher", teacherArray);
+		}
+		
+		
 
 		// 返回JSON数据
 		try {
@@ -2036,7 +2057,8 @@ public class ProblemService {
 		list.add(student.getRealname());
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		list.add(df.format(new Date(selected.getTime().getTime())));
-
+		
+		
 		return list;
 
 	}
