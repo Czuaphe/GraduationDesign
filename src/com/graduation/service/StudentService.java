@@ -706,16 +706,18 @@ System.out.println("学生信息显示中。。。");
 		
 		Selected selected = selectedDao.queryByStu_id(student.getStu_id());
 		
-		
 		boolean flag = false;
 		if (selected == null) {
 			// 没有选题，无法退选
+			jsonObjectOutput.put("status", false);
+			jsonObjectOutput.put("info", "没有选题，无法退选");
 		} else {
 			// 退选
 			flag = selectedDao.remove(selected.getSelected_id());
 		}
-		
+		System.out.println("退选结果： " + flag);
 		jsonObjectOutput.put("status", flag);
+		
 	}
 	
 	/**

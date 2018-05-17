@@ -1,5 +1,7 @@
 package com.graduation.service;
 
+import static org.hamcrest.CoreMatchers.nullValue;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
@@ -1322,34 +1324,38 @@ public class ProblemService {
 
 		Student student = (Student) session.getAttribute("user");
 
-		JSONArray jsonArray = new JSONArray();
-
-		List<Object> objectList = toObjectSelectedStudent(student);
-
-		for (Object object : objectList) {
-			jsonArray.add(object);
-		}
-		
-		jsonObjectOutput.put("info", jsonArray);
-		jsonObjectOutput.put("status", true);
-		
-		// 添加教师的额外信息
+		// 学生选题信息
+		JSONArray jsonArray = new JSONArray();		
 		Selected selected = selectedDao.queryByStu_id(student.getStu_id());
-		Problem problem = problemDao
-				.queryByProblem_id(selected.getProblem_id());
-		Teacher teacher = teacherDao.queryByTea_id(problem.getTea_id());
+		jsonObjectOutput.put("status", selected != null);
 		
-		JSONArray teacherArray = new JSONArray();
+		if (selected != null) {
+			List<Object> objectList = toObjectSelectedStudent(student);
+
+			for (Object object : objectList) {
+				jsonArray.add(object);
+			}
 		
-		jsonObjectOutput.put("check", teacher.getShow4stu() == 1 ? true : false);
-		
-		if (teacher.getShow4stu() == 1) {
+			jsonObjectOutput.put("info", jsonArray);
 			
-			teacherArray.add(teacher.getTitle());
-			teacherArray.add(teacher.getDegree());
-			teacherArray.add(teacher.getExperience());
+			// 添加教师的额外信息
+			Problem problem = problemDao
+					.queryByProblem_id(selected.getProblem_id());
+			Teacher teacher = teacherDao.queryByTea_id(problem.getTea_id());
 			
-			jsonObjectOutput.put("teacher", teacherArray);
+			JSONArray teacherArray = new JSONArray();
+			
+			jsonObjectOutput.put("check", teacher.getShow4stu() == 1 ? true : false);
+			
+			if (teacher.getShow4stu() == 1) {
+				
+				teacherArray.add(teacher.getTitle());
+				teacherArray.add(teacher.getDegree());
+				teacherArray.add(teacher.getExperience());
+				
+				jsonObjectOutput.put("teacher", teacherArray);
+			}
+			
 		}
 		
 		
