@@ -53,6 +53,23 @@
                     <input type="text" id="mail" formCheck-email value="" class="form-control">
                 </div>
             </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">隐私保护</label>
+                <div class="col-sm-6">
+                    <label class="radio-inline">
+                        <input type="radio" name="safe" value="0"> 禁止学生查看个人信息
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="safe" value="1"> 允许学生查看个人信息
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">个人经历</label>
+                <div class="col-sm-6">
+                    <textarea class="form-control" rows="4" id="express"></textarea>
+                </div>
+            </div>
             <hr/>
             <div class="form-group">
                 <label class="col-sm-2 control-label">新密码</label>
