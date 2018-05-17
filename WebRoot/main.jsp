@@ -149,7 +149,10 @@
             if(response.status == true) {
                 str = '';
                 for(var i = 0; i < response.data.length; i++) {
-                    str += '<button type="button" class="list-group-item">' + response.data[i][1]+' <span hidden>' + response.data[i][0]+'</span></button>'
+                    if(response.data[i][2])
+                        str += '<button type="button" class="list-group-item">' + response.data[i][1]+' <span hidden>' + response.data[i][0]+'</span></button>'
+                    else
+                        str += '<button disabled type="button" class="list-group-item">' + response.data[i][1]+' <span hidden>' + response.data[i][0]+'</span></button>'
                 }
                 $("#problemList").html(str);
                 currentPage = response.currentPage;
