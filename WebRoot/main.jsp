@@ -20,7 +20,7 @@
     	ProblemDao problemDao = new ProblemDao();
     	Major major = majorDao.queryByMID(student.getMid());
     	// System.out.print(major.getMid());
-    	List<Problem> problemList = problemDao.queryByMid(major.getMid());
+    	long count = problemDao.queryByMIDCount(major.getMid());
     	// System.out.print(problemList.size());
     	Date now = new Date();
     	boolean isSelectTime = now.getTime() >= major.getSelect_start().getTime() &&
@@ -41,7 +41,7 @@
         <h1>毕设选题</h1>
         <hr/>
         <p>时间：<%=df.format(major.getSelect_start()) %> ~ <%=df.format(major.getSelect_end()) %></p>
-        <p>题目数量：<%=problemList.size() %>题</p>
+        <p>题目数量：<%=count %>题</p>
         <hr/>
         <div class="row">
             <div class="col-md-2">
@@ -149,7 +149,10 @@
             if(response.status == true) {
                 str = '';
                 for(var i = 0; i < response.data.length; i++) {
-                    str += '<button type="button" class="list-group-item">' + response.data[i][1]+' <span hidden>' + response.data[i][0]+'</span></button>'
+                    if(response.data[i][2])
+                        str += '<button type="button" class="list-group-item">' + response.data[i][1]+' <span hidden>' + response.data[i][0]+'</span></button>'
+                    else
+                        str += '<button disabled type="button" class="list-group-item">' + response.data[i][1]+' <span hidden>' + response.data[i][0]+'</span></button>'
                 }
                 $("#problemList").html(str);
                 currentPage = response.currentPage;
