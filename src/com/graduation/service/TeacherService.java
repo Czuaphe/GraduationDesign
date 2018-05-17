@@ -934,6 +934,9 @@ public class TeacherService {
 		teacher.setQq(String.valueOf(list.get(3)));
 		teacher.setEmail(String.valueOf(list.get(4)));
 		
+//		teacher.setExperience(String.valueOf(list.get(5)));
+//		teacher.setShow4stu(Integer.parseInt(String.valueOf(list.get(6))));
+		
 		if (list.get(5) != null && list.get(5).equals(list.get(6))) {
 			teacher.setPassword(String.valueOf(list.get(5)));
 		} else {
