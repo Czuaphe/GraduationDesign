@@ -933,22 +933,23 @@ public class TeacherService {
 		teacher.setPhone(String.valueOf(list.get(2)));
 		teacher.setQq(String.valueOf(list.get(3)));
 		teacher.setEmail(String.valueOf(list.get(4)));
+		teacher.setExperience(String.valueOf(list.get(5)));
 		
-//		teacher.setExperience(String.valueOf(list.get(5)));
-//		teacher.setShow4stu(Integer.parseInt(String.valueOf(list.get(6))));
-		
-		if (list.get(5) != null && list.get(5).equals(list.get(6))) {
-			teacher.setPassword(String.valueOf(list.get(5)));
+		if (list.get(6) != null && list.get(6).equals(list.get(7))) {
+			teacher.setPassword(String.valueOf(list.get(6)));
 		} else {
 			teacher.setPassword(null);
 		}
+		
+		teacher.setShow4stu(Integer.parseInt(String.valueOf(list.get(8))));
 		
 		return teacher;
 	}
 	
 	/**
 	 * 
-	 * @param teacher
+	 * @param teacher 教师信息
+	 * @param realname 专业负责人的真实姓名
 	 * @return
 	 */
 	public List<Object> toObjectList(Teacher teacher, String realname) {
