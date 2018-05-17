@@ -875,8 +875,10 @@ public class TeacherService {
 		teacher.setPhone(String.valueOf(list.get(8)));
 		teacher.setEmail(String.valueOf(list.get(9)));
 		teacher.setRemarks(String.valueOf(list.get(10)));
+		teacher.setExperience(String.valueOf(list.get(11)));
+		teacher.setShow4stu(Integer.parseInt(String.valueOf(list.get(12))));
 		// 专业负责人在更新时不能改变
-		teacher.setNumber(Integer.parseInt(String.valueOf(list.get(12))));
+		teacher.setNumber(Integer.parseInt(String.valueOf(list.get(14))));
 		return teacher;
 	}
 	
@@ -965,6 +967,8 @@ public class TeacherService {
 		list.add(teacher.getPhone());
 		list.add(teacher.getEmail());
 		list.add(teacher.getRemarks());
+		list.add(teacher.getExperience());
+		list.add(teacher.getShow4stu());
 		list.add(realname);
 		list.add(teacher.getNumber());
 		return list;
