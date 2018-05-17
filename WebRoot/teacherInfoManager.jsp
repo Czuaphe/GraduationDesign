@@ -34,7 +34,7 @@
             if(response.status == true) {
                 $("#info").html("");
                 $("#teacherInfo").dynamicTables({
-                    'title': ['编号', '账户', '姓名', '性别', '所属专业', '职称', '学位', 'QQ', '联系方式', '电子邮件', '备注', '专业负责人', '出题数量'],
+                    'title': ['编号', '账户', '姓名', '性别', '所属专业', '职称', '学位', 'QQ', '联系方式', '电子邮件', '备注', '个人经历', '隐私保护', '专业负责人', '出题数量'],
                     'data' : response.data,
                     'delsURL': '/GraduationDesign/teacher/dels',
                     'saveURL': '/GraduationDesign/teacher/update',
@@ -81,6 +81,14 @@
                         {"type": "text"},
                         {"type": "text"},
                         {"type": "text"},
+                        {type: 'textarea'},
+                        {
+                            type: 'select',
+                            options: [
+                                ['0', '不允许学生查看'],
+                                ['1', '允许学生查看'],
+                            ]
+                        },
                         {"edit": false},
                         {"type": "text"},
                     ],
