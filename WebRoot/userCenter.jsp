@@ -53,6 +53,7 @@
                     <input type="text" id="mail" formCheck-email value="" class="form-control">
                 </div>
             </div>
+            <% if (act != 1) { %>
             <div class="form-group">
                 <label class="col-sm-2 control-label">个人经历</label>
                 <div class="col-sm-6">
@@ -64,16 +65,17 @@
                 <div class="col-sm-6">
                     <div class="radio">
                         <label>
-                            <input type="radio" name="safe" value="0"> 禁止学生查看个人信息
+                            <input type="radio" name="safe" value="0" id="safe0"> 禁止学生查看个人信息
                         </label>
                     </div>
                     <div class="radio">
                         <label>
-                            <input type="radio" name="safe" value="1"> 允许学生查看个人信息
+                            <input type="radio" name="safe" value="1" id="safe1"> 允许学生查看个人信息
                         </label>
                     </div>
                 </div>
             </div>
+            <% } %>
             <hr/>
             <div class="form-group">
                 <label class="col-sm-2 control-label">新密码</label>
@@ -101,6 +103,11 @@
                 $("#phone").val(response.info[6]);
                 $("#qq").val(response.info[5]);
                 $("#mail").val(response.info[7]);
+
+                <% if (act != 1) { %>
+                $("#express").val(response.info[9]);
+                response.info[10] === 1 ? $("#safe1").prop("checked", true) : $("#safe0").prop("checked", true);
+                <% } %>
             }
         })
 
@@ -119,6 +126,9 @@
                             info.push($(this).val());
                         }
                     })
+                    <% if (act != 1) { %>
+                        info.push($("[name='safe']:checked").val());
+                    <% } %>
                     $.post("/GraduationDesign/<%=user %>/modify", {info:info}, function (response) {
                         if(response.status == true) {
                             alert("更新成功");
